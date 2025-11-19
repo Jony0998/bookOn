@@ -3,6 +3,7 @@ import express from "express";
 import path from "path";
 import session from "express-session";
 import ConnectMongoDB from "connect-mongodb-session";
+import router from "./router";
 
 const MongoDBStore = ConnectMongoDB(session);
 const store = new MongoDBStore({
@@ -26,6 +27,8 @@ app.set("view engine", "ejs");
 
 
 /** 4-ROUTERS **/
+app.use("/", router); // SPA: REACT
+
 
 export default app;
 
