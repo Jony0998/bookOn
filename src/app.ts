@@ -4,6 +4,7 @@ import path from "path";
 import session from "express-session";
 import ConnectMongoDB from "connect-mongodb-session";
 import router from "./router";
+import routerAdmin from "./routerAdmin";
 
 const MongoDBStore = ConnectMongoDB(session);
 const store = new MongoDBStore({
@@ -27,6 +28,7 @@ app.set("view engine", "ejs");
 
 
 /** 4-ROUTERS **/
+app.use("/admin", routerAdmin); // SSR: EJS
 app.use("/", router); // SPA: REACT
 
 
