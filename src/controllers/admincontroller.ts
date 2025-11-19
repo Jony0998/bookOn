@@ -12,7 +12,7 @@ adminController.getAdmin = async (req: Request, res: Response) => {
     console.log("getAdmin");
 
   } catch (err) {
-    console.log("Error getAdmin:", err);
+    console.log("Error, getAdmin:", err);
   }
 };
 
@@ -21,7 +21,7 @@ adminController.getSignup = (req: Request, res: Response) => {
     res.send("signup");
     console.log("getSignup"); // standard
   } catch (err) {
-    console.log("Error getSignup:", err);
+    console.log("Error, getSignup:", err);
   }
 };
 
@@ -30,7 +30,7 @@ adminController.getLogin = (req: Request, res: Response) => {
     console.log("getLogin"); // standars
     res.send("login");
   } catch (err) {
-    console.log("Error getLogin:", err);
+    console.log("Error, getLogin:", err);
   }
 };
 

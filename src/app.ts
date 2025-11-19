@@ -5,6 +5,9 @@ import session from "express-session";
 import ConnectMongoDB from "connect-mongodb-session";
 import router from "./router";
 import routerAdmin from "./routerAdmin";
+import morgan from "morgan";
+import { MORGAN_FORMAT } from "./libs/config";
+
 
 const MongoDBStore = ConnectMongoDB(session);
 const store = new MongoDBStore({
@@ -18,6 +21,8 @@ app.use(express.static(path.join(__dirname, "public"))); // Traditional api
 app.use("/uploads", express.static(path.join(__dirname, '../uploads')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // REST API
+app.use(morgan(MORGAN_FORMAT));
+
 
 /** 2-SESSIONS **/
 
