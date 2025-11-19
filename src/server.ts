@@ -1,7 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
-
 import mongoose from 'mongoose';
+import app from './app'
+
+
 mongoose
 // TCP muntazam database bb aloqa qurish
   .connect(process.env.MONGO_URL as string, {})
@@ -10,9 +12,10 @@ mongoose
     // const PORT = process.env.PORT ?? 3003;
     const PORT = Number(process.env.PORT) || 3003;
 
-    // app.listen(PORT, function () {
-    //   console.info(` The server is running successfully on port : http://localhost:${PORT}/`);
-    //   console.info(`Admin project on http://localhost:${PORT}/admin \n`)
-    // });
+    app.listen(PORT, function () {
+      console.info(` The server is running successfully on port : http://localhost:${PORT}/`);
+      console.info(`Admin project on http://localhost:${PORT}/admin \n`)
+    });
   })
   .catch((err) => console.log("ERROR on connection MongoDD", err));
+
