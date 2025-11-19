@@ -1,7 +1,7 @@
 import express from "express";
 const routerAdmin = express.Router();
 import path from "path";
-import adminController from "./controllers/admin.controller";
+import adminController from "./controllers/admincontroller";
 
 /**  Admin **/
 routerAdmin
