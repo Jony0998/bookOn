@@ -6,13 +6,33 @@ import MemberService from "../models/Member.service";
 const adminController: T = {};
 
 
-adminController.getAdmin = async (req: Request, res: Response) => {
+adminController.goHome = async (req: Request, res: Response) => {
   try {
-    res.send("getAdmin");
-    console.log("getAdmin");
+    res.send("goHome");
+    console.log("Home Page");
 
   } catch (err) {
-    console.log("Error, getAdmin:", err);
+    console.log("Error, goHome:", err);
+  }
+};
+
+
+adminController.getLogin = (req: Request, res: Response) => {
+  try {
+    console.log("getLogin"); // standars
+    res.send("login");
+  } catch (err) {
+    console.log("Error, getLogin:", err);
+  }
+};
+
+adminController.processLogin = (req: Request, res: Response ) => {
+  try {
+    console.log("processLogin");
+    res.send("done");   
+    } catch (err) {
+    console.log("Error processLogin:", err);
+ 
   }
 };
 
@@ -25,13 +45,15 @@ adminController.getSignup = (req: Request, res: Response) => {
   }
 };
 
-adminController.getLogin = (req: Request, res: Response) => {
+adminController.processSignup = (req: Request, res: Response ) => {
   try {
-    console.log("getLogin"); // standars
-    res.send("login");
-  } catch (err) {
-    console.log("Error, getLogin:", err);
+    console.log("processLogin");
+    res.send("done");   
+    } catch (err) {
+    console.log("Error processLogin:", err);
+ 
   }
 };
+
 
 export default adminController;

@@ -4,7 +4,7 @@ import path from "path";
 import session from "express-session";
 import ConnectMongoDB from "connect-mongodb-session";
 import router from "./router";
-import routerAdmin from "./routerAdmin";
+import routerAdmin from "./router-admin";
 import morgan from "morgan";
 import { MORGAN_FORMAT } from "./libs/config";
 
