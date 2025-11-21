@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import  mongoose, { Schema } from "mongoose";
 import { MemberStatus, MemberType } from "../libs/types/enums/member.enum";
 
 // Schema hosil qilishni ikkita usuli mavjud
