@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import MemberService from "../models/Member.service";
 import { AdminRequest, LoginInput, MemberInput } from "../libs/types/member";
 import { MemberType } from "../libs/types/enums/member.enum";
-import { Message } from "../libs/types/Errors";
+import Errors, { Message } from "../libs/types/Errors";
 
 
 const adminController: T = {};
@@ -15,6 +15,7 @@ adminController.goHome = async (req: Request, res: Response) => {
     res.render("home");
   } catch (err) {
     console.log("Error, goHome:", err);
+    res.redirect("/admin");
   }
 };
 
@@ -24,6 +25,7 @@ adminController.getSignup = (req: Request, res: Response) => {
      res.render("signup");
   } catch (err) {
     console.log("Error, getSignup:", err);
+    res.redirect("/admin");
   }
 };
 
@@ -42,7 +44,11 @@ adminController.processSignup = async (req: AdminRequest, res: Response ) => {
  
     } catch (err) {
     console.log("Error processSignup:", err);
-   
+    const message =
+    err instanceof Errors ? err.message : Message.SOMETHING_WENT_WRONG;
+    res.send(
+      `<script> alert("${message}"); window.location.replace('/admin/signup') </script>`
+    );
   }
 };
 
@@ -53,6 +59,7 @@ adminController.getLogin = (req: Request, res: Response) => {
    res.render("login");
   } catch (err) {
     console.log("Error, getLogin:", err);
+      res.redirect("/admin");
   }
 };
 
@@ -70,7 +77,23 @@ adminController.processLogin = async (req: AdminRequest, res: Response ) => {
 
     } catch (err) {
     console.log("Error processLogin:", err);
-    res.send(err);
+    const message =
+    err instanceof Errors ? err.message : Message.SOMETHING_WENT_WRONG;
+    res.send(
+      `<script> alert("${message}"): window.location.replace('/admin/login') </script>`
+    );
+  }
+};
+
+adminController.logout = async (req: AdminRequest, res: Response) => {
+  try {
+    console.log("logout");
+    req.session.destroy(function () {
+      res.redirect("/admin");
+    });
+  } catch (err) {
+    console.log("Error logout:", err);
+    res.redirect("/admin");
   }
 };
 
