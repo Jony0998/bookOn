@@ -10,9 +10,8 @@ const memberService = new MemberService();
 
 adminController.goHome = async (req: Request, res: Response) => {
   try {
-    res.send("goHome");
     console.log("Home Page");
-
+    res.render("home");
   } catch (err) {
     console.log("Error, goHome:", err);
   }
@@ -20,8 +19,8 @@ adminController.goHome = async (req: Request, res: Response) => {
 
 adminController.getSignup = (req: Request, res: Response) => {
   try {
-    res.send("signup");
     console.log("getSignup"); 
+     res.render("signup");
   } catch (err) {
     console.log("Error, getSignup:", err);
   }
@@ -30,7 +29,6 @@ adminController.getSignup = (req: Request, res: Response) => {
 adminController.processSignup = async (req: Request, res: Response ) => {
   try {
     console.log("processSignup");
-    console.log("body:", req.body);
     const newMember: MemberInput = req.body;
     newMember.memberType = MemberType.ADMIN;
     const result = await memberService.processSignup(newMember);
@@ -46,7 +44,7 @@ adminController.processSignup = async (req: Request, res: Response ) => {
 adminController.getLogin = (req: Request, res: Response) => {
   try {
     console.log("getLogin"); 
-    res.send("login");
+   res.render("login");
   } catch (err) {
     console.log("Error, getLogin:", err);
   }
