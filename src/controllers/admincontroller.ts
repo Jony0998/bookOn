@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import MemberService from "../models/Member.service";
 import { AdminRequest, LoginInput, MemberInput } from "../libs/types/member";
 import { MemberType } from "../libs/types/enums/member.enum";
+import { Message } from "../libs/types/Errors";
 
 
 const adminController: T = {};
@@ -70,6 +71,21 @@ adminController.processLogin = async (req: AdminRequest, res: Response ) => {
     } catch (err) {
     console.log("Error processLogin:", err);
     res.send(err);
+  }
+};
+
+adminController.checkAuthSession = async (
+  req: AdminRequest,
+  res: Response
+) => {
+  try {
+    console.log("checkAuthSession");
+    if (req.session?.member)
+    res.send(`<script> alert("${req.session.member.memberNick}") </script>`);
+    else res.send(`<script> alert("${Message.NOT_AUTHENTICATED}") </script>`);
+  } catch (err) {
+    res.send(err);
+    console.log("Error checkAuthSession:", err);
   }
 };
 
