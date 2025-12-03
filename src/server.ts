@@ -1,8 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
-import mongoose from 'mongoose';
-import app from './app'
-
+import app from "./app";
+import mongoose from "mongoose";
 
 mongoose
 // TCP muntazam database bb aloqa qurish
@@ -18,4 +17,3 @@ mongoose
     });
   })
   .catch((err) => console.log("ERROR on connection MongoDD", err));
-

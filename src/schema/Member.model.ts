@@ -1,4 +1,4 @@
-import  mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { MemberStatus, MemberType } from "../libs/types/enums/member.enum";
 
 // Schema hosil qilishni ikkita usuli mavjud
@@ -33,11 +33,11 @@ const memberSchema = new Schema({
 
   memberPassword: {
     type: String,
-    select: false,  // passwordni himoyalash
+    select: false,
     required: true,
   },
 
-  memberAddress: {
+  memberAddreas: {
     type: String,
   },
 
@@ -49,9 +49,13 @@ const memberSchema = new Schema({
     type: String,
   },
 
- 
+  memberPoints: {
+    type: Number,
+    default: 0,
+  },
+
 
 }, {timestamps: true}); //  {timestamps: true} --  bu orqali biz databaseda  createdAt , updatedAt malumotlarini qoyib beradi
 
 
-export default mongoose.model("Member", memberSchema);
+export default mongoose.model("Member", memberSchema)
