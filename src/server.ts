@@ -1,7 +1,19 @@
 import dotenv from "dotenv";
 dotenv.config();
+import fs from "fs";
+import path from "path";
 import app from "./app";
 import mongoose from "mongoose";
+
+// Ensure uploads directories exist (for production deploy)
+const uploadsDir = path.join(process.cwd(), "uploads");
+["", "members", "products"].forEach((sub) => {
+  const dir = path.join(uploadsDir, sub);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log("Created uploads dir:", dir);
+  }
+});
 
 mongoose
 // TCP muntazam database bb aloqa qurish
