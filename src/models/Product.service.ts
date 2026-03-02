@@ -37,8 +37,8 @@ public async getProducts(inquiry: ProductInquiry): Promise<any[]> {
    const result = await this.productModel.aggregate([
      { $match: match },
      { $sort: sort },
-{ $skip: (inquiry.page * 1 - 1 ) * inquiry.limit },    // skip for pagination
-    { $limit: inquiry.limit * 1 },                        // how many records to return
+     { $skip: (inquiry.page * 1 - 1 ) * inquiry.limit },    // skip for pagination
+     { $limit: inquiry.limit * 1 },                        // how many records to return
    ])
      .exec();
 
