@@ -1,143 +1,238 @@
 <%- include('includes/header') %>
 
-<link rel="stylesheet" type="text/css" href="/css/signup.css" />
-
-<body>
-  <div class="signup-container">
-    <form onsubmit="return validateSignupForm()" action="/admin/signup" method="POST" enctype="multipart/form-data">
-      <div class="signup-frame" style="width: 650px">
-        <div class="signup-top">
-          <span>Signup</span>
-          <div>Go back <a href="/admin" style="color: #6440fb">Home</a></div>
-          <p>
-            Already signed up?
-            <a href="/admin/login" style="color: #6440fb">Login</a>
-          </p>
-        </div>
-
-        <div class="sign-input-frame" style="justify-content: space-between">
-          <div class="sign-up-frame">
-            <label>Restaurant *</label>
-            <input
-              type="text"
-              name="memberNick"
-              class="member-nick"
-              placeholder="Username"
-              value=""
-            />
+<body class="app-bg">
+  <div class="auth-page-modern">
+    <div class="auth-container">
+      <!-- Left Side - Branding -->
+      <div class="auth-branding">
+        <div class="branding-content">
+          <div class="brand-logo">
+            <i class="bi bi-book"></i>
           </div>
-          <div class="sign-up-frame">
-            <label>Phone *</label>
-            <input
-              type="text"
-              name="memberPhone"
-              class="member-phone"
-              placeholder="Phone"
-              value=""
-            />
-          </div>
-        </div>
-        <div class="sign-input-frame" style="justify-content: space-between">
-          <div class="sign-up-frame">
-            <label>Password *</label>
-            <input
-              type="password"
-              name="memberPassword"
-              class="member-password"
-              placeholder="Password"
-              value=""
-            />
-          </div>
-          <div class="sign-up-frame">
-            <label>Repeat password *</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              class="confirm-password"
-              placeholder="Repeat password"
-              value=""
-            />
-          </div>
-        </div>
-
-        <div class="signup-input-frame">
-          <div class="media-frame">
-            <img class="upload-img-frame" src="/img/default.jpeg" />
-            <div class="upload-container">
-              <span class="media-text">Product image</span>
-              <div
-                class="file-box bs3-primary preview-image"
-                style="margin-top: 25px; display: flex"
-              >
-                <input
-                  class="upload-name"
-                  value="Choose image"
-                  disabled="disabled"
-                />
-                <label for="input-file" class="file-input-label"
-                  >Upload Image</label
-                >
-                <input
-                  type="file"
-                  id="input-file"
-                  class="upload-hidden form-control-file member-image"
-                  name="memberImage"
-                />
-              </div>
-              <p class="thumbnail-desc">
-                Please upload restaurant image.<br />
-                Attention only:.jpg, .jpeg, or .png. <br />
-                formats allowed!
-              </p>
+          <h1 class="brand-title">BOOKON</h1>
+          <p class="brand-subtitle">Library Management System</p>
+          <div class="brand-features">
+            <div class="feature-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Manage your library</span>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Track books & users</span>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Easy administration</span>
             </div>
           </div>
         </div>
-
-        <input name="memberType" value="RESTAURANT" hidden />
-
-        <button class="signup-btn btn" name="signup" type="submit">
-          Signup
-        </button>
       </div>
-    </form>
+
+      <!-- Right Side - Signup Form -->
+      <div class="auth-form-wrapper">
+        <div class="auth-form-card">
+          <div class="auth-header">
+            <h2 class="auth-title">Create Account</h2>
+            <p class="auth-subtitle">Register your library and start managing books</p>
+          </div>
+
+          <form onsubmit="return validateSignupForm()" action="/admin/signup" method="POST" enctype="multipart/form-data" class="auth-form">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-group-modern">
+                  <label for="memberNick" class="form-label-modern">
+                    <i class="bi bi-person-circle"></i> Username
+                  </label>
+                  <div class="input-wrapper">
+                    <i class="bi bi-person input-icon"></i>
+                    <input
+                      type="text"
+                      class="form-control-modern"
+                      id="memberNick"
+                      name="memberNick"
+                      placeholder="Enter username"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group-modern">
+                  <label for="memberPhone" class="form-label-modern">
+                    <i class="bi bi-telephone"></i> Phone
+                  </label>
+                  <div class="input-wrapper">
+                    <i class="bi bi-telephone-fill input-icon"></i>
+                    <input
+                      type="text"
+                      class="form-control-modern"
+                      id="memberPhone"
+                      name="memberPhone"
+                      placeholder="Enter phone number"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-group-modern">
+                  <label for="memberPassword" class="form-label-modern">
+                    <i class="bi bi-lock"></i> Password
+                  </label>
+                  <div class="input-wrapper">
+                    <i class="bi bi-lock-fill input-icon"></i>
+                    <input
+                      type="password"
+                      class="form-control-modern"
+                      id="memberPassword"
+                      name="memberPassword"
+                      placeholder="Create password"
+                      required
+                    />
+                    <button type="button" class="password-toggle" onclick="togglePassword('memberPassword')">
+                      <i class="bi bi-eye" id="toggle-icon-memberPassword"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group-modern">
+                  <label for="confirmPassword" class="form-label-modern">
+                    <i class="bi bi-lock"></i> Confirm Password
+                  </label>
+                  <div class="input-wrapper">
+                    <i class="bi bi-lock-fill input-icon"></i>
+                    <input
+                      type="password"
+                      class="form-control-modern"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      placeholder="Confirm password"
+                      required
+                    />
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                      <i class="bi bi-eye" id="toggle-icon-confirmPassword"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group-modern">
+              <label class="form-label-modern">
+                <i class="bi bi-image"></i> Library Image
+              </label>
+              <div class="image-upload-modern">
+                <div class="image-preview-wrapper">
+                  <img id="preview-image" src="/img/library.jpg" alt="Library Preview" class="image-preview">
+                  <div class="image-overlay">
+                    <i class="bi bi-camera-fill"></i>
+                    <span>Click to upload</span>
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  id="input-file"
+                  class="d-none"
+                  name="memberImage"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onchange="previewImage(this)"
+                  required
+                />
+                <label for="input-file" class="upload-label">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                  <span>Choose Image</span>
+                </label>
+                <small class="upload-hint">
+                  <i class="bi bi-info-circle"></i>
+                  Only .jpg, .jpeg, or .png formats allowed (Max 5MB)
+                </small>
+              </div>
+            </div>
+
+            <input name="memberType" value="LIBRARY" type="hidden" />
+
+            <button type="submit" name="signup" class="btn-auth-primary">
+              <span>Create Account</span>
+              <i class="bi bi-arrow-right"></i>
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <p class="auth-footer-text">
+              Already have an account?
+              <a href="/admin/login" class="auth-link">Sign In</a>
+            </p>
+            <a href="/admin" class="auth-link-secondary">
+              <i class="bi bi-arrow-left"></i> Back to Home
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <script>
+    function previewImage(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('preview-image');
+          preview.src = e.target.result;
+          preview.parentElement.classList.add('has-image');
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById('toggle-icon-' + inputId);
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      }
+    }
+
+    function validateSignupForm() {
+      const memberNick = document.getElementById('memberNick').value;
+      const memberPhone = document.getElementById('memberPhone').value;
+      const memberPassword = document.getElementById('memberPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (!memberNick || !memberPhone || !memberPassword || !confirmPassword) {
+        alert("Please fill in all required fields!");
+        return false;
+      }
+
+      if (memberPassword !== confirmPassword) {
+        alert("Passwords do not match. Please check and try again!");
+        return false;
+      }
+
+      if (memberPassword.length < 6) {
+        alert("Password must be at least 6 characters long!");
+        return false;
+      }
+
+      return true;
+    }
+
+    // Click on image preview to trigger file input
+    document.getElementById('preview-image').parentElement.addEventListener('click', function() {
+      document.getElementById('input-file').click();
+    });
+  </script>
   <script type="text/javascript" src="/js/signup.js"></script>
-
-
-  <!-- <script>
- 
-  </script> -->
-
-  <!-- <script>
-    $(function () {});
-    console.log("zzz")
-
-function validateSignupForm() {
-  const memberNick = $(".member-nick").val();
-  const memberPhone = $(".member-phone").val();
-  const memberPassword = $(".member-password").val();
-  const confirmPassword = $(".confirm-password").val();
-
-  if (
-    memberNick === "" ||
-    memberPhone === "" ||
-    memberPassword === "" ||
-    confirmPassword === ""
-  ) {
-    alert("Please insert all required inputs!");
-    return false;
-  }
-
-
-  if(memberPassword !== confirmPassword){
-    alert("Password differs , please check!");
-    return false
-  }
-}
-  </script> -->
-
 </body>
-
 
 <%- include('includes/footer') %>

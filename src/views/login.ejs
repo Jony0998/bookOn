@@ -1,45 +1,115 @@
 <%- include('includes/header') %>
 
-<link rel="stylesheet" type="text/css" href="/css/login.css" />
+<body class="app-bg">
+  <div class="auth-page-modern">
+    <div class="auth-container">
+      <!-- Left Side - Branding -->
+      <div class="auth-branding">
+        <div class="branding-content">
+          <div class="brand-logo">
+            <i class="bi bi-book"></i>
+          </div>
+          <h1 class="brand-title">BOOKON</h1>
+          <p class="brand-subtitle">Library Management System</p>
+          <div class="brand-features">
+            <div class="feature-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Manage your library</span>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Track books & users</span>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Easy administration</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<body>
-  <form class="login-container" action="/admin/login" METHOD="POST">
-    <div class="login-frame">
-      <div class="login-top">
-        <span>Enter</span>
-        <div>Go back <a href="/admin" style="color: #6440fb">Home</a></div>
-        <p>
-          Not registered yet?
-          <a href="/admin/signup" style="color: #6440fb">Signup</a>
-        </p>
-      </div>
-      <div class="login-input-frame">
-        <div class="login-input-container">
-          <label>Restaurant *</label>
-          <input
-            type="text"
-            name="memberNick"
-            class="member-nick"
-            placeholder="Username"
-            value=""
-            required
-          />
+      <!-- Right Side - Login Form -->
+      <div class="auth-form-wrapper">
+        <div class="auth-form-card">
+          <div class="auth-header">
+            <h2 class="auth-title">Welcome Back</h2>
+            <p class="auth-subtitle">Sign in to access your library dashboard</p>
+          </div>
+
+          <form action="/admin/login" method="POST" class="auth-form">
+            <div class="form-group-modern">
+              <label for="memberNick" class="form-label-modern">
+                <i class="bi bi-person-circle"></i> Username
+              </label>
+              <div class="input-wrapper">
+                <i class="bi bi-person input-icon"></i>
+                <input
+                  type="text"
+                  class="form-control-modern"
+                  id="memberNick"
+                  name="memberNick"
+                  placeholder="Enter your username"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-group-modern">
+              <label for="memberPassword" class="form-label-modern">
+                <i class="bi bi-lock"></i> Password
+              </label>
+              <div class="input-wrapper">
+                <i class="bi bi-lock-fill input-icon"></i>
+                <input
+                  type="password"
+                  class="form-control-modern"
+                  id="memberPassword"
+                  name="memberPassword"
+                  placeholder="Enter your password"
+                  required
+                />
+                <button type="button" class="password-toggle" onclick="togglePassword('memberPassword')">
+                  <i class="bi bi-eye" id="toggle-icon-memberPassword"></i>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" name="login" class="btn-auth-primary">
+              <span>Sign In</span>
+              <i class="bi bi-arrow-right"></i>
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <p class="auth-footer-text">
+              Don't have an account?
+              <a href="/admin/signup" class="auth-link">Create Account</a>
+            </p>
+            <a href="/admin" class="auth-link-secondary">
+              <i class="bi bi-arrow-left"></i> Back to Home
+            </a>
+          </div>
         </div>
-        <div class="login-input-container">
-          <label>Password *</label>
-          <input
-            type="password"
-            name="memberPassword"
-            class="member-password"
-            placeholder="Password"
-            value=""
-            required
-          />
-        </div>
       </div>
-      <button class="login-btn btn" name="login" type="submit">Login</button>
     </div>
-  </form>
+  </div>
+
+  <script>
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById('toggle-icon-' + inputId);
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      }
+    }
+  </script>
 </body>
 
 <%- include('includes/footer') %>
