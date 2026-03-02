@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import {
   ProductCollection,
   ProductSize,
-  ProductVolume,
+  ProductWeight,
 } from "../libs/types/enums/product.enum";
 import { ProductStatus } from "../libs/types/enums/product.enum";
 
@@ -37,13 +37,13 @@ const productSchema = new Schema(
     productSize: {
       type: String,
       enum: ProductSize,
-      default: ProductSize.NORMAL,
+      default: ProductSize.MEDIUM,
     },
 
     productVolume: {
-      type: Number,
-      enum: ProductVolume,
-      default: ProductVolume.ONE,
+      type: String,
+      enum: ProductWeight,
+      default: ProductWeight.MEDIUM,
     },
 
     productDesc: {

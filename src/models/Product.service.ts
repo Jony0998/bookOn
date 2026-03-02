@@ -1,35 +1,115 @@
 import Errors, { HttpCode, Message } from "../libs/types/Errors";
-
 import ProductModel from "../schema/Product.model";
 import { T } from "../libs/types/common";
 import { ObjectId } from "mongoose";
-import { shapeIntoMongooseObjectId } from "../libs/config";
-import { Product, ProductInput } from "../libs/types/product";
+import { Product, ProductInput, ProductInquiry, ProductUpdateInput } from "../libs/types/product";
+import ViewService from "./View.service";
+import { ProductStatus } from "../libs/types/enums/product.enum";
+import { shapeIntoMongooseObjectId } from "../libs/types/config";
+import { ViewInput } from "../libs/types/view";
+import { ViewGroup } from "../libs/types/enums/view.enum";
 
 class ProductService {
   private readonly productModel;
+  public viewService;
 
   constructor() {
     this.productModel = ProductModel;
+    this.viewService = new ViewService();
 
   }
+  /** SPA */
+
+public async getProducts(inquiry: ProductInquiry): Promise<any[]> {
+  
+  const match: T = {productStatus: ProductStatus.PROCESS};
+
+  if(inquiry.productCollection) 
+    match.productCollection = inquiry.productCollection;
+  if(inquiry.search) {
+    match.productName = { $regex: new RegExp(inquiry.search, "i") };
+  }
+
+  const sort: T = inquiry.order === "productPrice" 
+   ? { [inquiry.order]: 1 }    // arzondan qimmatga
+   : { [inquiry.order]: -1 };
+
+   const result = await this.productModel.aggregate([
+     { $match: match },
+     { $sort: sort },
+     { $skip: (inquiry.page * 1 - 1 ) * inquiry.limit },    // nechtadir malumotni o'tqizish/ignore
+     { $limit: inquiry.limit * 1 },                        // nechta ma'lumot kerak
+   ])
+     .exec();
+
+     if(!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+
+  return result;
+}
 
 
-/** SSR */
+public async getProduct(
+  memberId: ObjectId | null, 
+  id: string
+): Promise<any> {
+    const productId = shapeIntoMongooseObjectId(id);
+    
+    let result = await this.productModel
+    .findOne({
+      _id: productId, 
+      productStatus: ProductStatus.PROCESS,
+    })
+      .exec();
+   if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+ 
+          if (memberId) {
+            // Check Existence
+       const input: ViewInput = {
+       memberId: memberId,
+       viewRefId: productId,
+       viewGroup: ViewGroup.PRODUCT,
+       };        
+       const existView = await this.viewService.checkViewExistence(input);
 
-  public async getAllProducts(): Promise<Product[]> {
+        console.log("exist:", !!existView );
+          if (!existView) {
+              // Insert View  
+            console.log("PLANNING TO INSERT NEW VIEW");
+            await this.viewService.insertMemberView(input);
+
+            // Increase Counts
+            result = await this.productModel
+            .findByIdAndUpdate(
+               productId,
+               { $inc: { productViews: 1 } },
+               { new: true },
+            )
+            .exec();
+
+          }
+
+          }
+
+          return result;
+}
+
+
+  /** SSR */
+
+  public async getAllProducts(): Promise<any[]> {
     // string => objectId
-    const result = await this.productModel.find().lean<Product[]>().exec();
+    const result = await this.productModel.find().exec();
 
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
     return result;
   }
 
-  public async createNewProduct(input: ProductInput): Promise<Product[]> {
+  public async createNewProduct(input: ProductInput): Promise<any> {
     try {
     console.log("passed here1")
 
       return await this.productModel.create(input);
+
 
     } catch (err) {
       console.log("passed here error")
@@ -39,6 +119,19 @@ class ProductService {
     }
   }
 
+  public async updateChosenProduct(
+    id: string,
+    input: ProductUpdateInput
+  ): Promise<any> {
+    // string => objectId
+    id = shapeIntoMongooseObjectId(id);
+    const result = await this.productModel
+      .findOneAndUpdate({ _id: id }, input, { new: true })
+      .exec();
+
+    if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
+    return result;
+  }
 }
 
 export default ProductService;

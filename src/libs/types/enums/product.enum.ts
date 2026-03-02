@@ -1,17 +1,14 @@
 export enum ProductSize {
-    SMALL ="SMALL",
-    NORMAL = "NORMAL",
+    SMALL = "SMALL",
+    MEDIUM = "MEDIUM",
     LARGE = "LARGE",
-    SET = "SET",
+    EXTRA_LARGE = "EXTRA_LARGE",
 }
 
-export enum ProductVolume {
-    HALF = 0.5,
-    ONE = 1,
-    ONE_POINT_TWO = 1.2,
-    ONE_POINT_FIVE = 1.5,
-    TWO = 2,
-
+export enum ProductWeight {
+    LIGHT = "LIGHT",
+    MEDIUM = "MEDIUM",
+    HEAVY = "HEAVY",
 }
 
 export enum ProductStatus {
@@ -21,10 +18,15 @@ export enum ProductStatus {
 }
 
 export enum ProductCollection {
-    DISH = "DISH",
-    SALAD = "SALAD",
-    DESSERT = "DESSERT",
-    DRINK = "DRINK",
+    FICTION = "FICTION",
+    NON_FICTION = "NON_FICTION",
+    SCIENCE = "SCIENCE",
+    HISTORY = "HISTORY",
+    BIOGRAPHY = "BIOGRAPHY",
+    CHILDREN = "CHILDREN",
+    TEXTBOOK = "TEXTBOOK",
+    REFERENCE = "REFERENCE",
+    RELIGION = "RELIGION",
     OTHER = "OTHER",
 }
 
