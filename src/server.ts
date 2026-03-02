@@ -16,7 +16,7 @@ const uploadsDir = path.join(process.cwd(), "uploads");
 });
 
 mongoose
-// TCP muntazam database bb aloqa qurish
+  // Establish TCP connection to MongoDB
   .connect(process.env.MONGO_URL as string, {})
   .then((data) => {
     console.log("MongoDB connection succeed");
@@ -28,4 +28,4 @@ mongoose
       console.info(`Admin project on http://localhost:${PORT}/admin \n`)
     });
   })
-  .catch((err) => console.log("ERROR on connection MongoDD", err));
+  .catch((err) => console.log("ERROR on connection MongoDB", err));

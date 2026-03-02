@@ -1,5 +1,4 @@
-// Controller'lar doim objectlar orqali hosil qilinadi
-// import qilishimiz kerak libs ichidagi common.tsni
+// Controllers are implemented as objects; import common types from libs.
 import { NextFunction, Request, Response } from "express";
 import { T } from "../libs/types/common";
 import MemberService from "../models/Member.service";
@@ -11,7 +10,7 @@ const memberService = new MemberService();
 const libraryController: T = {};
 libraryController.goHome = (req: Request, res: Response) => {
   try {
-    console.log("goHome"); // standard
+    console.log("goHome");
     res.render("home");
     // send | json | redirect | end | render
   } catch (err) {
@@ -23,7 +22,7 @@ libraryController.goHome = (req: Request, res: Response) => {
 libraryController.getSignup = (req: Request, res: Response) => {
   try {
     res.render("signup");
-    console.log("getSignup"); // standard
+    console.log("getSignup");
   } catch (err) {
     console.log("Error getSignup:", err);
   }
@@ -31,7 +30,7 @@ libraryController.getSignup = (req: Request, res: Response) => {
 
 libraryController.getLogin = (req: Request, res: Response) => {
   try {
-    console.log("getLogin"); // standars
+    console.log("getLogin");
     res.render("login");
   } catch (err) {
     console.log("Error getLogin:", err);
@@ -110,7 +109,7 @@ libraryController.logout = async (req: AdminRequest, res: Response) => {
 
 libraryController.getUsers = async (req: Request, res: Response) => {
   try {
-    console.log("getUsers"); // standars
+    console.log("getUsers");
     const result = await memberService.getUsers();
 
     console.log("result:::", result);
@@ -124,7 +123,7 @@ libraryController.getUsers = async (req: Request, res: Response) => {
 
 libraryController.updateChosenUser = async (req: Request, res: Response) => {
   try {
-    console.log("updateChosenUser"); // standars
+    console.log("updateChosenUser");
     const result = await memberService.updateChosenUser(req.body);
 
     res.status(HttpCode.OK).json({ data: result });

@@ -11,6 +11,8 @@ import session from "express-session";
 import ConnectMongoDB from "connect-mongodb-session";
 import { T } from "./libs/types/common";
 import cookieParser from "cookie-parser";
+import http from "http";
+import { Server as SocketIOServer, Socket } from "socket.io";
 
 const MongoDBStore = ConnectMongoDB(session);
 const store = new MongoDBStore({
@@ -18,19 +20,23 @@ const store = new MongoDBStore({
   collection: "sessions",
 }); 
 
-/** 1-ENTERANCE **/
+/** 1-ENTRANCE **/
 const app = express();
-app.use(express.static(path.join(__dirname, "public"))); // Traditional api
-app.use("/uploads", express.static(path.join(__dirname, '../uploads')));
-// app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+const isProduction = process.env.NODE_ENV === "production";
+app.use(
+  express.static(path.join(__dirname, "public"), {
+    maxAge: isProduction ? "1d" : 0,
+  })
+);
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // REST API
 app.use(
   cors({
-     credentials: true,
-      origin: true,
-     })
-    );
+    credentials: true,
+    origin: process.env.FRONTEND_URL || true, // e.g. https://your-app.vercel.app or true (allow all)
+  })
+);
 app.use(cookieParser());
 app.use(morgan(MORGAN_FORMAT));
 /** 2-SESSIONS **/
@@ -60,4 +66,27 @@ app.set("view engine", "ejs");
 app.use("/admin", routerAdmin); // SSR: EJS
 app.use("/", router); // SPA: REACT
 
-export default app;
+const server = http.createServer(app);
+const io = new SocketIOServer(server,{
+  cors: {
+    origin: process.env.FRONTEND_URL || true,
+    credentials: true,
+  },
+});
+
+let summaryClients = 0;
+io.on("connection", (socket: Socket) => {
+  summaryClients++;
+  console.log(`${summaryClients} Connection & total`);
+
+  socket.on("disconnect", () => {
+    summaryClients--;
+    console.log(`${summaryClients} Disconnection & total`);
+  });
+});
+
+server.listen(3003, () => {
+  console.log("server is running on port 3003");
+});
+
+export default server;

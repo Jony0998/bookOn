@@ -1,5 +1,4 @@
-// Controller'lar doim objectlar orqali hosil qilinadi
-// import qilishimiz kerak libs ichidagi common.tsni
+// Controllers are implemented as objects; import common types from libs.
 import { NextFunction, Request, Response } from "express";
 import { T } from "../libs/types/common";
 import MemberService from "../models/Member.service";

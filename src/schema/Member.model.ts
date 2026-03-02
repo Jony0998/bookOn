@@ -1,10 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 import { MemberStatus, MemberType } from "../libs/types/enums/member.enum";
 
-// Schema hosil qilishni ikkita usuli mavjud
-// 1. Schema first & 2. Code first
-// biz burak applicationimizdda 1. Schema first
-// usulidan foydalanamiz
+// Two approaches to defining a schema: 1. Schema first, 2. Code first.
+// This app uses the schema-first approach.
 
 const memberSchema = new Schema({
   memberType: {
