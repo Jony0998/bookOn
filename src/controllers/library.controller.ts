@@ -8,8 +8,8 @@ import { MemberType } from "../libs/types/enums/member.enum";
 import Errors, { HttpCode, Message } from "../libs/types/Errors";
 const memberService = new MemberService();
 
-const restaurantController: T = {};
-restaurantController.goHome = (req: Request, res: Response) => {
+const libraryController: T = {};
+libraryController.goHome = (req: Request, res: Response) => {
   try {
     console.log("goHome"); // standard
     res.render("home");
@@ -20,7 +20,7 @@ restaurantController.goHome = (req: Request, res: Response) => {
   }
 };
 
-restaurantController.getSignup = (req: Request, res: Response) => {
+libraryController.getSignup = (req: Request, res: Response) => {
   try {
     res.render("signup");
     console.log("getSignup"); // standard
@@ -29,7 +29,7 @@ restaurantController.getSignup = (req: Request, res: Response) => {
   }
 };
 
-restaurantController.getLogin = (req: Request, res: Response) => {
+libraryController.getLogin = (req: Request, res: Response) => {
   try {
     console.log("getLogin"); // standars
     res.render("login");
@@ -39,7 +39,7 @@ restaurantController.getLogin = (req: Request, res: Response) => {
   }
 };
 
-restaurantController.processSignup = async (
+libraryController.processSignup = async (
   req: AdminRequest,
   res: Response
 ) => {
@@ -52,7 +52,7 @@ restaurantController.processSignup = async (
 
     const newMember: MemberInput = req.body;
     newMember.memberImage = file?.path;
-    newMember.memberType = MemberType.RESTAURANT;
+    newMember.memberType = MemberType.LIBRARY;
     const result = await memberService.processSignup(newMember);
 
     req.session.member = result;
@@ -69,7 +69,7 @@ restaurantController.processSignup = async (
   }
 };
 
-restaurantController.processLogin = async (
+libraryController.processLogin = async (
   req: AdminRequest,
   res: Response
 ) => {
@@ -96,7 +96,7 @@ restaurantController.processLogin = async (
 
 // logout
 
-restaurantController.logout = async (req: AdminRequest, res: Response) => {
+libraryController.logout = async (req: AdminRequest, res: Response) => {
   try {
     console.log("logout");
     req.session.destroy(function () {
@@ -108,7 +108,7 @@ restaurantController.logout = async (req: AdminRequest, res: Response) => {
   }
 };
 
-restaurantController.getUsers = async (req: Request, res: Response) => {
+libraryController.getUsers = async (req: Request, res: Response) => {
   try {
     console.log("getUsers"); // standars
     const result = await memberService.getUsers();
@@ -122,7 +122,7 @@ restaurantController.getUsers = async (req: Request, res: Response) => {
   }
 };
 
-restaurantController.updateChosenUser = async (req: Request, res: Response) => {
+libraryController.updateChosenUser = async (req: Request, res: Response) => {
   try {
     console.log("updateChosenUser"); // standars
     const result = await memberService.updateChosenUser(req.body);
@@ -135,7 +135,7 @@ restaurantController.updateChosenUser = async (req: Request, res: Response) => {
   }
 };
 
-restaurantController.checkAuthSession = async (
+libraryController.checkAuthSession = async (
   req: AdminRequest,
   res: Response
 ) => {
@@ -150,12 +150,12 @@ restaurantController.checkAuthSession = async (
   }
 };
 
-restaurantController.verifyRestaurant = (
+libraryController.verifyLibrary = (
   req: AdminRequest,
   res: Response,
   next: NextFunction
 ) => {
-  if (req.session?.member?.memberType === MemberType.RESTAURANT) {
+  if (req.session?.member?.memberType === MemberType.LIBRARY) {
     req.member = req.session.member;
     // console.log("req.session: ", req.session.member);
     next();
@@ -167,4 +167,4 @@ restaurantController.verifyRestaurant = (
   }
 };
 
-export default restaurantController;
+export default libraryController;

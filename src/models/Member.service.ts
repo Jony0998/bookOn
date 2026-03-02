@@ -22,9 +22,9 @@ class MemberService {
 
   /*********************** SPA ***************************/
 
-  public async getRestaurant(): Promise<any> {
+  public async getLibrary(): Promise<any> {
     const result = await this.memberModel
-      .findOne({ memberType: MemberType.RESTAURANT })
+      .findOne({ memberType: MemberType.LIBRARY })
       .lean()
       .exec();
      // result.target = "test";
@@ -146,9 +146,9 @@ class MemberService {
 
          /****************** SSR *******************/
 
-  public async processSignup(input: MemberInput): Promise<any> {
+  public async processSignup(input: MemberInput): Promise<Member> {
     const exist = await this.memberModel
-      .findOne({ memberType: MemberType.RESTAURANT })
+      .findOne({ memberType: MemberType.LIBRARY })
       .exec();
     if (exist) throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
 

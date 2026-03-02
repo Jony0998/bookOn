@@ -4,7 +4,7 @@ import { Member } from "../libs/types/member";
 import { Order, OrderInquiry, OrderItemInput, OrderUpdateInput } from "../libs/types/order";
 import { shapeIntoMongooseObjectId } from "../libs/types/config";
 import Errors, { HttpCode, Message } from "../libs/types/Errors";
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 import { OrderStatus } from "../libs/types/enums/order.enum";
 import MemberService from "./Member.service";
 
@@ -21,10 +21,10 @@ constructor() {
     this.memberService = new MemberService();
   }
 
-public async createOrder(
+  public async createOrder(
     member: Member, 
     input: OrderItemInput[]
-  ): Promise<Order> {
+  ): Promise<any> {
    const memberId = shapeIntoMongooseObjectId(member._id);
    const amount = input.reduce((accumulator: number, item: OrderItemInput) => {
      return accumulator + item.itemPrice * item.itemQuantity;
@@ -34,7 +34,7 @@ public async createOrder(
 
 
 try {
-    const newOrder: Order = await this.orderModel.create({
+    const newOrder = await this.orderModel.create({
         orderTotal: amount + delivery,
         orderDelivery: delivery,
         memberId: memberId,
@@ -55,7 +55,7 @@ try {
 
 
 private async recordOrderItem(
-    orderId: ObjectId, 
+    orderId: Types.ObjectId, 
     input: OrderItemInput[]
  ): Promise<void> {
   const promisedList = input.map( async (item: OrderItemInput) => {
@@ -74,7 +74,7 @@ private async recordOrderItem(
   public async getMyOrders(
     member: Member,
     inquiry: OrderInquiry
- ): Promise<Order[]> {
+ ): Promise<any[]> {
     const memberId = shapeIntoMongooseObjectId(member._id);
      const matches = {
          memberId: memberId,
@@ -115,10 +115,10 @@ private async recordOrderItem(
      return result;
 }
 
-public async updateOrder(
+  public async updateOrder(
     member: Member,
     input: OrderUpdateInput
-  ): Promise<Order> {
+  ): Promise<any> {
     const memberId = shapeIntoMongooseObjectId(member._id),
      orderId = shapeIntoMongooseObjectId(input.orderId),
      orderStatus = input.orderStatus;

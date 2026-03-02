@@ -4,7 +4,7 @@ import { OrderStatus } from "./enums/order.enum";
 import { Product } from "./product";
 
 export interface OrderItem {
-    _id: ObjectId;
+    _id: any;
     itemQuantity: number;
     itemPrice: number;
     orderId: ObjectId;
@@ -14,7 +14,7 @@ export interface OrderItem {
 }
 
 export interface Order {
-    _id: ObjectId;
+    _id: any;
     orderTotal: number;
     orderDelivery: number;
     orderStatus: OrderStatus;
@@ -22,15 +22,15 @@ export interface Order {
     createdAt: Date;
     updatedAt: Date;
     /** from aggregation */
-    orderItems: OrderItem[];
-    productData: Product[];
+    orderItems?: OrderItem[];
+    productData?: Product[];
 }
 
 export interface OrderItemInput {
     itemQuantity: number;
     itemPrice: number;
     productId: ObjectId;
-    orderId: ObjectId;
+    orderId: any;
 }
 
 export interface OrderInquiry {
