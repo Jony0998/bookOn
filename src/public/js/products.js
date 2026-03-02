@@ -1,26 +1,68 @@
 console.log("Products frontend javascript file");
 
 $(function () {
-  $(".product-collection").on("change", () => {
-    const selectedValue = $(".product-collection").val();
-    if (selectedValue === "DRINK") {
-      $("#product-collection").hide();
-      $("#product-volume").show();
+  // Book categories don't need conditional display logic anymore
+  // Both size and weight fields are always visible for books
+
+  // Search and Filter functionality
+  function filterProducts() {
+    const searchTerm = $("#search-input").val().toLowerCase();
+    const statusFilter = $("#status-filter").val();
+    const typeFilter = $("#type-filter").val();
+    
+    let visibleCount = 0;
+    
+    $(".product-row").each(function() {
+      const name = $(this).data("name");
+      const status = $(this).data("status");
+      const type = $(this).data("type");
+      
+      const matchesSearch = name.includes(searchTerm);
+      const matchesStatus = !statusFilter || status === statusFilter;
+      const matchesType = !typeFilter || type === typeFilter;
+      
+      if (matchesSearch && matchesStatus && matchesType) {
+        $(this).show();
+        visibleCount++;
+      } else {
+        $(this).hide();
+      }
+    });
+    
+    // Show/hide no results message
+    if (visibleCount === 0) {
+      $("#no-results").show();
     } else {
-      $("#product-volume").hide();
-      $("#product-collection").show();
+      $("#no-results").hide();
     }
+    
+    // Update row numbers
+    let index = 1;
+    $(".product-row:visible").each(function() {
+      $(this).find("td:first").text(index++);
+    });
+  }
+  
+  $("#search-input").on("keyup", filterProducts);
+  $("#status-filter").on("change", filterProducts);
+  $("#type-filter").on("change", filterProducts);
+  
+  $("#clear-filters").on("click", function() {
+    $("#search-input").val("");
+    $("#status-filter").val("");
+    $("#type-filter").val("");
+    filterProducts();
   });
 });
 
 $("#process-btn").on("click", () => {
-  $(".dish-container").slideToggle(500);
-  $("#process-btn").css("display", "none");
+  $("#product-form-card").slideToggle(500);
+  $("#process-btn").hide();
 });
 
-$("#cancel-btn").on("click", () => {
-  $(".dish-container").slideToggle(400);
-  $("#process-btn").css("display", "flex");
+$("#cancel-btn, #cancel-btn-footer").on("click", () => {
+  $("#product-form-card").slideToggle(400);
+  $("#process-btn").show();
 });
 
 $(".new-product-status").on("change", async function (e) {
