@@ -147,10 +147,12 @@ class MemberService {
          /****************** SSR *******************/
 
   public async processSignup(input: MemberInput): Promise<Member> {
-    const exist = await this.memberModel
+    const existingLibrary = await this.memberModel
       .findOne({ memberType: MemberType.LIBRARY })
       .exec();
-    if (exist) throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
+    if (existingLibrary) {
+      throw new Errors(HttpCode.BAD_REQUEST, Message.LIBRARY_ALREADY_EXISTS);
+    }
 
     const salt = await bcrypt.genSalt();
     input.memberPassword = await bcrypt.hash(input.memberPassword, salt);
@@ -159,7 +161,8 @@ class MemberService {
       const result = await this.memberModel.create(input);
       result.memberPassword = "";
       return result;
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.code === 11000) throw new Errors(HttpCode.BAD_REQUEST, Message.USED_NICK_PHONE);
       throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
     }
   }

@@ -13,6 +13,7 @@ export enum Message {
   SOMETHING_WENT_WRONG = "Something went wrong!",
   NO_DATA_FOUND = "No data is found!",
   CREATE_FAILED = "Create is failed!",
+  LIBRARY_ALREADY_EXISTS = "Only one library is allowed. A library is already registered.",
   UPDATE_FAILED = "Update is  failed",
   BLOCKED_USER = "You have been blocked! Please contact the library.",
   NO_MEMBER_NICK = "No Member with that member Nick!",

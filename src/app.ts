@@ -85,8 +85,5 @@ io.on("connection", (socket: Socket) => {
   });
 });
 
-server.listen(3003, () => {
-  console.log("server is running on port 3003");
-});
-
+// Listen is called in server.ts after MongoDB connects
 export default server;

@@ -1,8 +1,11 @@
 import dotenv from "dotenv";
-dotenv.config();
-import fs from "fs";
 import path from "path";
-import app from "./app";
+
+dotenv.config({
+  path: path.join(process.cwd(), process.env.NODE_ENV === "production" ? ".env.production" : ".env"),
+});
+import fs from "fs";
+import server from "./app";
 import mongoose from "mongoose";
 
 // Ensure uploads directories exist (for production deploy)
@@ -21,11 +24,11 @@ mongoose
   .then((data) => {
     console.log("MongoDB connection succeed");
     // const PORT = process.env.PORT ?? 3003;
-    const PORT = Number(process.env.PORT) || 3003;
+    const PORT = Number(process.env.PORT) || (process.env.NODE_ENV === "production" ? 3004 : 3003);
 
-    app.listen(PORT, function () {
-      console.info(` The server is running successfully on port : http://localhost:${PORT}/`);
-      console.info(`Admin project on http://localhost:${PORT}/admin \n`)
+    server.listen(PORT, function () {
+      console.info(`Server running at http://localhost:${PORT}/`);
+      console.info(`Admin at http://localhost:${PORT}/admin\n`);
     });
   })
   .catch((err) => console.log("ERROR on connection MongoDB", err));
