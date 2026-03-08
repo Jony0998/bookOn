@@ -3,6 +3,7 @@ import path from "path";
 
 dotenv.config({
   path: path.join(process.cwd(), process.env.NODE_ENV === "production" ? ".env.production" : ".env"),
+  override: false, // PM2/shell dan berilgan PORT va boshqalarni .env ustiga yozmasin
 });
 import fs from "fs";
 import server from "./app";
@@ -23,8 +24,13 @@ mongoose
   .connect(process.env.MONGO_URL as string, {})
   .then((data) => {
     console.log("MongoDB connection succeed");
-    // const PORT = process.env.PORT ?? 3003;
-    const PORT = Number(process.env.PORT) || (process.env.NODE_ENV === "production" ? 3004 : 3003);
+    // PM2 app name (Windows da ecosystem env ba'zan yetkazilmaydi, shuning uchun name orqali ham qarab chiqamiz)
+    const appName = process.env.name || "";
+    const portFromEnv = Number(process.env.PORT);
+    const PORT =
+      appName === "BOOKON2"
+        ? 3004
+        : portFromEnv || (process.env.NODE_ENV === "production" ? 3004 : 3003);
 
     server.listen(PORT, function () {
       console.info(`Server running at http://localhost:${PORT}/`);

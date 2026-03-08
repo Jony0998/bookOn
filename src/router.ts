@@ -5,6 +5,9 @@ import uploader from "./libs/utils/uploader";
 import productController from "./controllers/product.controller";
 import orderController from "./controllers/order.controller";
 
+/** Root: redirect to admin panel */
+router.get("/", (req, res) => res.redirect("/admin"));
+
 /** Member **/
 
 router.get("/member/library", memberController.getLibrary
