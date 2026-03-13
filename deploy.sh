@@ -1,4 +1,4 @@
-#! xshell
+#!/bin/bash
 
 # PRODUCTION
 
@@ -7,8 +7,8 @@
  git pull origin master
 
  npm install
- npm run build
- pm2  start process.config.js --env production
+ npx tsc && node scripts/copy-assets.js && node extra.js
+ pm2 start process.config.js --env production
 
 
 
