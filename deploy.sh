@@ -6,6 +6,7 @@ git reset --hard
 git checkout master
 git pull origin master
 
+rm -rf node_modules
 npm install
 node node_modules/typescript/bin/tsc
 node scripts/copy-assets.js
