@@ -1,14 +1,16 @@
 #!/bin/bash
+set -e
 
 # PRODUCTION
+git reset --hard
+git checkout master
+git pull origin master
 
- git reset --hard
- git checkout master
- git pull origin master
-
- npm install
- npx tsc && node scripts/copy-assets.js && node extra.js
- pm2 start process.config.js --env production
+npm install
+node node_modules/typescript/bin/tsc
+node scripts/copy-assets.js
+node extra.js
+pm2 start process.config.js --env production
 
 
 
