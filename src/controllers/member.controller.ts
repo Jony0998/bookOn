@@ -40,9 +40,8 @@ memberController.signup = async (req: Request, res: Response) => {
       token = await authService.createToken(result);
 
     res.cookie("accessToken", token, {
-      // AUTH_TIMER is in hours; express cookie maxAge expects milliseconds.
       maxAge: AUTH_TIMER * 3600 * 1000,
-      httpOnly: false,
+      httpOnly: true,
     });
 
     res.status(HttpCode.CREATED).json({ member: result, accessToken: token });
@@ -62,7 +61,7 @@ memberController.login = async (req: Request, res: Response) => {
 
     res.cookie("accessToken", token, {
       maxAge: AUTH_TIMER * 3600 * 1000,
-      httpOnly: false,
+      httpOnly: true,
     });
 
     res.status(HttpCode.OK).json({ member: result, accessToken: token });
@@ -160,7 +159,7 @@ memberController.retrieveAuth = async (
   next: NextFunction
 ) => {
   try {
-    const token = req.cookies["retrieveAuth"];
+    const token = req.cookies["accessToken"];
     if (token) req.member = await authService.checkAuth(token);
 
     next();

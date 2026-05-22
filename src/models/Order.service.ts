@@ -41,8 +41,6 @@ try {
     }); 
 
     const orderId = newOrder._id;
-    console.log("orderId:", orderId);
-    
     await this.recordOrderItem(orderId, input);
     return newOrder;
 
@@ -65,8 +63,7 @@ private async recordOrderItem(
      return "INSERTED";
   });
 
-  const orderItemsState =  await Promise.all(promisedList);
-  console.log("orderItemsState:", orderItemsState);
+  await Promise.all(promisedList);
 
 }
 

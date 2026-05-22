@@ -71,10 +71,7 @@ public async getProduct(
        };        
        const existView = await this.viewService.checkViewExistence(input);
 
-        console.log("exist:", !!existView );
           if (!existView) {
-              // Insert View  
-            console.log("PLANNING TO INSERT NEW VIEW");
             await this.viewService.insertMemberView(input);
 
             // Increase Counts
@@ -106,15 +103,9 @@ public async getProduct(
 
   public async createNewProduct(input: ProductInput): Promise<any> {
     try {
-    console.log("passed here1")
-
       return await this.productModel.create(input);
-
-
     } catch (err) {
-      console.log("passed here error")
-
-      console.log("Error, model:createNewProduct", err);
+      console.error("Error, model:createNewProduct", err);
       throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
     }
   }

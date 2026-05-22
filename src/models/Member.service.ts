@@ -11,9 +11,6 @@ import * as bcrypt from "bcrypt";
 import { shapeIntoMongooseObjectId } from "../libs/types/config";
 
 class MemberService {
-  static addUserPoint(member: Member, arg1: number) {
-    throw new Error("Method not implemented.");
-  }
   private readonly memberModel;
 
   constructor() {
@@ -170,8 +167,8 @@ class MemberService {
   public async processLogin(input: LoginInput): Promise<any> {
     const member = await this.memberModel
       .findOne(
-        { memberNick: input.memberNick },
-        { memberNick: 1, memberPassword: 1 }
+        { memberNick: input.memberNick, memberType: MemberType.LIBRARY },
+        { memberNick: 1, memberPassword: 1, memberType: 1 }
       )
       .exec();
     if (!member) throw new Errors(HttpCode.NOT_FOUND, Message.NO_MEMBER_NICK);
@@ -197,12 +194,10 @@ class MemberService {
 
   public async updateChosenUser(input: MemberUpdateInput): Promise<any> {
     input._id = shapeIntoMongooseObjectId(input._id);
-    console.log("keldmmm");
 
     const result = await this.memberModel
       .findByIdAndUpdate({ _id: input._id }, input, { new: true })
       .exec();
-    console.log("PPPP");
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
 
     return result;
