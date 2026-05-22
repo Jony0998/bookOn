@@ -1,0 +1,30 @@
+services:
+  bookon-api:
+    container_name: bookon-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+    ports:
+     - "3005:3005"
+    volumes:
+      - bookon_uploads:/app/uploads
+    networks:
+      - bookon-network
+
+networks:
+  bookon-network:
+    driver: bridge
+
+volumes:
+  bookon_uploads:
+
+# ishga tushirish:
+# docker compose up -d --build
+# docker compose logs -f --tail=100
+# docker compose down
