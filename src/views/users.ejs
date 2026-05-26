@@ -1,233 +1,257 @@
 <%- include('includes/header') %>
 
 <body class="app-bg">
+
   <% if(!member) { %>
-    <div class="auth-page">
-      <div class="auth-card text-center">
-        <h3 class="fw-bold mb-2 text-primary">Access Required</h3>
-        <p class="text-muted mb-3">You need to login to see the users page.</p>
-        <a href="/admin/login" class="btn btn-primary w-100">Go to Login</a>
-      </div>
+  <div class="auth-page-modern">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px;text-align:center;max-width:420px;width:100%;">
+      <div style="width:64px;height:64px;background:rgba(99,102,241,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;">🔒</div>
+      <h3 style="font-weight:800;margin-bottom:8px;color:var(--text);">Kirish talab etiladi</h3>
+      <p style="color:var(--muted);margin-bottom:24px;">Foydalanuvchilar sahifasini ko'rish uchun tizimga kirishingiz kerak.</p>
+      <a href="/admin/login" class="btn-hero-primary" style="width:100%;justify-content:center;">
+        <i class="bi bi-box-arrow-in-right"></i> Tizimga kirish
+      </a>
     </div>
-  <% } else { 
+  </div>
+
+  <% } else {
       const activeCount = users.filter(u => u.memberStatus === "ACTIVE").length;
-      const blockCount = users.filter(u => u.memberStatus === "BLOCK").length;
+      const blockCount  = users.filter(u => u.memberStatus === "BLOCK").length;
       const deleteCount = users.filter(u => u.memberStatus === "DELETE").length;
   %>
-    <div class="app-shell">
-      <aside class="app-sidebar">
-        <div class="brand">
-          <span class="dot"></span>
-          <span>BOOKON Admin</span>
+
+  <div class="app-shell">
+
+    <!-- ── SIDEBAR ─────────────────────────── -->
+    <aside class="app-sidebar">
+      <div class="brand">
+        <div class="brand-icon">📚</div>
+        <div class="brand-text">
+          <div class="brand-name">BOOKON</div>
+          <div class="brand-tag">Admin Panel</div>
         </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Navigation</div>
         <ul class="nav-list">
           <li class="nav-item">
-            <a class="nav-link" href="/admin/"><i class="bi bi-house-door"></i> Home</a>
+            <a class="nav-link" href="/admin/">
+              <i class="bi bi-house-door-fill"></i> Dashboard
+            </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/admin/product/all"><i class="bi bi-grid"></i> Products</a>
+            <a class="nav-link" href="/admin/product/all">
+              <i class="bi bi-grid-3x3-gap-fill"></i> Products
+            </a>
           </li>
           <li class="nav-item active">
-            <a class="nav-link" href="/admin/user/all"><i class="bi bi-people"></i> Users</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/logout" onclick="return confirm('Do you really want to logout?')"><i class="bi bi-box-arrow-right"></i> Logout</a>
+            <a class="nav-link" href="/admin/user/all">
+              <i class="bi bi-people-fill"></i> Users
+            </a>
           </li>
         </ul>
-      </aside>
+      </div>
 
-      <div class="app-main">
-        <header class="app-topbar">
-          <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-people text-primary"></i>
-            <span class="fw-semibold text-white">Users</span>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">👤</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name"><%= member.memberNick %></div>
+            <div class="sidebar-user-role">Administrator</div>
           </div>
-          <span class="text-muted small">User list & status control</span>
-        </header>
+          <a href="/admin/logout" onclick="return confirm('Tizimdan chiqmoqchimisiz?')" style="color:var(--muted);font-size:18px;">
+            <i class="bi bi-box-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </aside>
 
-        <main class="app-content">
-          <!-- Hero -->
-          <div class="hero mb-4">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-              <div>
-                <h3 class="fw-bold mb-1">Manage Your Users</h3>
-                <p class="text-muted mb-0">Track activity, adjust status, and keep your library users organized.</p>
-              </div>
-              <span class="badge badge-soft">Total: <%= users.length %></span>
-            </div>
+    <!-- ── MAIN ───────────────────────────── -->
+    <div class="app-main">
+
+      <!-- Topbar -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <div class="topbar-breadcrumb">
+            <i class="bi bi-house-door"></i>
+            <span>/</span>
+            <a href="/admin/" style="color:var(--muted);">Dashboard</a>
+            <span>/</span>
+            <span class="current">Users</span>
           </div>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-dot"></div>
+          <span class="topbar-badge">
+            <i class="bi bi-people me-1"></i><%= users.length %> users
+          </span>
+        </div>
+      </header>
 
-          <!-- Stats -->
-          <div class="row g-3 mb-4">
-            <div class="col-md-3 col-sm-6">
-              <div class="card-glass">
-                <div class="d-flex align-items-center justify-content-between">
-                  <div>
-                    <p class="text-muted small mb-1">Total Users</p>
-                    <h3 class="mb-0 fw-bold"><%= users.length %></h3>
-                  </div>
-                  <div class="stat-icon bg-primary">
-                    <i class="bi bi-people"></i>
-                  </div>
-                </div>
-              </div>
+      <main class="app-content">
+
+        <!-- ── HERO ──────────────────────────── -->
+        <div class="dash-hero" style="margin-bottom:24px;padding:28px 32px;">
+          <div class="hero-content">
+            <div class="hero-greeting">
+              <i class="bi bi-people-fill"></i> Foydalanuvchilar
             </div>
-            <div class="col-md-3 col-sm-6">
-              <div class="card-glass">
-                <div class="d-flex align-items-center justify-content-between">
-                  <div>
-                    <p class="text-muted small mb-1">Active</p>
-                    <h3 class="mb-0 fw-bold text-success"><%= activeCount %></h3>
-                  </div>
-                  <div class="stat-icon bg-success">
-                    <i class="bi bi-check-circle"></i>
-                  </div>
-                </div>
-              </div>
+            <h2 class="hero-title" style="font-size:22px;">
+              Foydalanuvchilarni <span>boshqaring</span>
+            </h2>
+            <p class="hero-desc">
+              Foydalanuvchi faolligini kuzating, holatini o'zgartiring va kutubxona a'zolarini tartibga soling.
+            </p>
+          </div>
+        </div>
+
+        <!-- ── STAT CARDS ─────────────────── -->
+        <div class="stat-cards">
+          <div class="stat-card-new card-indigo">
+            <div class="stat-card-top">
+              <div class="stat-icon-new indigo"><i class="bi bi-people-fill"></i></div>
             </div>
-            <div class="col-md-3 col-sm-6">
-              <div class="card-glass">
-                <div class="d-flex align-items-center justify-content-between">
-                  <div>
-                    <p class="text-muted small mb-1">Blocked</p>
-                    <h3 class="mb-0 fw-bold text-warning"><%= blockCount %></h3>
-                  </div>
-                  <div class="stat-icon bg-warning">
-                    <i class="bi bi-pause-circle"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-              <div class="card-glass">
-                <div class="d-flex align-items-center justify-content-between">
-                  <div>
-                    <p class="text-muted small mb-1">Deleted</p>
-                    <h3 class="mb-0 fw-bold text-danger"><%= deleteCount %></h3>
-                  </div>
-                  <div class="stat-icon bg-danger">
-                    <i class="bi bi-trash"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div class="stat-value-new"><%= users.length %></div>
+            <div class="stat-label-new">Jami foydalanuvchilar</div>
           </div>
 
-          <!-- Filters -->
-          <div class="card-glass mb-3">
-            <div class="row g-2 align-items-center">
-              <div class="col-md-5">
-                <div class="input-group">
-                  <span class="input-group-text bg-dark border-dark"><i class="bi bi-search"></i></span>
-                  <input type="text" class="form-control bg-dark border-dark text-white" id="user-search" placeholder="Search users...">
-                </div>
+          <div class="stat-card-new card-green">
+            <div class="stat-card-top">
+              <div class="stat-icon-new green"><i class="bi bi-check-circle-fill"></i></div>
+              <div class="stat-trend up"><i class="bi bi-check"></i> Active</div>
+            </div>
+            <div class="stat-value-new"><%= activeCount %></div>
+            <div class="stat-label-new">Faol a'zolar</div>
+          </div>
+
+          <div class="stat-card-new card-gold">
+            <div class="stat-card-top">
+              <div class="stat-icon-new gold"><i class="bi bi-pause-circle-fill"></i></div>
+              <div class="stat-trend down"><i class="bi bi-pause"></i> Blocked</div>
+            </div>
+            <div class="stat-value-new"><%= blockCount %></div>
+            <div class="stat-label-new">Bloklangan</div>
+          </div>
+
+          <div class="stat-card-new card-cyan">
+            <div class="stat-card-top">
+              <div class="stat-icon-new cyan"><i class="bi bi-trash-fill"></i></div>
+            </div>
+            <div class="stat-value-new"><%= deleteCount %></div>
+            <div class="stat-label-new">O'chirilgan</div>
+          </div>
+        </div>
+
+        <!-- ── FILTERS ────────────────────── -->
+        <div class="card-glass mb-3">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+              <div class="filter-input-wrapper">
+                <i class="bi bi-search filter-icon"></i>
+                <input type="text" class="filter-input" id="user-search" placeholder="Foydalanuvchi nomini qidiring...">
               </div>
-              <div class="col-md-3">
-                <select class="form-select bg-dark border-dark text-white" id="user-status-filter">
-                  <option value="">All Status</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="BLOCK">Blocked</option>
-                  <option value="DELETE">Deleted</option>
+            </div>
+            <div class="col-md-3">
+              <div class="filter-select-wrapper">
+                <i class="bi bi-funnel filter-icon"></i>
+                <select class="filter-select" id="user-status-filter">
+                  <option value="">Barcha holat</option>
+                  <option value="ACTIVE">✓ Faol</option>
+                  <option value="BLOCK">⏸ Bloklangan</option>
+                  <option value="DELETE">✗ O'chirilgan</option>
                 </select>
               </div>
-              <div class="col-md-2">
-                <button class="btn btn-secondary w-100" id="user-clear-filters">
-                  <i class="bi bi-x-circle"></i> Clear
-                </button>
+            </div>
+            <div class="col-md-2">
+              <button class="btn-clear-filters" id="user-clear-filters">
+                <i class="bi bi-x-circle"></i>
+                <span>Tozalash</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── USERS TABLE ────────────────── -->
+        <div class="users-table-wrapper">
+          <div class="table-header-bright">
+            <div class="d-flex align-items-center gap-3">
+              <div class="table-icon-wrapper">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div>
+                <h4 class="mb-0 fw-bold">Barcha foydalanuvchilar</h4>
+                <p class="mb-0 small" style="color:var(--muted);">Foydalanuvchi kirish huquqini boshqaring</p>
               </div>
             </div>
+            <span class="user-count-badge"><%= users.length %> Users</span>
           </div>
 
-          <!-- Table -->
-          <div class="users-table-wrapper">
-            <div class="table-header-bright">
-              <div class="d-flex align-items-center gap-3">
-                <div class="table-icon-wrapper">
-                  <i class="bi bi-people-fill"></i>
-                </div>
-                <div>
-                  <h4 class="mb-0 fw-bold">All Users</h4>
-                  <p class="mb-0 small">Manage and control user access</p>
-                </div>
-              </div>
-              <span class="user-count-badge"><%= users.length %> Users</span>
-            </div>
-            
-            <div class="table-responsive">
-              <table class="table-users-bright" id="users-table">
-                <thead>
-                  <tr>
-                    <th class="col-number">
-                      <i class="bi bi-hash"></i> #
-                    </th>
-                    <th class="col-user">
-                      <i class="bi bi-person-circle"></i> User
-                    </th>
-                    <th class="col-contact">
-                      <i class="bi bi-telephone"></i> Contact
-                    </th>
-                    <th class="col-status">
-                      <i class="bi bi-toggle-on"></i> Status
-                    </th>
-                    <th class="col-actions">
-                      <i class="bi bi-gear"></i> Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% users.map(function (value, index) { %>
-                  <tr class="user-row user-row-bright"
-                      data-name="<%= value.memberNick.toLowerCase() %>"
-                      data-status="<%= value.memberStatus %>">
-                    <td class="col-number">
-                      <span class="row-number"><%= index + 1 %></span>
-                    </td>
-                    <td class="col-user">
-                      <div class="user-info">
-                        <div class="user-avatar">
-                          <i class="bi bi-person-fill"></i>
-                        </div>
-                        <div class="user-details">
-                          <div class="user-name"><%= value.memberNick %></div>
-                          <div class="user-id">ID: <%= value._id.toString().slice(-6) %></div>
-                        </div>
+          <div class="table-responsive">
+            <table class="table-users-bright" id="users-table">
+              <thead>
+                <tr>
+                  <th class="col-number"><i class="bi bi-hash"></i> #</th>
+                  <th class="col-user"><i class="bi bi-person-circle"></i> Foydalanuvchi</th>
+                  <th class="col-contact"><i class="bi bi-telephone"></i> Telefon</th>
+                  <th class="col-status"><i class="bi bi-toggle-on"></i> Holat</th>
+                  <th class="col-actions"><i class="bi bi-gear"></i> Amallar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.map(function (value, index) { %>
+                <tr class="user-row user-row-bright"
+                    data-name="<%= value.memberNick.toLowerCase() %>"
+                    data-status="<%= value.memberStatus %>">
+                  <td class="col-number">
+                    <span class="row-number"><%= index + 1 %></span>
+                  </td>
+                  <td class="col-user">
+                    <div class="user-info">
+                      <div class="user-avatar">
+                        <i class="bi bi-person-fill"></i>
                       </div>
-                    </td>
-                    <td class="col-contact">
-                      <div class="contact-info">
-                        <i class="bi bi-telephone-fill contact-icon"></i>
-                        <span><%= value.memberPhone %></span>
+                      <div class="user-details">
+                        <div class="user-name"><%= value.memberNick %></div>
+                        <div class="user-id">ID: <%= value._id.toString().slice(-6) %></div>
                       </div>
-                    </td>
-                    <td class="col-status">
-                      <span class="status-badge status-<%= value.memberStatus.toLowerCase() %>">
-                        <i class="bi bi-<%= value.memberStatus === 'ACTIVE' ? 'check-circle' : value.memberStatus === 'BLOCK' ? 'pause-circle' : 'x-circle' %>"></i>
-                        <%= value.memberStatus %>
-                      </span>
-                    </td>
-                    <td class="col-actions">
-                      <select class="status-select-bright member-status" id="<%= value._id %>">
-                        <option value="ACTIVE" <%= value.memberStatus === "ACTIVE" ? "selected": '' %>>✓ Active</option>
-                        <option value="BLOCK" <%= value.memberStatus === "BLOCK" ? "selected": '' %>>⏸ Block</option>
-                        <option value="DELETE" <%= value.memberStatus === "DELETE" ? "selected": '' %>>✗ Delete</option>
-                      </select>
-                    </td>
-                  </tr>
-                  <% }) %>
-                </tbody>
-              </table>
-              <div id="users-no-results" class="no-results-bright" style="display: none;">
-                <div class="no-results-icon">
-                  <i class="bi bi-search"></i>
-                </div>
-                <h5>No users found</h5>
-                <p>Try adjusting your search or filter criteria</p>
-              </div>
+                    </div>
+                  </td>
+                  <td class="col-contact">
+                    <div class="contact-info">
+                      <i class="bi bi-telephone-fill contact-icon"></i>
+                      <span><%= value.memberPhone %></span>
+                    </div>
+                  </td>
+                  <td class="col-status">
+                    <span class="status-badge status-<%= value.memberStatus.toLowerCase() %>">
+                      <i class="bi bi-<%= value.memberStatus === 'ACTIVE' ? 'check-circle' : value.memberStatus === 'BLOCK' ? 'pause-circle' : 'x-circle' %>"></i>
+                      <%= value.memberStatus %>
+                    </span>
+                  </td>
+                  <td class="col-actions">
+                    <select class="status-select-bright member-status" id="<%= value._id %>">
+                      <option value="ACTIVE"  <%= value.memberStatus === "ACTIVE"  ? "selected" : "" %>>✓ Active</option>
+                      <option value="BLOCK"   <%= value.memberStatus === "BLOCK"   ? "selected" : "" %>>⏸ Block</option>
+                      <option value="DELETE"  <%= value.memberStatus === "DELETE"  ? "selected" : "" %>>✗ Delete</option>
+                    </select>
+                  </td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+            <div id="users-no-results" class="no-results-bright" style="display:none;">
+              <div class="no-results-icon"><i class="bi bi-search"></i></div>
+              <h5>Foydalanuvchi topilmadi</h5>
+              <p>Qidiruv yoki filtr mezonlarini o'zgartiring</p>
             </div>
           </div>
-        </main>
-      </div>
+        </div>
+
+      </main>
     </div>
+  </div>
+
   <% } %>
 
   <script type="text/javascript" src="/js/users.js"></script>

@@ -4,106 +4,216 @@
 
 <body class="app-bg">
   <div class="app-shell">
+
+    <!-- ── SIDEBAR ─────────────────────────── -->
     <aside class="app-sidebar">
       <div class="brand">
-        <span class="dot"></span>
-        <span>BOOKON</span>
+        <div class="brand-icon">📚</div>
+        <div class="brand-text">
+          <div class="brand-name">BOOKON</div>
+          <div class="brand-tag">Admin Panel</div>
+        </div>
       </div>
-      <ul class="nav-list">
-        <li class="nav-item active">
-          <a class="nav-link" href="/admin"><i class="bi bi-house-door"></i> Home</a>
-        </li>
-        <% if(!member) { %>
-        <li class="nav-item"><a class="nav-link" href="/admin/signup"><i class="bi bi-person-plus"></i> Signup</a></li>
-        <li class="nav-item"><a class="nav-link" href="/admin/login"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
-        <% } else { %>
-        <li class="nav-item"><a class="nav-link" href="/admin/product/all"><i class="bi bi-grid"></i> Products</a></li>
-        <li class="nav-item"><a class="nav-link" href="/admin/user/all"><i class="bi bi-people"></i> Users</a></li>
-        <li class="nav-item"><a class="nav-link" href="/admin/logout" onclick="return confirm('Do you want to logout?')"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
-        <% } %>
-      </ul>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Navigation</div>
+        <ul class="nav-list">
+          <li class="nav-item active">
+            <a class="nav-link" href="/admin">
+              <i class="bi bi-house-door-fill"></i> Dashboard
+            </a>
+          </li>
+          <% if(!member) { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/signup">
+              <i class="bi bi-person-plus-fill"></i> Sign Up
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/login">
+              <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+          </li>
+          <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/product/all">
+              <i class="bi bi-grid-3x3-gap-fill"></i> Products
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/user/all">
+              <i class="bi bi-people-fill"></i> Users
+            </a>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+
+      <% if(member) { %>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">👤</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name"><%= member.memberNick %></div>
+            <div class="sidebar-user-role">Administrator</div>
+          </div>
+          <a href="/admin/logout" onclick="return confirm('Tizimdan chiqmoqchimisiz?')" style="color:var(--muted);font-size:18px;">
+            <i class="bi bi-box-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      <% } %>
     </aside>
 
+    <!-- ── MAIN ───────────────────────────── -->
     <div class="app-main">
+
+      <!-- Topbar -->
       <header class="app-topbar">
-        <div class="d-flex align-items-center gap-2">
-          <i class="bi bi-house-door text-primary"></i>
-          <span class="fw-semibold text-white">Home</span>
+        <div class="topbar-left">
+          <div class="topbar-breadcrumb">
+            <i class="bi bi-house-door"></i>
+            <span>/</span>
+            <span class="current">Dashboard</span>
+          </div>
         </div>
-        <span class="text-muted small">Welcome to the new dashboard</span>
+        <div class="topbar-right">
+          <div class="topbar-dot"></div>
+          <span class="topbar-badge">
+            <i class="bi bi-shield-check me-1"></i>Admin
+          </span>
+        </div>
       </header>
 
       <main class="app-content">
-        <div class="hero mb-4">
-          <div class="row align-items-center g-3">
-            <div class="col-lg-7">
-              <h1 class="fw-bold mb-2">Welcome to BOOKON</h1>
-              <p class="text-muted mb-3">Manage your library menu, users, and orders with a fresh dark UI.</p>
-              <% if(!member) { %>
-                <div class="d-flex gap-2">
-                  <a class="btn btn-primary" href="/admin/signup">Get Started</a>
-                  <a class="btn btn-secondary" href="/admin/login">Login</a>
-                </div>
-              <% } else { %>
-                <div class="d-flex gap-2">
-                  <a class="btn btn-primary" href="/admin/product/all">Go to Products</a>
-                  <a class="btn btn-secondary" href="/admin/user/all">View Users</a>
-                </div>
-              <% } %>
+
+        <!-- ── HERO ──────────────────────────── -->
+        <div class="dash-hero">
+          <div class="hero-content">
+            <div class="hero-greeting">
+              <i class="bi bi-stars"></i> Welcome back
             </div>
-            <div class="col-lg-5">
-              <div class="card-glass h-100">
-                <div class="mb-3">
-                  <span class="badge badge-soft">Overview</span>
-                </div>
-                <h4 class="fw-semibold">Today’s snapshot</h4>
-                <p class="text-muted mb-4">Quick stats about your library.</p>
-                <div class="d-flex flex-column gap-3">
-                  <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(79,139,255,0.08); border: 1px solid var(--border);">
-                    <div>
-                      <div class="text-muted small">Active users</div>
-                      <div class="fw-bold fs-4 text-white">1,248</div>
-                    </div>
-                    <i class="bi bi-people fs-3 text-primary"></i>
-                  </div>
-                  <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(127,93,255,0.08); border: 1px solid var(--border);">
-                    <div>
-                      <div class="text-muted small">New items</div>
-                      <div class="fw-bold fs-4 text-white">56</div>
-                    </div>
-                    <i class="bi bi-book fs-3 text-primary"></i>
-                  </div>
-                  <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background: rgba(0,212,255,0.08); border: 1px solid var(--border);">
-                    <div>
-                      <div class="text-muted small">Pending orders</div>
-                      <div class="fw-bold fs-4 text-white">12</div>
-                    </div>
-                    <i class="bi bi-bag fs-3 text-primary"></i>
-                  </div>
-                </div>
-              </div>
+            <h1 class="hero-title">
+              BOOKON <span>Admin Panel</span>
+            </h1>
+            <p class="hero-desc">
+              Kutubxona mahsulotlari, foydalanuvchilar va buyurtmalarni boshqaring. Zamonaviy admin paneli bilan hamma narsa sizning nazoratingizda.
+            </p>
+            <% if(!member) { %>
+            <div class="hero-actions">
+              <a class="btn-hero-primary" href="/admin/signup">
+                <i class="bi bi-person-plus-fill"></i> Ro'yxatdan o'tish
+              </a>
+              <a class="btn-hero-secondary" href="/admin/login">
+                <i class="bi bi-box-arrow-in-right"></i> Kirish
+              </a>
             </div>
+            <% } else { %>
+            <div class="hero-actions">
+              <a class="btn-hero-primary" href="/admin/product/all">
+                <i class="bi bi-grid-3x3-gap-fill"></i> Mahsulotlar
+              </a>
+              <a class="btn-hero-secondary" href="/admin/user/all">
+                <i class="bi bi-people-fill"></i> Foydalanuvchilar
+              </a>
+            </div>
+            <% } %>
+          </div>
+          <!-- Floating book decoration -->
+          <div class="hero-decoration">
+            <div class="hero-book"></div>
           </div>
         </div>
 
         <% if(member) { %>
-        <div class="row g-3 mt-3">
-          <div class="col-md-4">
-            <div class="stat-card">
-              <div class="text-muted small">Quick Access</div>
-              <div class="stat-value">Products</div>
-              <a class="btn btn-primary btn-sm mt-2" href="/admin/product/all">Open</a>
+
+        <!-- ── STAT CARDS ─────────────────── -->
+        <div class="stat-cards">
+          <div class="stat-card-new card-indigo">
+            <div class="stat-card-top">
+              <div class="stat-icon-new indigo">
+                <i class="bi bi-book-fill"></i>
+              </div>
+              <div class="stat-trend up">
+                <i class="bi bi-arrow-up"></i> Live
+              </div>
             </div>
+            <div class="stat-value-new">∞</div>
+            <div class="stat-label-new">Jami mahsulotlar</div>
           </div>
-          <div class="col-md-4">
-            <div class="stat-card">
-              <div class="text-muted small">Manage</div>
-              <div class="stat-value">Users</div>
-              <a class="btn btn-secondary btn-sm mt-2" href="/admin/user/all">Open</a>
+
+          <div class="stat-card-new card-gold">
+            <div class="stat-card-top">
+              <div class="stat-icon-new gold">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div class="stat-trend up">
+                <i class="bi bi-arrow-up"></i> Active
+              </div>
             </div>
+            <div class="stat-value-new">∞</div>
+            <div class="stat-label-new">Jami foydalanuvchilar</div>
+          </div>
+
+          <div class="stat-card-new card-green">
+            <div class="stat-card-top">
+              <div class="stat-icon-new green">
+                <i class="bi bi-bag-check-fill"></i>
+              </div>
+              <div class="stat-trend up">
+                <i class="bi bi-arrow-up"></i> New
+              </div>
+            </div>
+            <div class="stat-value-new">∞</div>
+            <div class="stat-label-new">Buyurtmalar</div>
+          </div>
+
+          <div class="stat-card-new card-cyan">
+            <div class="stat-card-top">
+              <div class="stat-icon-new cyan">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <div class="stat-trend up">
+                <i class="bi bi-arrow-up"></i> Up
+              </div>
+            </div>
+            <div class="stat-value-new">∞</div>
+            <div class="stat-label-new">Oy daromadi</div>
           </div>
         </div>
+
+        <!-- ── QUICK ACTIONS ──────────────── -->
+        <div class="quick-grid">
+          <a class="quick-card" href="/admin/product/all">
+            <div class="quick-card-icon" style="background:rgba(99,102,241,.15);color:#818cf8;">
+              <i class="bi bi-grid-3x3-gap-fill"></i>
+            </div>
+            <h5>Mahsulotlar</h5>
+            <p>Kitoblar katalogini ko'rish va boshqarish</p>
+            <div class="quick-card-arrow"><i class="bi bi-arrow-right"></i></div>
+          </a>
+
+          <a class="quick-card" href="/admin/user/all">
+            <div class="quick-card-icon" style="background:rgba(245,158,11,.15);color:#fbbf24;">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <h5>Foydalanuvchilar</h5>
+            <p>Foydalanuvchi ro'yxati va holatini boshqarish</p>
+            <div class="quick-card-arrow"><i class="bi bi-arrow-right"></i></div>
+          </a>
+
+          <a class="quick-card" href="/admin/logout" onclick="return confirm('Tizimdan chiqmoqchimisiz?')">
+            <div class="quick-card-icon" style="background:rgba(239,68,68,.12);color:#f87171;">
+              <i class="bi bi-box-arrow-right"></i>
+            </div>
+            <h5>Chiqish</h5>
+            <p>Admin paneldan xavfsiz chiqish</p>
+            <div class="quick-card-arrow"><i class="bi bi-arrow-right"></i></div>
+          </a>
+        </div>
+
         <% } %>
+
       </main>
     </div>
   </div>

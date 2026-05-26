@@ -2,508 +2,470 @@
 
 <body class="app-bg">
   <div class="app-shell">
+
+    <!-- ── SIDEBAR ─────────────────────────── -->
     <aside class="app-sidebar">
       <div class="brand">
-        <span class="dot"></span>
-        <span>BOOKON Admin</span>
+        <div class="brand-icon">📚</div>
+        <div class="brand-text">
+          <div class="brand-name">BOOKON</div>
+          <div class="brand-tag">Admin Panel</div>
+        </div>
       </div>
-      <ul class="nav-list">
-        <li class="nav-item">
-          <a class="nav-link" href="/admin/"><i class="bi bi-house-door"></i> Home</a>
-        </li>
-        <li class="nav-item active">
-          <a class="nav-link" href="/admin/product/all"><i class="bi bi-grid"></i> Products</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/admin/user/all"><i class="bi bi-people"></i> Users</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/admin/logout" onclick="return confirm('Do you want to logout?')"><i class="bi bi-box-arrow-right"></i> Logout</a>
-        </li>
-      </ul>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Navigation</div>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/">
+              <i class="bi bi-house-door-fill"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/admin/product/all">
+              <i class="bi bi-grid-3x3-gap-fill"></i> Products
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/user/all">
+              <i class="bi bi-people-fill"></i> Users
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-avatar">👤</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">Admin</div>
+            <div class="sidebar-user-role">Administrator</div>
+          </div>
+          <a href="/admin/logout" onclick="return confirm('Tizimdan chiqmoqchimisiz?')" style="color:var(--muted);font-size:18px;">
+            <i class="bi bi-box-arrow-right"></i>
+          </a>
+        </div>
+      </div>
     </aside>
 
+    <!-- ── MAIN ───────────────────────────── -->
     <div class="app-main">
+
+      <!-- Topbar -->
       <header class="app-topbar">
-        <div class="d-flex align-items-center gap-2">
-          <i class="bi bi-grid text-primary"></i>
-          <span class="fw-semibold text-white">Products</span>
+        <div class="topbar-left">
+          <div class="topbar-breadcrumb">
+            <i class="bi bi-house-door"></i>
+            <span>/</span>
+            <a href="/admin/" style="color:var(--muted);">Dashboard</a>
+            <span>/</span>
+            <span class="current">Products</span>
+          </div>
         </div>
-        <span class="text-muted small">Menu management & inventory</span>
+        <div class="topbar-right">
+          <div class="topbar-dot"></div>
+          <span class="topbar-badge">
+            <i class="bi bi-box-seam me-1"></i><%= products.length %> items
+          </span>
+        </div>
       </header>
 
       <main class="app-content">
-        <!-- Stats Cards -->
-        <div class="row g-3 mb-4">
-          <div class="col-md-3 col-sm-6">
-            <div class="card-glass">
-              <div class="d-flex align-items-center justify-content-between">
-                <div>
-                  <p class="text-muted small mb-1">Total Products</p>
-                  <h3 class="mb-0 fw-bold"><%= products.length %></h3>
+
+        <!-- ── STAT CARDS ─────────────────── -->
+        <div class="stat-cards">
+          <div class="stat-card-new card-indigo">
+            <div class="stat-card-top">
+              <div class="stat-icon-new indigo"><i class="bi bi-box-seam"></i></div>
+            </div>
+            <div class="stat-value-new"><%= products.length %></div>
+            <div class="stat-label-new">Jami mahsulotlar</div>
+          </div>
+
+          <div class="stat-card-new card-green">
+            <div class="stat-card-top">
+              <div class="stat-icon-new green"><i class="bi bi-check-circle-fill"></i></div>
+              <div class="stat-trend up"><i class="bi bi-check"></i> Active</div>
+            </div>
+            <div class="stat-value-new"><%= products.filter(p => p.productStatus === 'PROCESS').length %></div>
+            <div class="stat-label-new">Faol mahsulotlar</div>
+          </div>
+
+          <div class="stat-card-new card-gold">
+            <div class="stat-card-top">
+              <div class="stat-icon-new gold"><i class="bi bi-pause-circle-fill"></i></div>
+              <div class="stat-trend down"><i class="bi bi-pause"></i> Paused</div>
+            </div>
+            <div class="stat-value-new"><%= products.filter(p => p.productStatus === 'PAUSE').length %></div>
+            <div class="stat-label-new">To'xtatilgan</div>
+          </div>
+
+          <div class="stat-card-new card-cyan">
+            <div class="stat-card-top">
+              <div class="stat-icon-new cyan"><i class="bi bi-exclamation-triangle-fill"></i></div>
+              <div class="stat-trend down"><i class="bi bi-arrow-down"></i> Low</div>
+            </div>
+            <div class="stat-value-new"><%= products.filter(p => p.productLeftCount < 10).length %></div>
+            <div class="stat-label-new">Kam qolgan</div>
+          </div>
+        </div>
+
+        <!-- ── PRODUCTS TABLE ─────────────── -->
+        <div class="products-table-wrapper">
+          <div class="products-header-bright">
+            <div class="d-flex align-items-center gap-3">
+              <div class="products-icon-wrapper">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
+              </div>
+              <div>
+                <h4 class="mb-0 fw-bold">Kutubxona Kataloği</h4>
+                <p class="mb-0 small" style="color:var(--muted);">Mahsulot katalogini boshqaring</p>
+              </div>
+            </div>
+            <button class="btn-add-product" id="process-btn">
+              <i class="bi bi-plus-circle-fill"></i>
+              <span>Yangi Mahsulot</span>
+            </button>
+          </div>
+
+          <!-- Filters -->
+          <div class="products-filters-section">
+            <div class="row g-2">
+              <div class="col-md-4">
+                <div class="filter-input-wrapper">
+                  <i class="bi bi-search filter-icon"></i>
+                  <input
+                    type="text"
+                    class="filter-input"
+                    id="search-input"
+                    placeholder="Kitob nomini qidiring..."
+                  >
                 </div>
-                <div class="stat-icon bg-primary">
-                  <i class="bi bi-box-seam"></i>
+              </div>
+              <div class="col-md-3">
+                <div class="filter-select-wrapper">
+                  <i class="bi bi-funnel filter-icon"></i>
+                  <select class="filter-select" id="status-filter">
+                    <option value="">Barcha holat</option>
+                    <option value="PROCESS">✓ Faol</option>
+                    <option value="PAUSE">⏸ To'xtatilgan</option>
+                    <option value="DELETE">✗ O'chirilgan</option>
+                  </select>
                 </div>
+              </div>
+              <div class="col-md-3">
+                <div class="filter-select-wrapper">
+                  <i class="bi bi-tags filter-icon"></i>
+                  <select class="filter-select" id="type-filter">
+                    <option value="">Barcha turlar</option>
+                    <option value="FICTION">📚 Fiction</option>
+                    <option value="NON_FICTION">📖 Non-Fiction</option>
+                    <option value="SCIENCE">🔬 Science</option>
+                    <option value="HISTORY">📜 History</option>
+                    <option value="BIOGRAPHY">👤 Biography</option>
+                    <option value="CHILDREN">🧸 Children</option>
+                    <option value="TEXTBOOK">📝 Textbook</option>
+                    <option value="REFERENCE">📚 Reference</option>
+                    <option value="RELIGION">🕌 Religion</option>
+                    <option value="OTHER">📦 Other</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <button class="btn-clear-filters" id="clear-filters">
+                  <i class="bi bi-x-circle"></i>
+                  <span>Tozalash</span>
+                </button>
               </div>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="card-glass">
-              <div class="d-flex align-items-center justify-content-between">
-                <div>
-                  <p class="text-muted small mb-1">Active</p>
-                  <h3 class="mb-0 fw-bold text-success"><%= products.filter(p => p.productStatus === 'PROCESS').length %></h3>
-                </div>
-                <div class="stat-icon bg-success">
-                  <i class="bi bi-check-circle"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="card-glass">
-              <div class="d-flex align-items-center justify-content-between">
-                <div>
-                  <p class="text-muted small mb-1">Paused</p>
-                  <h3 class="mb-0 fw-bold text-warning"><%= products.filter(p => p.productStatus === 'PAUSE').length %></h3>
-                </div>
-                <div class="stat-icon bg-warning">
-                  <i class="bi bi-pause-circle"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="card-glass">
-              <div class="d-flex align-items-center justify-content-between">
-                <div>
-                  <p class="text-muted small mb-1">Low Stock</p>
-                  <h3 class="mb-0 fw-bold text-danger"><%= products.filter(p => p.productLeftCount < 10).length %></h3>
-                </div>
-                <div class="stat-icon bg-danger">
-                  <i class="bi bi-exclamation-triangle"></i>
-                </div>
+
+          <div class="products-table-content">
+            <div class="table-responsive">
+              <table class="table-products-bright" id="products-table">
+                <thead>
+                  <tr>
+                    <th class="col-number"><i class="bi bi-hash"></i> #</th>
+                    <th class="col-product-name"><i class="bi bi-book"></i> Kitob nomi</th>
+                    <th class="col-type"><i class="bi bi-tags"></i> Tur</th>
+                    <th class="col-size"><i class="bi bi-rulers"></i> O'lcham</th>
+                    <th class="col-weight"><i class="bi bi-speedometer2"></i> Og'irlik</th>
+                    <th class="col-price"><i class="bi bi-currency-dollar"></i> Narx</th>
+                    <th class="col-stock"><i class="bi bi-box"></i> Qoldi</th>
+                    <th class="col-status"><i class="bi bi-toggle-on"></i> Holat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% products.map(function (value, key) { %>
+                  <tr class="product-row"
+                      data-name="<%= value.productName.toLowerCase() %>"
+                      data-status="<%= value.productStatus %>"
+                      data-type="<%= value.productCollection %>">
+                    <td><%= key + 1 %></td>
+                    <td class="fw-semibold">
+                      <i class="bi bi-book me-2" style="color:var(--primary2);"></i>
+                      <%= value.productName %>
+                    </td>
+                    <td><span class="badge-soft"><%= value.productCollection %></span></td>
+                    <td>
+                      <i class="bi bi-rulers me-1" style="color:var(--primary2);"></i>
+                      <%= value.productSize || 'N/A' %>
+                    </td>
+                    <td>
+                      <i class="bi bi-speedometer2 me-1" style="color:var(--cyan);"></i>
+                      <%= value.productVolume || 'N/A' %>
+                    </td>
+                    <td class="fw-semibold" style="color:var(--green);">
+                      <i class="bi bi-currency-dollar"></i><%= value.productPrice %>
+                    </td>
+                    <td>
+                      <span style="color:<%= value.productLeftCount < 10 ? 'var(--red)' : 'var(--green)' %>;">
+                        <i class="bi bi-<%= value.productLeftCount < 10 ? 'exclamation-triangle' : 'check-circle' %> me-1"></i>
+                        <%= value.productLeftCount %>
+                      </span>
+                    </td>
+                    <td>
+                      <select class="form-select form-select-sm new-product-status" id="<%= value._id %>">
+                        <option value="PAUSE"    <%= value.productStatus === 'PAUSE'   ? 'selected' : '' %>>PAUSE</option>
+                        <option value="PROCESS"  <%= value.productStatus === 'PROCESS' ? 'selected' : '' %>>PROCESS</option>
+                        <option value="DELETE"   <%= value.productStatus === 'DELETE'  ? 'selected' : '' %>>DELETE</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+              <div id="no-results" class="text-center py-5" style="display:none;">
+                <i class="bi bi-inbox fs-1 d-block mb-2" style="color:var(--muted);"></i>
+                <p style="color:var(--muted);">Filtrlarga mos mahsulot topilmadi</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Products Table -->
-        <div class="row g-3">
-          <div class="col-12">
-            <div class="products-table-wrapper">
-              <div class="products-header-bright">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="products-icon-wrapper">
-                    <i class="bi bi-grid-3x3-gap-fill"></i>
-                  </div>
-                  <div>
-                    <h4 class="mb-0 fw-bold">Library Menu</h4>
-                    <p class="mb-0 small">Manage your product catalog</p>
-                  </div>
-                </div>
-                <button class="btn-add-product" id="process-btn">
-                  <i class="bi bi-plus-circle-fill"></i>
-                  <span>New Product</span>
-                </button>
+        <!-- ── CREATE FORM ────────────────── -->
+        <div class="product-form-wrapper mt-4" id="product-form-card" style="display:none;">
+          <div class="product-form-header">
+            <div class="d-flex align-items-center gap-3">
+              <div class="form-icon-wrapper">
+                <i class="bi bi-plus-circle-fill"></i>
               </div>
-
-              <!-- Search and Filters -->
-              <div class="products-filters-section">
-                <div class="row g-2">
-                  <div class="col-md-4">
-                    <div class="filter-input-wrapper">
-                      <i class="bi bi-search filter-icon"></i>
-                      <input 
-                        type="text" 
-                        class="filter-input" 
-                        id="search-input" 
-                        placeholder="Search products by name..."
-                      >
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="filter-select-wrapper">
-                      <i class="bi bi-funnel filter-icon"></i>
-                      <select class="filter-select" id="status-filter">
-                        <option value="">All Status</option>
-                        <option value="PROCESS">✓ Active</option>
-                        <option value="PAUSE">⏸ Paused</option>
-                        <option value="DELETE">✗ Deleted</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="filter-select-wrapper">
-                      <i class="bi bi-tags filter-icon"></i>
-                      <select class="filter-select" id="type-filter">
-                        <option value="">All Types</option>
-                        <option value="FICTION">📚 Fiction</option>
-                        <option value="NON_FICTION">📖 Non-Fiction</option>
-                        <option value="SCIENCE">🔬 Science</option>
-                        <option value="HISTORY">📜 History</option>
-                        <option value="BIOGRAPHY">👤 Biography</option>
-                        <option value="CHILDREN">🧸 Children</option>
-                        <option value="TEXTBOOK">📝 Textbook</option>
-                        <option value="REFERENCE">📚 Reference</option>
-                        <option value="RELIGION">🕌 Religion</option>
-                        <option value="OTHER">📦 Other</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-md-2">
-                    <button class="btn-clear-filters" id="clear-filters">
-                      <i class="bi bi-x-circle"></i>
-                      <span>Clear</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="products-table-content">
-                <div class="table-responsive">
-                  <table class="table-products-bright" id="products-table">
-                  <thead>
-                    <tr>
-                      <th class="col-number">
-                        <i class="bi bi-hash"></i> #
-                      </th>
-                      <th class="col-product-name">
-                        <i class="bi bi-book"></i> Book Name
-                      </th>
-                      <th class="col-type">
-                        <i class="bi bi-tags"></i> Type
-                      </th>
-                      <th class="col-size">
-                        <i class="bi bi-rulers"></i> Size
-                      </th>
-                      <th class="col-weight">
-                        <i class="bi bi-speedometer2"></i> Weight
-                      </th>
-                      <th class="col-price">
-                        <i class="bi bi-currency-dollar"></i> Price
-                      </th>
-                      <th class="col-stock">
-                        <i class="bi bi-box"></i> Stock
-                      </th>
-                      <th class="col-status">
-                        <i class="bi bi-toggle-on"></i> Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% products.map(function (value, key) { %>
-                    <tr class="product-row" 
-                        data-name="<%= value.productName.toLowerCase() %>"
-                        data-status="<%= value.productStatus %>"
-                        data-type="<%= value.productCollection %>">
-                      <td><%= key + 1 %></td>
-                      <td class="fw-semibold">
-                        <i class="bi bi-book me-2 text-primary"></i>
-                        <%= value.productName %>
-                      </td>
-                      <td><span class="badge badge-soft"><%= value.productCollection %></span></td>
-                      <td>
-                        <i class="bi bi-rulers me-1 text-primary"></i>
-                        <%= value.productSize || 'N/A' %>
-                      </td>
-                      <td>
-                        <i class="bi bi-speedometer2 me-1 text-info"></i>
-                        <%= value.productVolume || 'N/A' %>
-                      </td>
-                      <td class="fw-semibold text-success">
-                        <i class="bi bi-currency-dollar"></i><%= value.productPrice %>
-                      </td>
-                      <td>
-                        <span class="<%= value.productLeftCount < 10 ? 'text-danger' : 'text-success' %>">
-                          <i class="bi bi-<%= value.productLeftCount < 10 ? 'exclamation-triangle' : 'check-circle' %> me-1"></i>
-                          <%= value.productLeftCount %>
-                        </span>
-                      </td>
-                      <td>
-                        <select class="form-select form-select-sm new-product-status" id="<%= value._id %>">
-                          <option value="PAUSE" <%= value.productStatus === 'PAUSE' ? 'selected': '' %> >PAUSE</option>
-                          <option value="PROCESS" <%= value.productStatus === 'PROCESS' ? 'selected': '' %> >PROCESS</option>
-                          <option value="DELETE" <%= value.productStatus === 'DELETE' ? 'selected': '' %> >DELETE</option>
-                        </select>
-                      </td>
-                    </tr>
-                    <% }) %>
-                  </tbody>
-                </table>
-                  <div id="no-results" class="text-center py-4 text-muted" style="display: none;">
-                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                    <p>No products found matching your filters</p>
-                  </div>
-                </div>
+              <div>
+                <h4 class="mb-0 fw-bold">Yangi Mahsulot Qo'shish</h4>
+                <p style="color:var(--muted);" class="mb-0 small">Katalogga yangi kitob qo'shing</p>
               </div>
             </div>
+            <button class="btn-close-form" id="cancel-btn">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
 
-          <div class="col-12">
-            <div class="product-form-wrapper" id="product-form-card" style="display: none;">
-              <div class="product-form-header">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="form-icon-wrapper">
-                    <i class="bi bi-plus-circle-fill"></i>
-                  </div>
-                  <div>
-                    <h4 class="mb-0 fw-bold">Create New Product</h4>
-                    <p class="text-muted mb-0 small">Add a new item to your menu</p>
-                  </div>
-                </div>
-                <button class="btn-close-form" id="cancel-btn">
-                  <i class="bi bi-x-lg"></i>
-                </button>
-              </div>
+          <form
+            onsubmit="return validateForm()"
+            action="/admin/product/create"
+            method="POST"
+            class="product-form-body"
+            enctype="multipart/form-data"
+          >
+            <input name="productStatus" value="PAUSE" class="product-status" type="hidden" />
 
-              <form
-                onsubmit="return validateForm()"
-                action="/admin/product/create"
-                method="POST"
-                class="product-form-body"
-                enctype="multipart/form-data"
-              >
-                <input name="productStatus" value="PAUSE" class="product-status" type="hidden" />
+            <div class="row g-4">
+              <!-- Left: Basic Info -->
+              <div class="col-lg-8">
+                <div class="form-section">
+                  <div class="section-header">
+                    <i class="bi bi-info-circle"></i>
+                    <span>Asosiy ma'lumotlar</span>
+                  </div>
 
-                <div class="row g-4">
-                  <!-- Left column: Basic Info -->
-                  <div class="col-lg-8">
-                    <div class="form-section">
-                      <div class="section-header">
-                        <i class="bi bi-info-circle"></i>
-                        <span>Basic Information</span>
-                      </div>
-                      
+                  <div class="form-group">
+                    <label class="form-label">
+                      <i class="bi bi-book"></i> Kitob nomi <span style="color:var(--red);">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Kitob nomini kiriting"
+                      name="productName"
+                      class="form-control form-control-lg product-name"
+                      required
+                    />
+                  </div>
+
+                  <div class="row g-3">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label class="form-label">
-                          <i class="bi bi-book"></i> Book Name <span class="text-danger">*</span>
+                          <i class="bi bi-currency-dollar"></i> Narxi <span style="color:var(--red);">*</span>
+                        </label>
+                        <div class="input-group input-group-lg">
+                          <span class="input-group-text">$</span>
+                          <input
+                            type="number"
+                            placeholder="0.00"
+                            name="productPrice"
+                            class="form-control product-price"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label">
+                          <i class="bi bi-box"></i> Qolgan soni <span style="color:var(--red);">*</span>
                         </label>
                         <input
-                          type="text"
-                          placeholder="Enter book title"
-                          name="productName"
-                          class="form-control form-control-lg product-name"
+                          type="number"
+                          placeholder="Mavjud soni"
+                          name="productLeftCount"
+                          class="form-control form-control-lg product-left-count"
                           required
                         />
                       </div>
+                    </div>
+                  </div>
 
-                      <div class="row g-3">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label class="form-label">
-                              <i class="bi bi-currency-dollar"></i> Price <span class="text-danger">*</span>
-                            </label>
-                            <div class="input-group input-group-lg">
-                              <span class="input-group-text">$</span>
-                              <input
-                                type="number"
-                                placeholder="0.00"
-                                name="productPrice"
-                                class="form-control product-price"
-                                required
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label class="form-label">
-                              <i class="bi bi-box"></i> Stock Count <span class="text-danger">*</span>
-                            </label>
-                            <input
-                              type="number"
-                              placeholder="Available quantity"
-                              name="productLeftCount"
-                              class="form-control form-control-lg product-left-count"
-                              required
-                            />
-                          </div>
-                        </div>
-                      </div>
+                  <div class="form-group">
+                    <label class="form-label">
+                      <i class="bi bi-card-text"></i> Tavsif
+                    </label>
+                    <textarea
+                      name="productDesc"
+                      class="form-control product-desc"
+                      rows="4"
+                      placeholder="Kitob haqida: muallif, xulosa, kontent..."
+                    ></textarea>
+                  </div>
+                </div>
 
+                <!-- Category & Specs -->
+                <div class="form-section">
+                  <div class="section-header">
+                    <i class="bi bi-grid"></i>
+                    <span>Kategoriya va o'lchamlar</span>
+                  </div>
+
+                  <div class="row g-3">
+                    <div class="col-md-4">
                       <div class="form-group">
                         <label class="form-label">
-                          <i class="bi bi-card-text"></i> Description
+                          <i class="bi bi-folder"></i> Kategoriya <span style="color:var(--red);">*</span>
                         </label>
-                        <textarea 
-                          name="productDesc" 
-                          class="form-control product-desc" 
-                          rows="4" 
-                          placeholder="Describe the book: author, summary, content..."
-                        ></textarea>
+                        <select class="form-select form-select-lg product-collection" name="productCollection" id="productCollection">
+                          <option value="FICTION" selected>📚 Fiction</option>
+                          <option value="NON_FICTION">📖 Non-Fiction</option>
+                          <option value="SCIENCE">🔬 Science</option>
+                          <option value="HISTORY">📜 History</option>
+                          <option value="BIOGRAPHY">👤 Biography</option>
+                          <option value="CHILDREN">🧸 Children</option>
+                          <option value="TEXTBOOK">📝 Textbook</option>
+                          <option value="REFERENCE">📚 Reference</option>
+                          <option value="RELIGION">🕌 Religion</option>
+                          <option value="OTHER">📦 Other</option>
+                        </select>
                       </div>
                     </div>
 
-                    <!-- Category & Size Section -->
-                    <div class="form-section">
-                      <div class="section-header">
-                        <i class="bi bi-grid"></i>
-                        <span>Category & Specifications</span>
-                      </div>
-
-                      <div class="row g-3">
-                        <div class="col-md-4">
-                          <div class="form-group">
-                            <label class="form-label">
-                              <i class="bi bi-folder"></i> Book Category <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select form-select-lg product-collection" name="productCollection" id="productCollection">
-                              <option value="FICTION" selected>📚 Fiction</option>
-                              <option value="NON_FICTION">📖 Non-Fiction</option>
-                              <option value="SCIENCE">🔬 Science</option>
-                              <option value="HISTORY">📜 History</option>
-                              <option value="BIOGRAPHY">👤 Biography</option>
-                              <option value="CHILDREN">🧸 Children</option>
-                              <option value="TEXTBOOK">📝 Textbook</option>
-                              <option value="REFERENCE">📚 Reference</option>
-                              <option value="RELIGION">🕌 Religion</option>
-                              <option value="OTHER">📦 Other</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div class="col-md-4">
-                          <div class="form-group">
-                            <label class="form-label">
-                              <i class="bi bi-rulers"></i> Book Size <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select form-select-lg product-size" name="productSize">
-                              <option value="SMALL">Small (Pocket)</option>
-                              <option value="MEDIUM" selected>Medium (Standard)</option>
-                              <option value="LARGE">Large (A4)</option>
-                              <option value="EXTRA_LARGE">Extra Large (A3)</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div class="col-md-4">
-                          <div class="form-group">
-                            <label class="form-label">
-                              <i class="bi bi-speedometer2"></i> Weight <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select form-select-lg product-volume" name="productVolume">
-                              <option value="LIGHT">Light (0-300g)</option>
-                              <option value="MEDIUM" selected>Medium (300-600g)</option>
-                              <option value="HEAVY">Heavy (600g+)</option>
-                            </select>
-                          </div>
-                        </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label class="form-label">
+                          <i class="bi bi-rulers"></i> O'lcham <span style="color:var(--red);">*</span>
+                        </label>
+                        <select class="form-select form-select-lg product-size" name="productSize">
+                          <option value="SMALL">Small (Pocket)</option>
+                          <option value="MEDIUM" selected>Medium (Standard)</option>
+                          <option value="LARGE">Large (A4)</option>
+                          <option value="EXTRA_LARGE">Extra Large (A3)</option>
+                        </select>
                       </div>
                     </div>
-                  </div>
 
-                  <!-- Right column: Images -->
-                  <div class="col-lg-4">
-                    <div class="form-section h-100">
-                      <div class="section-header">
-                        <i class="bi bi-images"></i>
-                        <span>Product Images</span>
-                        <span class="badge bg-danger ms-2">Required</span>
-                      </div>
-
-                      <div class="image-upload-grid">
-                        <div class="upload-box upload-box-primary" onclick="document.getElementById('file-1').click()">
-                          <img src="/img/upload.svg" class="upload-preview" id="image-section-1" />
-                          <div class="upload-overlay">
-                            <i class="bi bi-camera"></i>
-                            <span>Click to upload</span>
-                          </div>
-                          <input
-                            type="file"
-                            id="file-1"
-                            name="productImages"
-                            class="d-none image-one"
-                            accept="image/*"
-                            onchange="previewFileHandler(this, 1)"
-                            required
-                          />
-                          <span class="upload-label">Image 1 *</span>
-                        </div>
-
-                        <div class="upload-box" onclick="document.getElementById('file-2').click()">
-                          <img src="/img/upload.svg" class="upload-preview" id="image-section-2" />
-                          <div class="upload-overlay">
-                            <i class="bi bi-plus"></i>
-                          </div>
-                          <input
-                            type="file"
-                            id="file-2"
-                            name="productImages"
-                            class="d-none image-two"
-                            accept="image/*"
-                            onchange="previewFileHandler(this, 2)"
-                          />
-                          <span class="upload-label">Image 2</span>
-                        </div>
-
-                        <div class="upload-box" onclick="document.getElementById('file-3').click()">
-                          <img src="/img/upload.svg" class="upload-preview" id="image-section-3" />
-                          <div class="upload-overlay">
-                            <i class="bi bi-plus"></i>
-                          </div>
-                          <input
-                            type="file"
-                            id="file-3"
-                            name="productImages"
-                            class="d-none image-three"
-                            accept="image/*"
-                            onchange="previewFileHandler(this, 3)"
-                          />
-                          <span class="upload-label">Image 3</span>
-                        </div>
-
-                        <div class="upload-box" onclick="document.getElementById('file-4').click()">
-                          <img src="/img/upload.svg" class="upload-preview" id="image-section-4" />
-                          <div class="upload-overlay">
-                            <i class="bi bi-plus"></i>
-                          </div>
-                          <input
-                            type="file"
-                            id="file-4"
-                            name="productImages"
-                            class="d-none image-four"
-                            accept="image/*"
-                            onchange="previewFileHandler(this, 4)"
-                          />
-                          <span class="upload-label">Image 4</span>
-                        </div>
-
-                        <div class="upload-box" onclick="document.getElementById('file-5').click()">
-                          <img src="/img/upload.svg" class="upload-preview" id="image-section-5" />
-                          <div class="upload-overlay">
-                            <i class="bi bi-plus"></i>
-                          </div>
-                          <input
-                            type="file"
-                            id="file-5"
-                            name="productImages"
-                            class="d-none image-five"
-                            accept="image/*"
-                            onchange="previewFileHandler(this, 5)"
-                          />
-                          <span class="upload-label">Image 5</span>
-                        </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label class="form-label">
+                          <i class="bi bi-speedometer2"></i> Og'irlik <span style="color:var(--red);">*</span>
+                        </label>
+                        <select class="form-select form-select-lg product-volume" name="productVolume">
+                          <option value="LIGHT">Light (0-300g)</option>
+                          <option value="MEDIUM" selected>Medium (300-600g)</option>
+                          <option value="HEAVY">Heavy (600g+)</option>
+                        </select>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <input name="restaurantIid" class="restaurant-id" type="hidden" />
+              <!-- Right: Images -->
+              <div class="col-lg-4">
+                <div class="form-section h-100">
+                  <div class="section-header">
+                    <i class="bi bi-images"></i>
+                    <span>Kitob rasmlari</span>
+                    <span class="badge-soft ms-2" style="background:rgba(239,68,68,.12);color:#f87171;border-color:rgba(239,68,68,.25);">Majburiy</span>
+                  </div>
 
-                <div class="form-footer">
-                  <button type="button" class="btn btn-cancel" id="cancel-btn-footer">
-                    <i class="bi bi-x-circle"></i> Cancel
-                  </button>
-                  <button type="submit" class="btn btn-submit">
-                    <i class="bi bi-check-circle"></i> Create Product
-                  </button>
+                  <div class="image-upload-grid">
+                    <div class="upload-box upload-box-primary" onclick="document.getElementById('file-1').click()">
+                      <img src="/img/upload.svg" class="upload-preview" id="image-section-1" />
+                      <div class="upload-overlay">
+                        <i class="bi bi-camera"></i>
+                        <span>Yuklash</span>
+                      </div>
+                      <input type="file" id="file-1" name="productImages" class="d-none image-one"
+                        accept="image/*" onchange="previewFileHandler(this, 1)" required />
+                      <span class="upload-label">Rasm 1 *</span>
+                    </div>
+
+                    <div class="upload-box" onclick="document.getElementById('file-2').click()">
+                      <img src="/img/upload.svg" class="upload-preview" id="image-section-2" />
+                      <div class="upload-overlay"><i class="bi bi-plus"></i></div>
+                      <input type="file" id="file-2" name="productImages" class="d-none image-two"
+                        accept="image/*" onchange="previewFileHandler(this, 2)" />
+                      <span class="upload-label">Rasm 2</span>
+                    </div>
+
+                    <div class="upload-box" onclick="document.getElementById('file-3').click()">
+                      <img src="/img/upload.svg" class="upload-preview" id="image-section-3" />
+                      <div class="upload-overlay"><i class="bi bi-plus"></i></div>
+                      <input type="file" id="file-3" name="productImages" class="d-none image-three"
+                        accept="image/*" onchange="previewFileHandler(this, 3)" />
+                      <span class="upload-label">Rasm 3</span>
+                    </div>
+
+                    <div class="upload-box" onclick="document.getElementById('file-4').click()">
+                      <img src="/img/upload.svg" class="upload-preview" id="image-section-4" />
+                      <div class="upload-overlay"><i class="bi bi-plus"></i></div>
+                      <input type="file" id="file-4" name="productImages" class="d-none image-four"
+                        accept="image/*" onchange="previewFileHandler(this, 4)" />
+                      <span class="upload-label">Rasm 4</span>
+                    </div>
+
+                    <div class="upload-box" onclick="document.getElementById('file-5').click()">
+                      <img src="/img/upload.svg" class="upload-preview" id="image-section-5" />
+                      <div class="upload-overlay"><i class="bi bi-plus"></i></div>
+                      <input type="file" id="file-5" name="productImages" class="d-none image-five"
+                        accept="image/*" onchange="previewFileHandler(this, 5)" />
+                      <span class="upload-label">Rasm 5</span>
+                    </div>
+                  </div>
                 </div>
-              </form>
+              </div>
             </div>
-          </div>
+
+            <input name="restaurantIid" class="restaurant-id" type="hidden" />
+
+            <div class="form-footer">
+              <button type="button" class="btn btn-cancel" id="cancel-btn-footer">
+                <i class="bi bi-x-circle"></i> Bekor qilish
+              </button>
+              <button type="submit" class="btn btn-submit">
+                <i class="bi bi-check-circle"></i> Mahsulot yaratish
+              </button>
+            </div>
+          </form>
         </div>
+
       </main>
     </div>
   </div>
