@@ -106,23 +106,21 @@ function validateForm() {
 }
 
 function previewFileHandler(input, order) {
-  const imgClassName = input.className;
+  const file = input.files[0];
+  if (!file) return;
 
-  const file = $(`.${imgClassName}`).get(0).files[0];
-  const fileType = file["type"];
   const validImageType = ["image/jpg", "image/jpeg", "image/png"];
-
-  if (!validImageType.includes(fileType)) {
-    alert("Please insert only jpeg, jpg and png");
-  } else {
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function () {
-        const imgEl = $(`#image-section-${order}`);
-        imgEl.attr("src", reader.result);
-        imgEl.closest(".upload-box").addClass("has-image");
-      };
-      reader.readAsDataURL(file);
-    }
+  if (!validImageType.includes(file.type)) {
+    alert("Faqat jpeg, jpg va png formatlar ruxsat etiladi!");
+    input.value = "";
+    return;
   }
+
+  const reader = new FileReader();
+  reader.onload = function () {
+    const imgEl = $(`#image-section-${order}`);
+    imgEl.attr("src", reader.result);
+    imgEl.closest(".upload-box").addClass("has-image");
+  };
+  reader.readAsDataURL(file);
 }
