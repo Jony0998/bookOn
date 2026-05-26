@@ -59,6 +59,10 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
     },
+    productLikes: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true } // updateAt , createAt
 );

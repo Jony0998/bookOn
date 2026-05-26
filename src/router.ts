@@ -38,11 +38,16 @@ router.get("/member/top-users", memberController.getTopUsers);
 /** Product **/
 
 router.get("/product/all", productController.getProducts);
+router.post(
+  "/product/like",
+  memberController.verifyAuth,
+  productController.likeProduct
+);
 router.get(
   "/product/:id",
-   memberController.retrieveAuth,    // Authdan o'tsa req ichiga memberni joylaydi
-    productController.getProduct
-  );
+  memberController.retrieveAuth,
+  productController.getProduct
+);
 
 
 /** Order **/

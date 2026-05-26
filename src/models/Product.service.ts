@@ -4,19 +4,23 @@ import { T } from "../libs/types/common";
 import { ObjectId } from "mongoose";
 import { Product, ProductInput, ProductInquiry, ProductUpdateInput } from "../libs/types/product";
 import ViewService from "./View.service";
+import LikeService from "./Like.service";
 import { ProductStatus } from "../libs/types/enums/product.enum";
 import { shapeIntoMongooseObjectId } from "../libs/types/config";
 import { ViewInput } from "../libs/types/view";
 import { ViewGroup } from "../libs/types/enums/view.enum";
+import { LikeInput } from "../libs/types/like";
+import { LikeGroup } from "../libs/types/enums/like.enum";
 
 class ProductService {
   private readonly productModel;
   public viewService;
+  public likeService;
 
   constructor() {
     this.productModel = ProductModel;
     this.viewService = new ViewService();
-
+    this.likeService = new LikeService();
   }
   /** SPA */
 
@@ -108,6 +112,29 @@ public async getProduct(
       console.error("Error, model:createNewProduct", err);
       throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
     }
+  }
+
+  public async likeProduct(memberId: ObjectId, productId: string): Promise<any> {
+    const product_id = shapeIntoMongooseObjectId(productId);
+
+    const input: LikeInput = {
+      memberId,
+      likeRefId: product_id,
+      likeGroup: LikeGroup.PRODUCT,
+    };
+
+    const existLike = await this.likeService.checkLikeExistence(input);
+    const modifier = existLike ? -1 : 1;
+
+    if (existLike) {
+      await this.likeService.deleteMemberLike(input);
+    } else {
+      await this.likeService.insertMemberLike(input);
+    }
+
+    return await this.productModel
+      .findByIdAndUpdate(product_id, { $inc: { productLikes: modifier } }, { new: true })
+      .exec();
   }
 
   public async updateChosenProduct(
