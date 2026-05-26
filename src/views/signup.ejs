@@ -140,7 +140,6 @@
                   name="memberImage"
                   accept="image/jpeg,image/jpg,image/png"
                   onchange="previewImage(this)"
-                  required
                 />
                 <label for="input-file" class="upload-label">
                   <i class="bi bi-cloud-arrow-up"></i>
@@ -208,6 +207,7 @@
       const memberPhone = document.getElementById('memberPhone').value;
       const memberPassword = document.getElementById('memberPassword').value;
       const confirmPassword = document.getElementById('confirmPassword').value;
+      const fileInput = document.getElementById('input-file');
 
       if (!memberNick || !memberPhone || !memberPassword || !confirmPassword) {
         alert("Please fill in all required fields!");
@@ -221,6 +221,11 @@
 
       if (memberPassword.length < 6) {
         alert("Password must be at least 6 characters long!");
+        return false;
+      }
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert("Please select a library image!");
         return false;
       }
 
