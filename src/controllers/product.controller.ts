@@ -85,7 +85,7 @@ productController.createNewProduct = async (
 
     const data: ProductInput = req.body;
     data.productImages = req.files?.map((ele) => {
-      return ele.path;
+      return ele.path.replace(/\\/g, "/");
     });
 
     // productVolume is now ProductWeight enum (string), no need to convert
