@@ -99,6 +99,16 @@ class MemberService {
     return result;
   }
 
+  public async getMemberPublic(memberId: string): Promise<any> {
+    const id = shapeIntoMongooseObjectId(memberId);
+    const result = await this.memberModel
+      .findOne({ _id: id, memberStatus: MemberStatus.ACTIVE })
+      .lean()
+      .exec();
+    if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+    return result;
+  }
+
   public async getTopUsers(): Promise<any[]> {
     const result = await this.memberModel
       .find({

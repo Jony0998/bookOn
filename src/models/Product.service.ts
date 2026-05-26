@@ -137,6 +137,13 @@ public async getProduct(
       .exec();
   }
 
+  public async checkUserLiked(memberId: ObjectId, productId: string): Promise<boolean> {
+    const product_id = shapeIntoMongooseObjectId(productId);
+    const input: LikeInput = { memberId, likeRefId: product_id, likeGroup: LikeGroup.PRODUCT };
+    const exists = await this.likeService.checkLikeExistence(input);
+    return !!exists;
+  }
+
   public async updateChosenProduct(
     id: string,
     input: ProductUpdateInput

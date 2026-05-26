@@ -34,10 +34,12 @@ router.post(
 );
 
 router.get("/member/top-users", memberController.getTopUsers);
+router.get("/member/:memberId", memberController.getMemberPublic);
 
 /** Product **/
 
 router.get("/product/all", productController.getProducts);
+router.get("/product/like-check", memberController.retrieveAuth, productController.checkUserLiked);
 router.post(
   "/product/like",
   memberController.verifyAuth,

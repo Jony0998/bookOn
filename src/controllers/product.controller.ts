@@ -137,5 +137,16 @@ productController.likeProduct = async (req: ExtendedRequest, res: Response) => {
   }
 };
 
+productController.checkUserLiked = async (req: ExtendedRequest, res: Response) => {
+  try {
+    if (!req.member) { res.status(HttpCode.OK).json({ liked: false }); return; }
+    const { productId } = req.query as { productId: string };
+    const liked = await productService.checkUserLiked(req.member._id, productId);
+    res.status(HttpCode.OK).json({ liked });
+  } catch (err) {
+    res.status(HttpCode.OK).json({ liked: false });
+  }
+};
+
 export default productController;
 
