@@ -107,7 +107,6 @@ function validateForm() {
 
 function previewFileHandler(input, order) {
   const imgClassName = input.className;
-  console.log("input:", input);
 
   const file = $(`.${imgClassName}`).get(0).files[0];
   const fileType = file["type"];
@@ -119,7 +118,9 @@ function previewFileHandler(input, order) {
     if (file) {
       const reader = new FileReader();
       reader.onload = function () {
-        $(`#image-section-${order}`).attr("src", reader.result);
+        const imgEl = $(`#image-section-${order}`);
+        imgEl.attr("src", reader.result);
+        imgEl.closest(".upload-box").addClass("has-image");
       };
       reader.readAsDataURL(file);
     }
