@@ -3,7 +3,7 @@
 <body class="app-bg">
   <div class="app-shell">
 
-    <!-- ── SIDEBAR ─────────────────────────── -->
+    <!-- SIDEBAR -->
     <aside class="app-sidebar">
       <div class="brand">
         <div class="brand-icon">📚</div>
@@ -41,17 +41,16 @@
             <div class="sidebar-user-name">Admin</div>
             <div class="sidebar-user-role">Administrator</div>
           </div>
-          <a href="/admin/logout" onclick="return confirm('Tizimdan chiqmoqchimisiz?')" style="color:var(--muted);font-size:18px;">
+          <a href="/admin/logout" onclick="return confirm('Are you sure you want to logout?')" style="color:var(--muted);font-size:18px;">
             <i class="bi bi-box-arrow-right"></i>
           </a>
         </div>
       </div>
     </aside>
 
-    <!-- ── MAIN ───────────────────────────── -->
+    <!-- MAIN -->
     <div class="app-main">
 
-      <!-- Topbar -->
       <header class="app-topbar">
         <div class="topbar-left">
           <div class="topbar-breadcrumb">
@@ -72,14 +71,14 @@
 
       <main class="app-content">
 
-        <!-- ── STAT CARDS ─────────────────── -->
+        <!-- STAT CARDS -->
         <div class="stat-cards">
           <div class="stat-card-new card-indigo">
             <div class="stat-card-top">
               <div class="stat-icon-new indigo"><i class="bi bi-box-seam"></i></div>
             </div>
             <div class="stat-value-new"><%= products.length %></div>
-            <div class="stat-label-new">Jami mahsulotlar</div>
+            <div class="stat-label-new">Total Products</div>
           </div>
 
           <div class="stat-card-new card-green">
@@ -88,7 +87,7 @@
               <div class="stat-trend up"><i class="bi bi-check"></i> Active</div>
             </div>
             <div class="stat-value-new"><%= products.filter(p => p.productStatus === 'PROCESS').length %></div>
-            <div class="stat-label-new">Faol mahsulotlar</div>
+            <div class="stat-label-new">Active Products</div>
           </div>
 
           <div class="stat-card-new card-gold">
@@ -97,7 +96,7 @@
               <div class="stat-trend down"><i class="bi bi-pause"></i> Paused</div>
             </div>
             <div class="stat-value-new"><%= products.filter(p => p.productStatus === 'PAUSE').length %></div>
-            <div class="stat-label-new">To'xtatilgan</div>
+            <div class="stat-label-new">Paused</div>
           </div>
 
           <div class="stat-card-new card-cyan">
@@ -106,11 +105,11 @@
               <div class="stat-trend down"><i class="bi bi-arrow-down"></i> Low</div>
             </div>
             <div class="stat-value-new"><%= products.filter(p => p.productLeftCount < 10).length %></div>
-            <div class="stat-label-new">Kam qolgan</div>
+            <div class="stat-label-new">Low Stock</div>
           </div>
         </div>
 
-        <!-- ── PRODUCTS TABLE ─────────────── -->
+        <!-- PRODUCTS TABLE -->
         <div class="products-table-wrapper">
           <div class="products-header-bright">
             <div class="d-flex align-items-center gap-3">
@@ -118,13 +117,13 @@
                 <i class="bi bi-grid-3x3-gap-fill"></i>
               </div>
               <div>
-                <h4 class="mb-0 fw-bold">Kutubxona Kataloği</h4>
-                <p class="mb-0 small" style="color:var(--muted);">Mahsulot katalogini boshqaring</p>
+                <h4 class="mb-0 fw-bold">Library Catalog</h4>
+                <p class="mb-0 small" style="color:var(--muted);">Manage your product catalog</p>
               </div>
             </div>
             <button class="btn-add-product" id="process-btn">
               <i class="bi bi-plus-circle-fill"></i>
-              <span>Yangi Mahsulot</span>
+              <span>New Product</span>
             </button>
           </div>
 
@@ -134,22 +133,17 @@
               <div class="col-md-4">
                 <div class="filter-input-wrapper">
                   <i class="bi bi-search filter-icon"></i>
-                  <input
-                    type="text"
-                    class="filter-input"
-                    id="search-input"
-                    placeholder="Kitob nomini qidiring..."
-                  >
+                  <input type="text" class="filter-input" id="search-input" placeholder="Search books by name...">
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="filter-select-wrapper">
                   <i class="bi bi-funnel filter-icon"></i>
                   <select class="filter-select" id="status-filter">
-                    <option value="">Barcha holat</option>
-                    <option value="PROCESS">✓ Faol</option>
-                    <option value="PAUSE">⏸ To'xtatilgan</option>
-                    <option value="DELETE">✗ O'chirilgan</option>
+                    <option value="">All Status</option>
+                    <option value="PROCESS">✓ Active</option>
+                    <option value="PAUSE">⏸ Paused</option>
+                    <option value="DELETE">✗ Deleted</option>
                   </select>
                 </div>
               </div>
@@ -157,7 +151,7 @@
                 <div class="filter-select-wrapper">
                   <i class="bi bi-tags filter-icon"></i>
                   <select class="filter-select" id="type-filter">
-                    <option value="">Barcha turlar</option>
+                    <option value="">All Types</option>
                     <option value="FICTION">📚 Fiction</option>
                     <option value="NON_FICTION">📖 Non-Fiction</option>
                     <option value="SCIENCE">🔬 Science</option>
@@ -174,7 +168,7 @@
               <div class="col-md-2">
                 <button class="btn-clear-filters" id="clear-filters">
                   <i class="bi bi-x-circle"></i>
-                  <span>Tozalash</span>
+                  <span>Clear</span>
                 </button>
               </div>
             </div>
@@ -186,13 +180,13 @@
                 <thead>
                   <tr>
                     <th class="col-number"><i class="bi bi-hash"></i> #</th>
-                    <th class="col-product-name"><i class="bi bi-book"></i> Kitob nomi</th>
-                    <th class="col-type"><i class="bi bi-tags"></i> Tur</th>
-                    <th class="col-size"><i class="bi bi-rulers"></i> O'lcham</th>
-                    <th class="col-weight"><i class="bi bi-speedometer2"></i> Og'irlik</th>
-                    <th class="col-price"><i class="bi bi-currency-dollar"></i> Narx</th>
-                    <th class="col-stock"><i class="bi bi-box"></i> Qoldi</th>
-                    <th class="col-status"><i class="bi bi-toggle-on"></i> Holat</th>
+                    <th class="col-product-name"><i class="bi bi-book"></i> Book Name</th>
+                    <th class="col-type"><i class="bi bi-tags"></i> Type</th>
+                    <th class="col-size"><i class="bi bi-rulers"></i> Size</th>
+                    <th class="col-weight"><i class="bi bi-speedometer2"></i> Weight</th>
+                    <th class="col-price"><i class="bi bi-currency-dollar"></i> Price</th>
+                    <th class="col-stock"><i class="bi bi-box"></i> Stock</th>
+                    <th class="col-status"><i class="bi bi-toggle-on"></i> Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -226,9 +220,9 @@
                     </td>
                     <td>
                       <select class="form-select form-select-sm new-product-status" id="<%= value._id %>">
-                        <option value="PAUSE"    <%= value.productStatus === 'PAUSE'   ? 'selected' : '' %>>PAUSE</option>
-                        <option value="PROCESS"  <%= value.productStatus === 'PROCESS' ? 'selected' : '' %>>PROCESS</option>
-                        <option value="DELETE"   <%= value.productStatus === 'DELETE'  ? 'selected' : '' %>>DELETE</option>
+                        <option value="PAUSE"   <%= value.productStatus === 'PAUSE'   ? 'selected' : '' %>>PAUSE</option>
+                        <option value="PROCESS" <%= value.productStatus === 'PROCESS' ? 'selected' : '' %>>PROCESS</option>
+                        <option value="DELETE"  <%= value.productStatus === 'DELETE'  ? 'selected' : '' %>>DELETE</option>
                       </select>
                     </td>
                   </tr>
@@ -237,13 +231,13 @@
               </table>
               <div id="no-results" class="text-center py-5" style="display:none;">
                 <i class="bi bi-inbox fs-1 d-block mb-2" style="color:var(--muted);"></i>
-                <p style="color:var(--muted);">Filtrlarga mos mahsulot topilmadi</p>
+                <p style="color:var(--muted);">No products found matching your filters</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ── CREATE FORM ────────────────── -->
+        <!-- CREATE FORM -->
         <div class="product-form-wrapper mt-4" id="product-form-card" style="display:none;">
           <div class="product-form-header">
             <div class="d-flex align-items-center gap-3">
@@ -251,8 +245,8 @@
                 <i class="bi bi-plus-circle-fill"></i>
               </div>
               <div>
-                <h4 class="mb-0 fw-bold">Yangi Mahsulot Qo'shish</h4>
-                <p style="color:var(--muted);" class="mb-0 small">Katalogga yangi kitob qo'shing</p>
+                <h4 class="mb-0 fw-bold">Create New Product</h4>
+                <p style="color:var(--muted);" class="mb-0 small">Add a new book to the catalog</p>
               </div>
             </div>
             <button class="btn-close-form" id="cancel-btn">
@@ -275,66 +269,47 @@
                 <div class="form-section">
                   <div class="section-header">
                     <i class="bi bi-info-circle"></i>
-                    <span>Asosiy ma'lumotlar</span>
+                    <span>Basic Information</span>
                   </div>
 
                   <div class="form-group">
                     <label class="form-label">
-                      <i class="bi bi-book"></i> Kitob nomi <span style="color:var(--red);">*</span>
+                      <i class="bi bi-book"></i> Book Name <span style="color:var(--red);">*</span>
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Kitob nomini kiriting"
-                      name="productName"
-                      class="form-control form-control-lg product-name"
-                      required
-                    />
+                    <input type="text" placeholder="Enter book title" name="productName"
+                      class="form-control form-control-lg product-name" required />
                   </div>
 
                   <div class="row g-3">
                     <div class="col-md-6">
                       <div class="form-group">
                         <label class="form-label">
-                          <i class="bi bi-currency-dollar"></i> Narxi <span style="color:var(--red);">*</span>
+                          <i class="bi bi-currency-dollar"></i> Price <span style="color:var(--red);">*</span>
                         </label>
                         <div class="input-group input-group-lg">
                           <span class="input-group-text">$</span>
-                          <input
-                            type="number"
-                            placeholder="0.00"
-                            name="productPrice"
-                            class="form-control product-price"
-                            required
-                          />
+                          <input type="number" placeholder="0.00" name="productPrice"
+                            class="form-control product-price" required />
                         </div>
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="form-group">
                         <label class="form-label">
-                          <i class="bi bi-box"></i> Qolgan soni <span style="color:var(--red);">*</span>
+                          <i class="bi bi-box"></i> Stock Count <span style="color:var(--red);">*</span>
                         </label>
-                        <input
-                          type="number"
-                          placeholder="Mavjud soni"
-                          name="productLeftCount"
-                          class="form-control form-control-lg product-left-count"
-                          required
-                        />
+                        <input type="number" placeholder="Available quantity" name="productLeftCount"
+                          class="form-control form-control-lg product-left-count" required />
                       </div>
                     </div>
                   </div>
 
                   <div class="form-group">
                     <label class="form-label">
-                      <i class="bi bi-card-text"></i> Tavsif
+                      <i class="bi bi-card-text"></i> Description
                     </label>
-                    <textarea
-                      name="productDesc"
-                      class="form-control product-desc"
-                      rows="4"
-                      placeholder="Kitob haqida: muallif, xulosa, kontent..."
-                    ></textarea>
+                    <textarea name="productDesc" class="form-control product-desc" rows="4"
+                      placeholder="Describe the book: author, summary, content..."></textarea>
                   </div>
                 </div>
 
@@ -342,14 +317,14 @@
                 <div class="form-section">
                   <div class="section-header">
                     <i class="bi bi-grid"></i>
-                    <span>Kategoriya va o'lchamlar</span>
+                    <span>Category & Specifications</span>
                   </div>
 
                   <div class="row g-3">
                     <div class="col-md-4">
                       <div class="form-group">
                         <label class="form-label">
-                          <i class="bi bi-folder"></i> Kategoriya <span style="color:var(--red);">*</span>
+                          <i class="bi bi-folder"></i> Category <span style="color:var(--red);">*</span>
                         </label>
                         <select class="form-select form-select-lg product-collection" name="productCollection" id="productCollection">
                           <option value="FICTION" selected>📚 Fiction</option>
@@ -369,7 +344,7 @@
                     <div class="col-md-4">
                       <div class="form-group">
                         <label class="form-label">
-                          <i class="bi bi-rulers"></i> O'lcham <span style="color:var(--red);">*</span>
+                          <i class="bi bi-rulers"></i> Size <span style="color:var(--red);">*</span>
                         </label>
                         <select class="form-select form-select-lg product-size" name="productSize">
                           <option value="SMALL">Small (Pocket)</option>
@@ -383,7 +358,7 @@
                     <div class="col-md-4">
                       <div class="form-group">
                         <label class="form-label">
-                          <i class="bi bi-speedometer2"></i> Og'irlik <span style="color:var(--red);">*</span>
+                          <i class="bi bi-speedometer2"></i> Weight <span style="color:var(--red);">*</span>
                         </label>
                         <select class="form-select form-select-lg product-volume" name="productVolume">
                           <option value="LIGHT">Light (0-300g)</option>
@@ -401,8 +376,8 @@
                 <div class="form-section h-100">
                   <div class="section-header">
                     <i class="bi bi-images"></i>
-                    <span>Kitob rasmlari</span>
-                    <span class="badge-soft ms-2" style="background:rgba(239,68,68,.12);color:#f87171;border-color:rgba(239,68,68,.25);">Majburiy</span>
+                    <span>Product Images</span>
+                    <span class="badge-soft ms-2" style="background:rgba(239,68,68,.12);color:#f87171;border-color:rgba(239,68,68,.25);">Required</span>
                   </div>
 
                   <div class="image-upload-grid">
@@ -410,11 +385,11 @@
                       <img src="/img/upload.svg" class="upload-preview" id="image-section-1" />
                       <div class="upload-overlay">
                         <i class="bi bi-camera"></i>
-                        <span>Yuklash</span>
+                        <span>Upload</span>
                       </div>
                       <input type="file" id="file-1" name="productImages" class="d-none image-one"
                         accept="image/*" onchange="previewFileHandler(this, 1)" required />
-                      <span class="upload-label">Rasm 1 *</span>
+                      <span class="upload-label">Image 1 *</span>
                     </div>
 
                     <div class="upload-box" onclick="document.getElementById('file-2').click()">
@@ -422,7 +397,7 @@
                       <div class="upload-overlay"><i class="bi bi-plus"></i></div>
                       <input type="file" id="file-2" name="productImages" class="d-none image-two"
                         accept="image/*" onchange="previewFileHandler(this, 2)" />
-                      <span class="upload-label">Rasm 2</span>
+                      <span class="upload-label">Image 2</span>
                     </div>
 
                     <div class="upload-box" onclick="document.getElementById('file-3').click()">
@@ -430,7 +405,7 @@
                       <div class="upload-overlay"><i class="bi bi-plus"></i></div>
                       <input type="file" id="file-3" name="productImages" class="d-none image-three"
                         accept="image/*" onchange="previewFileHandler(this, 3)" />
-                      <span class="upload-label">Rasm 3</span>
+                      <span class="upload-label">Image 3</span>
                     </div>
 
                     <div class="upload-box" onclick="document.getElementById('file-4').click()">
@@ -438,7 +413,7 @@
                       <div class="upload-overlay"><i class="bi bi-plus"></i></div>
                       <input type="file" id="file-4" name="productImages" class="d-none image-four"
                         accept="image/*" onchange="previewFileHandler(this, 4)" />
-                      <span class="upload-label">Rasm 4</span>
+                      <span class="upload-label">Image 4</span>
                     </div>
 
                     <div class="upload-box" onclick="document.getElementById('file-5').click()">
@@ -446,7 +421,7 @@
                       <div class="upload-overlay"><i class="bi bi-plus"></i></div>
                       <input type="file" id="file-5" name="productImages" class="d-none image-five"
                         accept="image/*" onchange="previewFileHandler(this, 5)" />
-                      <span class="upload-label">Rasm 5</span>
+                      <span class="upload-label">Image 5</span>
                     </div>
                   </div>
                 </div>
@@ -457,10 +432,10 @@
 
             <div class="form-footer">
               <button type="button" class="btn btn-cancel" id="cancel-btn-footer">
-                <i class="bi bi-x-circle"></i> Bekor qilish
+                <i class="bi bi-x-circle"></i> Cancel
               </button>
               <button type="submit" class="btn btn-submit">
-                <i class="bi bi-check-circle"></i> Mahsulot yaratish
+                <i class="bi bi-check-circle"></i> Create Product
               </button>
             </div>
           </form>

@@ -6,10 +6,10 @@
   <div class="auth-page-modern">
     <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px;text-align:center;max-width:420px;width:100%;">
       <div style="width:64px;height:64px;background:rgba(99,102,241,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;">🔒</div>
-      <h3 style="font-weight:800;margin-bottom:8px;color:var(--text);">Kirish talab etiladi</h3>
-      <p style="color:var(--muted);margin-bottom:24px;">Foydalanuvchilar sahifasini ko'rish uchun tizimga kirishingiz kerak.</p>
+      <h3 style="font-weight:800;margin-bottom:8px;color:var(--text);">Access Required</h3>
+      <p style="color:var(--muted);margin-bottom:24px;">You need to login to view the users page.</p>
       <a href="/admin/login" class="btn-hero-primary" style="width:100%;justify-content:center;">
-        <i class="bi bi-box-arrow-in-right"></i> Tizimga kirish
+        <i class="bi bi-box-arrow-in-right"></i> Go to Login
       </a>
     </div>
   </div>
@@ -22,7 +22,7 @@
 
   <div class="app-shell">
 
-    <!-- ── SIDEBAR ─────────────────────────── -->
+    <!-- SIDEBAR -->
     <aside class="app-sidebar">
       <div class="brand">
         <div class="brand-icon">📚</div>
@@ -60,17 +60,16 @@
             <div class="sidebar-user-name"><%= member.memberNick %></div>
             <div class="sidebar-user-role">Administrator</div>
           </div>
-          <a href="/admin/logout" onclick="return confirm('Tizimdan chiqmoqchimisiz?')" style="color:var(--muted);font-size:18px;">
+          <a href="/admin/logout" onclick="return confirm('Are you sure you want to logout?')" style="color:var(--muted);font-size:18px;">
             <i class="bi bi-box-arrow-right"></i>
           </a>
         </div>
       </div>
     </aside>
 
-    <!-- ── MAIN ───────────────────────────── -->
+    <!-- MAIN -->
     <div class="app-main">
 
-      <!-- Topbar -->
       <header class="app-topbar">
         <div class="topbar-left">
           <div class="topbar-breadcrumb">
@@ -91,29 +90,29 @@
 
       <main class="app-content">
 
-        <!-- ── HERO ──────────────────────────── -->
+        <!-- HERO -->
         <div class="dash-hero" style="margin-bottom:24px;padding:28px 32px;">
           <div class="hero-content">
             <div class="hero-greeting">
-              <i class="bi bi-people-fill"></i> Foydalanuvchilar
+              <i class="bi bi-people-fill"></i> Users
             </div>
             <h2 class="hero-title" style="font-size:22px;">
-              Foydalanuvchilarni <span>boshqaring</span>
+              Manage <span>Your Users</span>
             </h2>
             <p class="hero-desc">
-              Foydalanuvchi faolligini kuzating, holatini o'zgartiring va kutubxona a'zolarini tartibga soling.
+              Track activity, adjust status, and keep your library users organized.
             </p>
           </div>
         </div>
 
-        <!-- ── STAT CARDS ─────────────────── -->
+        <!-- STAT CARDS -->
         <div class="stat-cards">
           <div class="stat-card-new card-indigo">
             <div class="stat-card-top">
               <div class="stat-icon-new indigo"><i class="bi bi-people-fill"></i></div>
             </div>
             <div class="stat-value-new"><%= users.length %></div>
-            <div class="stat-label-new">Jami foydalanuvchilar</div>
+            <div class="stat-label-new">Total Users</div>
           </div>
 
           <div class="stat-card-new card-green">
@@ -122,7 +121,7 @@
               <div class="stat-trend up"><i class="bi bi-check"></i> Active</div>
             </div>
             <div class="stat-value-new"><%= activeCount %></div>
-            <div class="stat-label-new">Faol a'zolar</div>
+            <div class="stat-label-new">Active Members</div>
           </div>
 
           <div class="stat-card-new card-gold">
@@ -131,7 +130,7 @@
               <div class="stat-trend down"><i class="bi bi-pause"></i> Blocked</div>
             </div>
             <div class="stat-value-new"><%= blockCount %></div>
-            <div class="stat-label-new">Bloklangan</div>
+            <div class="stat-label-new">Blocked</div>
           </div>
 
           <div class="stat-card-new card-cyan">
@@ -139,40 +138,40 @@
               <div class="stat-icon-new cyan"><i class="bi bi-trash-fill"></i></div>
             </div>
             <div class="stat-value-new"><%= deleteCount %></div>
-            <div class="stat-label-new">O'chirilgan</div>
+            <div class="stat-label-new">Deleted</div>
           </div>
         </div>
 
-        <!-- ── FILTERS ────────────────────── -->
+        <!-- FILTERS -->
         <div class="card-glass mb-3">
           <div class="row g-2 align-items-center">
             <div class="col-md-5">
               <div class="filter-input-wrapper">
                 <i class="bi bi-search filter-icon"></i>
-                <input type="text" class="filter-input" id="user-search" placeholder="Foydalanuvchi nomini qidiring...">
+                <input type="text" class="filter-input" id="user-search" placeholder="Search users by name...">
               </div>
             </div>
             <div class="col-md-3">
               <div class="filter-select-wrapper">
                 <i class="bi bi-funnel filter-icon"></i>
                 <select class="filter-select" id="user-status-filter">
-                  <option value="">Barcha holat</option>
-                  <option value="ACTIVE">✓ Faol</option>
-                  <option value="BLOCK">⏸ Bloklangan</option>
-                  <option value="DELETE">✗ O'chirilgan</option>
+                  <option value="">All Status</option>
+                  <option value="ACTIVE">✓ Active</option>
+                  <option value="BLOCK">⏸ Blocked</option>
+                  <option value="DELETE">✗ Deleted</option>
                 </select>
               </div>
             </div>
             <div class="col-md-2">
               <button class="btn-clear-filters" id="user-clear-filters">
                 <i class="bi bi-x-circle"></i>
-                <span>Tozalash</span>
+                <span>Clear</span>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- ── USERS TABLE ────────────────── -->
+        <!-- USERS TABLE -->
         <div class="users-table-wrapper">
           <div class="table-header-bright">
             <div class="d-flex align-items-center gap-3">
@@ -180,8 +179,8 @@
                 <i class="bi bi-people-fill"></i>
               </div>
               <div>
-                <h4 class="mb-0 fw-bold">Barcha foydalanuvchilar</h4>
-                <p class="mb-0 small" style="color:var(--muted);">Foydalanuvchi kirish huquqini boshqaring</p>
+                <h4 class="mb-0 fw-bold">All Users</h4>
+                <p class="mb-0 small" style="color:var(--muted);">Manage user access control</p>
               </div>
             </div>
             <span class="user-count-badge"><%= users.length %> Users</span>
@@ -192,10 +191,10 @@
               <thead>
                 <tr>
                   <th class="col-number"><i class="bi bi-hash"></i> #</th>
-                  <th class="col-user"><i class="bi bi-person-circle"></i> Foydalanuvchi</th>
-                  <th class="col-contact"><i class="bi bi-telephone"></i> Telefon</th>
-                  <th class="col-status"><i class="bi bi-toggle-on"></i> Holat</th>
-                  <th class="col-actions"><i class="bi bi-gear"></i> Amallar</th>
+                  <th class="col-user"><i class="bi bi-person-circle"></i> User</th>
+                  <th class="col-contact"><i class="bi bi-telephone"></i> Contact</th>
+                  <th class="col-status"><i class="bi bi-toggle-on"></i> Status</th>
+                  <th class="col-actions"><i class="bi bi-gear"></i> Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -208,9 +207,7 @@
                   </td>
                   <td class="col-user">
                     <div class="user-info">
-                      <div class="user-avatar">
-                        <i class="bi bi-person-fill"></i>
-                      </div>
+                      <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
                       <div class="user-details">
                         <div class="user-name"><%= value.memberNick %></div>
                         <div class="user-id">ID: <%= value._id.toString().slice(-6) %></div>
@@ -231,9 +228,9 @@
                   </td>
                   <td class="col-actions">
                     <select class="status-select-bright member-status" id="<%= value._id %>">
-                      <option value="ACTIVE"  <%= value.memberStatus === "ACTIVE"  ? "selected" : "" %>>✓ Active</option>
-                      <option value="BLOCK"   <%= value.memberStatus === "BLOCK"   ? "selected" : "" %>>⏸ Block</option>
-                      <option value="DELETE"  <%= value.memberStatus === "DELETE"  ? "selected" : "" %>>✗ Delete</option>
+                      <option value="ACTIVE" <%= value.memberStatus === "ACTIVE" ? "selected" : "" %>>✓ Active</option>
+                      <option value="BLOCK"  <%= value.memberStatus === "BLOCK"  ? "selected" : "" %>>⏸ Block</option>
+                      <option value="DELETE" <%= value.memberStatus === "DELETE" ? "selected" : "" %>>✗ Delete</option>
                     </select>
                   </td>
                 </tr>
@@ -242,8 +239,8 @@
             </table>
             <div id="users-no-results" class="no-results-bright" style="display:none;">
               <div class="no-results-icon"><i class="bi bi-search"></i></div>
-              <h5>Foydalanuvchi topilmadi</h5>
-              <p>Qidiruv yoki filtr mezonlarini o'zgartiring</p>
+              <h5>No users found</h5>
+              <p>Try adjusting your search or filter criteria</p>
             </div>
           </div>
         </div>

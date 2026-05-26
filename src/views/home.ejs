@@ -5,7 +5,7 @@
 <body class="app-bg">
   <div class="app-shell">
 
-    <!-- ── SIDEBAR ─────────────────────────── -->
+    <!-- SIDEBAR -->
     <aside class="app-sidebar">
       <div class="brand">
         <div class="brand-icon">📚</div>
@@ -57,7 +57,7 @@
             <div class="sidebar-user-name"><%= member.memberNick %></div>
             <div class="sidebar-user-role">Administrator</div>
           </div>
-          <a href="/admin/logout" onclick="return confirm('Tizimdan chiqmoqchimisiz?')" style="color:var(--muted);font-size:18px;">
+          <a href="/admin/logout" onclick="return confirm('Are you sure you want to logout?')" style="color:var(--muted);font-size:18px;">
             <i class="bi bi-box-arrow-right"></i>
           </a>
         </div>
@@ -65,10 +65,9 @@
       <% } %>
     </aside>
 
-    <!-- ── MAIN ───────────────────────────── -->
+    <!-- MAIN -->
     <div class="app-main">
 
-      <!-- Topbar -->
       <header class="app-topbar">
         <div class="topbar-left">
           <div class="topbar-breadcrumb">
@@ -87,7 +86,7 @@
 
       <main class="app-content">
 
-        <!-- ── HERO ──────────────────────────── -->
+        <!-- HERO -->
         <div class="dash-hero">
           <div class="hero-content">
             <div class="hero-greeting">
@@ -97,29 +96,28 @@
               BOOKON <span>Admin Panel</span>
             </h1>
             <p class="hero-desc">
-              Kutubxona mahsulotlari, foydalanuvchilar va buyurtmalarni boshqaring. Zamonaviy admin paneli bilan hamma narsa sizning nazoratingizda.
+              Manage your library products, users, and orders. Everything is under your control with the modern admin panel.
             </p>
             <% if(!member) { %>
             <div class="hero-actions">
               <a class="btn-hero-primary" href="/admin/signup">
-                <i class="bi bi-person-plus-fill"></i> Ro'yxatdan o'tish
+                <i class="bi bi-person-plus-fill"></i> Get Started
               </a>
               <a class="btn-hero-secondary" href="/admin/login">
-                <i class="bi bi-box-arrow-in-right"></i> Kirish
+                <i class="bi bi-box-arrow-in-right"></i> Login
               </a>
             </div>
             <% } else { %>
             <div class="hero-actions">
               <a class="btn-hero-primary" href="/admin/product/all">
-                <i class="bi bi-grid-3x3-gap-fill"></i> Mahsulotlar
+                <i class="bi bi-grid-3x3-gap-fill"></i> Products
               </a>
               <a class="btn-hero-secondary" href="/admin/user/all">
-                <i class="bi bi-people-fill"></i> Foydalanuvchilar
+                <i class="bi bi-people-fill"></i> Users
               </a>
             </div>
             <% } %>
           </div>
-          <!-- Floating book decoration -->
           <div class="hero-decoration">
             <div class="hero-book"></div>
           </div>
@@ -127,69 +125,53 @@
 
         <% if(member) { %>
 
-        <!-- ── STAT CARDS ─────────────────── -->
+        <!-- STAT CARDS -->
         <div class="stat-cards">
           <div class="stat-card-new card-indigo">
             <div class="stat-card-top">
-              <div class="stat-icon-new indigo">
-                <i class="bi bi-book-fill"></i>
-              </div>
-              <div class="stat-trend up">
-                <i class="bi bi-arrow-up"></i> Live
-              </div>
+              <div class="stat-icon-new indigo"><i class="bi bi-book-fill"></i></div>
+              <div class="stat-trend up"><i class="bi bi-arrow-up"></i> Live</div>
             </div>
             <div class="stat-value-new">∞</div>
-            <div class="stat-label-new">Jami mahsulotlar</div>
+            <div class="stat-label-new">Total Products</div>
           </div>
 
           <div class="stat-card-new card-gold">
             <div class="stat-card-top">
-              <div class="stat-icon-new gold">
-                <i class="bi bi-people-fill"></i>
-              </div>
-              <div class="stat-trend up">
-                <i class="bi bi-arrow-up"></i> Active
-              </div>
+              <div class="stat-icon-new gold"><i class="bi bi-people-fill"></i></div>
+              <div class="stat-trend up"><i class="bi bi-arrow-up"></i> Active</div>
             </div>
             <div class="stat-value-new">∞</div>
-            <div class="stat-label-new">Jami foydalanuvchilar</div>
+            <div class="stat-label-new">Total Users</div>
           </div>
 
           <div class="stat-card-new card-green">
             <div class="stat-card-top">
-              <div class="stat-icon-new green">
-                <i class="bi bi-bag-check-fill"></i>
-              </div>
-              <div class="stat-trend up">
-                <i class="bi bi-arrow-up"></i> New
-              </div>
+              <div class="stat-icon-new green"><i class="bi bi-bag-check-fill"></i></div>
+              <div class="stat-trend up"><i class="bi bi-arrow-up"></i> New</div>
             </div>
             <div class="stat-value-new">∞</div>
-            <div class="stat-label-new">Buyurtmalar</div>
+            <div class="stat-label-new">Orders</div>
           </div>
 
           <div class="stat-card-new card-cyan">
             <div class="stat-card-top">
-              <div class="stat-icon-new cyan">
-                <i class="bi bi-graph-up-arrow"></i>
-              </div>
-              <div class="stat-trend up">
-                <i class="bi bi-arrow-up"></i> Up
-              </div>
+              <div class="stat-icon-new cyan"><i class="bi bi-graph-up-arrow"></i></div>
+              <div class="stat-trend up"><i class="bi bi-arrow-up"></i> Up</div>
             </div>
             <div class="stat-value-new">∞</div>
-            <div class="stat-label-new">Oy daromadi</div>
+            <div class="stat-label-new">Monthly Revenue</div>
           </div>
         </div>
 
-        <!-- ── QUICK ACTIONS ──────────────── -->
+        <!-- QUICK ACTIONS -->
         <div class="quick-grid">
           <a class="quick-card" href="/admin/product/all">
             <div class="quick-card-icon" style="background:rgba(99,102,241,.15);color:#818cf8;">
               <i class="bi bi-grid-3x3-gap-fill"></i>
             </div>
-            <h5>Mahsulotlar</h5>
-            <p>Kitoblar katalogini ko'rish va boshqarish</p>
+            <h5>Products</h5>
+            <p>View and manage the book catalog</p>
             <div class="quick-card-arrow"><i class="bi bi-arrow-right"></i></div>
           </a>
 
@@ -197,17 +179,17 @@
             <div class="quick-card-icon" style="background:rgba(245,158,11,.15);color:#fbbf24;">
               <i class="bi bi-people-fill"></i>
             </div>
-            <h5>Foydalanuvchilar</h5>
-            <p>Foydalanuvchi ro'yxati va holatini boshqarish</p>
+            <h5>Users</h5>
+            <p>Manage user list and status</p>
             <div class="quick-card-arrow"><i class="bi bi-arrow-right"></i></div>
           </a>
 
-          <a class="quick-card" href="/admin/logout" onclick="return confirm('Tizimdan chiqmoqchimisiz?')">
+          <a class="quick-card" href="/admin/logout" onclick="return confirm('Are you sure you want to logout?')">
             <div class="quick-card-icon" style="background:rgba(239,68,68,.12);color:#f87171;">
               <i class="bi bi-box-arrow-right"></i>
             </div>
-            <h5>Chiqish</h5>
-            <p>Admin paneldan xavfsiz chiqish</p>
+            <h5>Logout</h5>
+            <p>Sign out from admin panel</p>
             <div class="quick-card-arrow"><i class="bi bi-arrow-right"></i></div>
           </a>
         </div>
