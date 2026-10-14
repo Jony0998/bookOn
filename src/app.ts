@@ -1,6 +1,8 @@
 
 import cors from "cors";
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
+import multer from "multer";
+import Errors, { HttpCode, Message } from "./libs/types/Errors";
 import path from "path";
 import router from "./router";
 import routerAdmin from "./router-admin";
@@ -28,7 +30,16 @@ app.use(
     maxAge: isProduction ? "1d" : 0,
   })
 );
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "../uploads"), {
+    // Uploaded files must never be sniffed/executed as HTML or scripts
+    setHeaders: (res) => {
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader("Content-Security-Policy", "default-src 'none'; img-src 'self'");
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // REST API
 app.use(
@@ -65,6 +76,25 @@ app.set("view engine", "ejs");
 /** 4-ROUTERS **/
 app.use("/admin", routerAdmin); // SSR: EJS
 app.use("/", router); // SPA: REACT
+
+/** 5-ERROR HANDLER (upload errors and anything not caught in controllers) **/
+app.use(function (err: any, req: Request, res: Response, next: NextFunction) {
+  console.log("Error, unhandled:", err?.code || "", err?.message || err);
+  if (res.headersSent) return next(err);
+
+  let error = Errors.standard;
+  if (err instanceof Errors) error = { code: err.code, message: err.message };
+  else if (err instanceof multer.MulterError)
+    error = { code: HttpCode.BAD_REQUEST, message: Message.INVALID_FILE };
+
+  if (req.originalUrl.startsWith("/admin")) {
+    res.status(error.code).send(
+      `<script> alert(${JSON.stringify(error.message)}); window.history.back(); </script>`
+    );
+  } else {
+    res.status(error.code).json(error);
+  }
+});
 
 const server = http.createServer(app);
 const io = new SocketIOServer(server,{
