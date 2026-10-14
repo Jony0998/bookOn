@@ -31,7 +31,9 @@ public async getProducts(inquiry: ProductInquiry): Promise<any[]> {
   if(inquiry.productCollection) 
     match.productCollection = inquiry.productCollection;
   if(inquiry.search) {
-    match.productName = { $regex: new RegExp(inquiry.search, "i") };
+    // Escape user input so it is matched literally (prevents ReDoS / regex injection)
+    const escaped = inquiry.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    match.productName = { $regex: new RegExp(escaped, "i") };
   }
 
   const sort: T = inquiry.order === "productPrice" 

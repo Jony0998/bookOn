@@ -71,7 +71,11 @@ memberController.signup = async (req: Request, res: Response) => {
 memberController.login = async (req: Request, res: Response) => {
   try {
     console.log("login");
-    const input: LoginInput = req.body,
+    // Coerce to strings so objects like {"$ne": null} never reach the query
+    const input: LoginInput = {
+        memberNick: String(req.body?.memberNick ?? ""),
+        memberPassword: String(req.body?.memberPassword ?? ""),
+      },
       result = await memberService.login(input),
       token = await authService.createToken(result);
 

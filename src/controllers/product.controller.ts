@@ -5,8 +5,10 @@ import { AdminRequest, ExtendedRequest } from "../libs/types/member";
 import ProductService from "../models/Product.service";
 import { Product, ProductInput, ProductInquiry } from "../libs/types/product";
 import { ProductCollection } from "../libs/types/enums/product.enum";
+import { parsePagination } from "../libs/types/config";
 
 const productService = new ProductService();
+const PRODUCT_SORT_FIELDS = ["createdAt", "updatedAt", "productPrice", "productViews", "productLikes"];
 
 const productController: T = {};
 
@@ -18,14 +20,12 @@ productController.getProducts = async (req: Request, res: Response) => {
     console.log("getProducts");
     const {page, limit, order, productCollection, search} = req.query;
     const inquiry: ProductInquiry = {
-      order: String(order),
-      page: Number(page),
-      limit: Number(limit),
+      order: PRODUCT_SORT_FIELDS.includes(String(order)) ? String(order) : "createdAt",
+      ...parsePagination(page, limit, 8, 50),
     };
-    if(productCollection) {
-      inquiry.productCollection = productCollection as ProductCollection;
-    }
-    if(search) inquiry.search = String(search);
+    // Unknown collections simply match nothing (older clients send legacy values)
+    if (productCollection) inquiry.productCollection = String(productCollection) as ProductCollection;
+    if (search) inquiry.search = String(search).slice(0, 100);
 
     const result = await productService.getProducts(inquiry);
     
@@ -43,7 +43,6 @@ productController.getProduct = async (req: ExtendedRequest, res: Response) => {
     try {
     console.log("getProduct");
     const { id } = req.params;
-    console.log("req.member:", req.member);
 
     const memberId = req.member?._id ?? null,   //login bo'lmagan user => null
           result = await productService.getProduct(memberId, id);

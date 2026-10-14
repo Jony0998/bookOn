@@ -90,8 +90,10 @@ libraryController.processLogin = async (
 ) => {
   try {
     console.log("processLogin");
-    console.log("body:", req.body);
-    const input: LoginInput = req.body;
+    const input: LoginInput = {
+      memberNick: String(req.body?.memberNick ?? ""),
+      memberPassword: String(req.body?.memberPassword ?? ""),
+    };
     const result = await memberService.processLogin(input);
     // TODO: SESSIONS AUTHENTICATION
 
