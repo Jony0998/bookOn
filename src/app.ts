@@ -26,6 +26,8 @@ const store = new MongoDBStore({
 /** 1-ENTRANCE **/
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
+// Behind nginx: trust X-Forwarded-Proto so req.secure reflects HTTPS
+app.set("trust proxy", 1);
 app.use(
   express.static(path.join(__dirname, "public"), {
     maxAge: isProduction ? "1d" : 0,
@@ -43,10 +45,17 @@ app.use(
 );
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // REST API
+// FRONTEND_URL may list several origins: "https://bookon.sale,https://www.bookon.sale"
+const allowedOrigins = (process.env.FRONTEND_URL || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const corsOrigin = allowedOrigins.length ? allowedOrigins : true; // dev: allow all
+
 app.use(
   cors({
     credentials: true,
-    origin: process.env.FRONTEND_URL || true, // e.g. https://your-app.vercel.app or true (allow all)
+    origin: corsOrigin,
   })
 );
 app.use(cookieParser());
@@ -57,10 +66,13 @@ app.use(
     secret: String(process.env.SESSION_SECRET),
     cookie: {
       maxAge: 1000 * 3600 * 6, // 6hr
+      httpOnly: true,
+      sameSite: "lax",
+      secure: "auto", // secure over HTTPS, still works on plain http in dev
     },
     store: store,
     resave: true, //
-    saveUninitialized: true,
+    saveUninitialized: false, // no session documents for anonymous visitors
   })
 );
 
@@ -99,7 +111,7 @@ app.use(function (err: any, req: Request, res: Response, next: NextFunction) {
 const server = http.createServer(app);
 const io = new SocketIOServer(server,{
   cors: {
-    origin: process.env.FRONTEND_URL || true,
+    origin: corsOrigin,
     credentials: true,
   },
 });

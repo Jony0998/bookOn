@@ -1,5 +1,5 @@
 // Controllers are implemented as objects; import common types from libs.
-import { NextFunction, Request, Response } from "express";
+import { CookieOptions, NextFunction, Request, Response } from "express";
 import { T } from "../libs/types/common";
 import MemberService from "../models/Member.service";
 import {
@@ -17,6 +17,15 @@ const memberService = new MemberService();
 const authService = new AuthService();
 
 const memberController: T = {};
+
+/** Auth cookie: httpOnly, SameSite=Lax, Secure whenever the request came over HTTPS */
+const authCookieOptions = (req: Request): CookieOptions => ({
+  maxAge: AUTH_TIMER * 3600 * 1000,
+  httpOnly: true,
+  sameSite: "lax",
+  secure: req.secure,
+  path: "/",
+});
 
 memberController.getLibrary = async (req: Request, res: Response) => {
   try {
@@ -55,10 +64,7 @@ memberController.signup = async (req: Request, res: Response) => {
       result: Member = await memberService.signup(input),
       token = await authService.createToken(result);
 
-    res.cookie("accessToken", token, {
-      maxAge: AUTH_TIMER * 3600 * 1000,
-      httpOnly: true,
-    });
+    res.cookie("accessToken", token, authCookieOptions(req));
 
     res.status(HttpCode.CREATED).json({ member: result, accessToken: token });
   } catch (err) {
@@ -79,10 +85,7 @@ memberController.login = async (req: Request, res: Response) => {
       result = await memberService.login(input),
       token = await authService.createToken(result);
 
-    res.cookie("accessToken", token, {
-      maxAge: AUTH_TIMER * 3600 * 1000,
-      httpOnly: true,
-    });
+    res.cookie("accessToken", token, authCookieOptions(req));
 
     res.status(HttpCode.OK).json({ member: result, accessToken: token });
   } catch (err) {
@@ -97,7 +100,8 @@ memberController.login = async (req: Request, res: Response) => {
 memberController.logout = (req: ExtendedRequest, res: Response) => {
   try {
     console.log("logout");
-    res.clearCookie("accessToken", { httpOnly: true });
+    const { maxAge, ...clearOptions } = authCookieOptions(req);
+    res.clearCookie("accessToken", clearOptions);
     res.status(HttpCode.OK).json({ logout: true });
   } catch (err) {
     console.log("Error logout:", err);
