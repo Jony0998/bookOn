@@ -34,13 +34,8 @@ mongoose
   .connect(process.env.MONGO_URL as string, {})
   .then((data) => {
     console.log("MongoDB connection succeed");
-    // PM2 app name (Windows da ecosystem env ba'zan yetkazilmaydi, shuning uchun name orqali ham qarab chiqamiz)
-    const appName = process.env.name || "";
-    const portFromEnv = Number(process.env.PORT);
-    const PORT =
-      appName === "BOOKON2"
-        ? 3004
-        : portFromEnv || (process.env.NODE_ENV === "production" ? 3004 : 3003);
+    // Docker sets PORT=3005 in production; local dev defaults to 3003
+    const PORT = Number(process.env.PORT) || 3003;
 
     server.listen(PORT, function () {
       console.info(`Server running at http://localhost:${PORT}/`);

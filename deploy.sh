@@ -1,24 +1,31 @@
 #!/bin/bash
+# Production deploy (server: /root/bookOn, Docker container bookon-api on :3005)
+# Rollback: docker tag bookon-bookon-api:rollback bookon-bookon-api:latest && docker compose up -d bookon-api
 set -e
+cd "$(dirname "$0")"
 
-# PRODUCTION
-git reset --hard
-git checkout master
-git pull origin master
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Working tree has local changes, aborting (commit or stash them first)."
+  git status --short
+  exit 1
+fi
 
-rm -rf node_modules
-npm install
-node node_modules/typescript/bin/tsc
-node scripts/copy-assets.js
-node extra.js
-pm2 start process.config.js --env production
+git fetch origin
+git checkout -B master origin/master
+echo "Deploying $(git log --oneline -1)"
 
+# Keep the current image so we can roll back quickly
+docker tag bookon-bookon-api:latest bookon-bookon-api:rollback 2>/dev/null || true
 
+docker compose build bookon-api
+docker compose up -d bookon-api
 
- # DEVELOPMENT
-#  git reset --hard
-#  git checkout development
-#  git pull origin development
+for i in $(seq 1 30); do
+  if docker logs bookon-api 2>&1 | tail -20 | grep -q "Server running"; then break; fi
+  sleep 2
+done
+docker logs --tail 10 bookon-api
 
-# #  npm install
-# #  pm2  start "npm run start:dev" --name=BOOKON
+if command -v node >/dev/null; then
+  node scripts/smoke-test.js http://127.0.0.1:3005
+fi
