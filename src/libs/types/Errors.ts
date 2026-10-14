@@ -22,6 +22,9 @@ export enum Message {
   TOKEN_CREATION_FAILED = "Token creation error!",
   WRONG_PASSWORD = "Wrong password!",
   NOT_AUTHENTICATED = "You are not authenticated , Please login first",
+  INVALID_INPUT = "Invalid input provided!",
+  INVALID_FILE = "Only jpg, jpeg, png and webp images up to 5MB are allowed!",
+  INVALID_STATUS_CHANGE = "This order status change is not allowed!",
 }
 
 class Errors extends Error {

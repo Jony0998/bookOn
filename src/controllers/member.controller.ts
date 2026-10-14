@@ -11,7 +11,7 @@ import {
 } from "../libs/types/member";
 import AuthService from "../models/Auth.service";
 import Errors, { HttpCode, Message } from "../libs/types/Errors";
-import { AUTH_TIMER } from "../libs/types/config";
+import { AUTH_TIMER, pickFields } from "../libs/types/config";
 
 const memberService = new MemberService();
 const authService = new AuthService();
@@ -35,7 +35,23 @@ memberController.signup = async (req: Request, res: Response) => {
   try {
     console.log("signup");
 
-    const input: MemberInput = req.body,
+    // Never trust memberType/memberStatus/memberPoints from the client
+    const fields = pickFields(req.body, [
+      "memberNick",
+      "memberPhone",
+      "memberAddress",
+      "memberDesc",
+    ] as const);
+    const memberPassword = req.body?.memberPassword;
+    if (!fields.memberNick || !fields.memberPhone || typeof memberPassword !== "string" || !memberPassword)
+      throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_INPUT);
+
+    const input: MemberInput = {
+        ...fields,
+        memberNick: fields.memberNick,
+        memberPhone: fields.memberPhone,
+        memberPassword,
+      },
       result: Member = await memberService.signup(input),
       token = await authService.createToken(result);
 
@@ -107,7 +123,15 @@ memberController.updateMember = async (
   res: Response) => {
   try {
     console.log("updateMember");
-    const input: MemberUpdateInput = req.body;
+    // Users may only change their own profile fields
+    const input: MemberUpdateInput = pickFields(req.body, [
+      "memberNick",
+      "memberPhone",
+      "memberAddress",
+      "memberDesc",
+    ] as const);
+    if (input.memberNick === "" || input.memberPhone === "")
+      throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_INPUT);
 
     if (req.file) input.memberImage = req.file.path.replace(/\\/g, "/");
     const result = await memberService.updateMember(req.member, input); // call

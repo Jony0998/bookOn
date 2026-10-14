@@ -91,9 +91,16 @@ class MemberService {
     input: MemberUpdateInput
   ): Promise<any> {
     const memberId = shapeIntoMongooseObjectId(member._id);
-    const result = await this.memberModel
-      .findOneAndUpdate({ _id: memberId }, input, { new: true })
-      .exec();
+    let result;
+    try {
+      result = await this.memberModel
+        .findOneAndUpdate({ _id: memberId }, input, { new: true })
+        .exec();
+    } catch (err: any) {
+      if (err?.code === 11000)
+        throw new Errors(HttpCode.BAD_REQUEST, Message.USED_NICK_PHONE);
+      throw err;
+    }
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
 
     return result;
@@ -203,10 +210,17 @@ class MemberService {
   }
 
   public async updateChosenUser(input: MemberUpdateInput): Promise<any> {
-    input._id = shapeIntoMongooseObjectId(input._id);
+    const memberId = shapeIntoMongooseObjectId(input?._id);
+    // Admin panel only changes user status
+    if (!Object.values(MemberStatus).includes(input?.memberStatus as MemberStatus))
+      throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_INPUT);
 
     const result = await this.memberModel
-      .findByIdAndUpdate({ _id: input._id }, input, { new: true })
+      .findOneAndUpdate(
+        { _id: memberId, memberType: MemberType.USER },
+        { memberStatus: input.memberStatus },
+        { new: true }
+      )
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
 

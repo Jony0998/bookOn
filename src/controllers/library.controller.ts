@@ -5,6 +5,7 @@ import MemberService from "../models/Member.service";
 import { AdminRequest, LoginInput, MemberInput } from "../libs/types/member";
 import { MemberType } from "../libs/types/enums/member.enum";
 import Errors, { HttpCode, Message } from "../libs/types/Errors";
+import { pickFields } from "../libs/types/config";
 const memberService = new MemberService();
 
 const libraryController: T = {};
@@ -49,9 +50,24 @@ libraryController.processSignup = async (
     if (!file)
       throw new Errors(HttpCode.BAD_REQUEST, Message.SOMETHING_WENT_WRONG);
 
-    const newMember: MemberInput = req.body;
-    newMember.memberImage = file?.path;
-    newMember.memberType = MemberType.LIBRARY;
+    const fields = pickFields(req.body, [
+      "memberNick",
+      "memberPhone",
+      "memberAddress",
+      "memberDesc",
+    ] as const);
+    const memberPassword = req.body?.memberPassword;
+    if (!fields.memberNick || !fields.memberPhone || typeof memberPassword !== "string" || !memberPassword)
+      throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_INPUT);
+
+    const newMember: MemberInput = {
+      ...fields,
+      memberNick: fields.memberNick,
+      memberPhone: fields.memberPhone,
+      memberPassword,
+      memberImage: file.path.replace(/\\/g, "/"),
+      memberType: MemberType.LIBRARY,
+    };
     const result = await memberService.processSignup(newMember);
 
     req.session.member = result;
