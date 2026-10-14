@@ -10,6 +10,16 @@ import { MemberStatus, MemberType } from "../libs/types/enums/member.enum";
 import * as bcrypt from "bcrypt";
 import { shapeIntoMongooseObjectId } from "../libs/types/config";
 
+/** Fields safe to show to anyone (no phone, address or password) */
+const PUBLIC_MEMBER_FIELDS = {
+  memberNick: 1,
+  memberType: 1,
+  memberImage: 1,
+  memberDesc: 1,
+  memberPoints: 1,
+  createdAt: 1,
+};
+
 class MemberService {
   private readonly memberModel;
 
@@ -109,7 +119,7 @@ class MemberService {
   public async getMemberPublic(memberId: string): Promise<any> {
     const id = shapeIntoMongooseObjectId(memberId);
     const result = await this.memberModel
-      .findOne({ _id: id, memberStatus: MemberStatus.ACTIVE })
+      .findOne({ _id: id, memberStatus: MemberStatus.ACTIVE }, PUBLIC_MEMBER_FIELDS)
       .lean()
       .exec();
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
@@ -118,10 +128,14 @@ class MemberService {
 
   public async getTopUsers(): Promise<any[]> {
     const result = await this.memberModel
-      .find({
-        memberStatus: MemberStatus.ACTIVE,
-        memberPoints: { $gte: -1 }, 
-      })
+      .find(
+        {
+          memberStatus: MemberStatus.ACTIVE,
+          memberType: MemberType.USER,
+          memberPoints: { $gte: -1 },
+        },
+        PUBLIC_MEMBER_FIELDS
+      )
       .sort({ memberPoints: -1 })
       .limit(4)
       .exec();
