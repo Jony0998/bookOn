@@ -15,11 +15,8 @@ router.get("/member/library", memberController.getLibrary
 
 router.post("/member/login", memberController.login); // call
 router.post("/member/signup", memberController.signup); // call
-router.post(
-  "/member/logout",
-  memberController.verifyAuth,
-  memberController.logout
-);
+// Logout must work even when the token is expired or missing
+router.post("/member/logout", memberController.logout);
 router.get(
   "/member/detail",
   memberController.verifyAuth,
