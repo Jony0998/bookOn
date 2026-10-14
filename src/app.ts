@@ -3,6 +3,7 @@ import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import Errors, { HttpCode, Message } from "./libs/types/Errors";
+import { alertScript } from "./libs/utils/alert";
 import path from "path";
 import router from "./router";
 import routerAdmin from "./router-admin";
@@ -88,9 +89,8 @@ app.use(function (err: any, req: Request, res: Response, next: NextFunction) {
     error = { code: HttpCode.BAD_REQUEST, message: Message.INVALID_FILE };
 
   if (req.originalUrl.startsWith("/admin")) {
-    res.status(error.code).send(
-      `<script> alert(${JSON.stringify(error.message)}); window.history.back(); </script>`
-    );
+    const back = req.originalUrl.startsWith("/admin/signup") ? "/admin/signup" : "/admin/product/all";
+    res.status(error.code).send(alertScript(error.message, back));
   } else {
     res.status(error.code).json(error);
   }

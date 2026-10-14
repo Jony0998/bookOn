@@ -6,6 +6,7 @@ import ProductService from "../models/Product.service";
 import { Product, ProductInput, ProductInquiry } from "../libs/types/product";
 import { ProductCollection } from "../libs/types/enums/product.enum";
 import { parsePagination } from "../libs/types/config";
+import { alertScript } from "../libs/utils/alert";
 
 const productService = new ProductService();
 const PRODUCT_SORT_FIELDS = ["createdAt", "updatedAt", "productPrice", "productViews", "productLikes"];
@@ -87,23 +88,13 @@ productController.createNewProduct = async (
       return ele.path.replace(/\\/g, "/");
     });
 
-    // productVolume is now ProductWeight enum (string), no need to convert
-    console.log("req.body:", req.body)
-
-
-
     await productService.createNewProduct(data);
-    console.log("passed here controller")
-    res.send(
-      `<script> alert("Successful creation"); window.location.replace('/admin/product/all')</script>`
-    );
+    res.send(alertScript("Successful creation", "/admin/product/all"));
   } catch (err) {
     console.log("Error createNewProduct:", err);
     const message =
       err instanceof Errors ? err.message : Message.SOMETHING_WENT_WRONG;
-    res.send(
-      `<script> alert("${message}"); window.location.replace('/admin/product/all')</script>`
-    );
+    res.send(alertScript(message, "/admin/product/all"));
   }
 };
 

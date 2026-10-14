@@ -6,6 +6,7 @@ import { AdminRequest, LoginInput, MemberInput } from "../libs/types/member";
 import { MemberType } from "../libs/types/enums/member.enum";
 import Errors, { HttpCode, Message } from "../libs/types/Errors";
 import { pickFields } from "../libs/types/config";
+import { alertScript } from "../libs/utils/alert";
 const memberService = new MemberService();
 
 const libraryController: T = {};
@@ -78,9 +79,7 @@ libraryController.processSignup = async (
     console.log("Error processSignup:", err);
     const message =
       err instanceof Errors ? err.message : Message.SOMETHING_WENT_WRONG;
-    res.send(
-      `<script> alert("${message}"); window.location.replace('/admin/signup') </script>`
-    );
+    res.send(alertScript(message, "/admin/signup"));
   }
 };
 
@@ -105,9 +104,7 @@ libraryController.processLogin = async (
     console.log("Error processLogin:", err);
     const message =
       err instanceof Errors ? err.message : Message.SOMETHING_WENT_WRONG;
-    res.send(
-      `<script> alert("${message}"); window.location.replace('/admin/login') </script>`
-    );
+    res.send(alertScript(message, "/admin/login"));
   }
 };
 
@@ -155,11 +152,11 @@ libraryController.checkAuthSession = async (
   try {
     console.log("checkAuthSession");
     if (req.session?.member)
-      res.send(`<script> alert("${req.session.member.memberNick}") </script>`);
-    else res.send(`<script> alert("${Message.NOT_AUTHENTICATED}") </script>`);
+      res.send(alertScript(req.session.member.memberNick));
+    else res.send(alertScript(Message.NOT_AUTHENTICATED));
   } catch (err) {
-    res.send(err);
     console.log("Error checkAuthSession:", err);
+    res.send(alertScript(Message.SOMETHING_WENT_WRONG));
   }
 };
 
@@ -173,10 +170,7 @@ libraryController.verifyLibrary = (
     // console.log("req.session: ", req.session.member);
     next();
   } else {
-    const message = Message.NOT_AUTHENTICATED;
-    res.send(
-      `<script> alert("${message}"); window.location.replace('/admin/login'); </script>`
-    );
+    res.status(HttpCode.UNAUTHORIZED).send(alertScript(Message.NOT_AUTHENTICATED, "/admin/login"));
   }
 };
 
