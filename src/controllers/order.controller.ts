@@ -1,7 +1,8 @@
 import { ExtendedRequest } from "../libs/types/member";
 import { Response } from "express";
 import { T } from "../libs/types/common";
-import Errors, { HttpCode } from "../libs/types/Errors";
+import Errors, { HttpCode, Message } from "../libs/types/Errors";
+import { parsePagination } from "../libs/types/config";
 import OrderService from "../models/Order.service";
 import { OrderInquiry, OrderUpdateInput } from "../libs/types/order";
 import { OrderStatus } from "../libs/types/enums/order.enum";
@@ -28,12 +29,12 @@ orderController.getMyOrders = async (req: ExtendedRequest, res: Response ) => {
    try {
       console.log("getMyOrders");
       const {page, limit, orderStatus} = req.query;
+      if (!Object.values(OrderStatus).includes(orderStatus as OrderStatus))
+        throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_INPUT);
       const inquiry: OrderInquiry = {
-        page: Number(page),
-        limit: Number(limit),
+        ...parsePagination(page, limit),
         orderStatus: orderStatus as OrderStatus,
       };
-      console.log("inquiry:", inquiry);
       const result = await orderService.getMyOrders(req.member, inquiry);
 
       res.status(HttpCode.OK).json(result);

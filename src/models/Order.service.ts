@@ -7,65 +7,90 @@ import Errors, { HttpCode, Message } from "../libs/types/Errors";
 import { Types } from "mongoose";
 import { OrderStatus } from "../libs/types/enums/order.enum";
 import MemberService from "./Member.service";
+import ProductModel from "../schema/Product.model";
+import { ProductStatus } from "../libs/types/enums/product.enum";
 
+const MAX_ORDER_ITEMS = 50;
+const MAX_ITEM_QUANTITY = 100;
 
+/** target status -> status the order must currently have */
+const ALLOWED_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus>> = {
+  [OrderStatus.PROCESS]: OrderStatus.PAUSE,
+  [OrderStatus.DELETE]: OrderStatus.PAUSE,
+  [OrderStatus.FINISH]: OrderStatus.PROCESS,
+};
 
 class OrderService {
   private readonly orderModel;
   private readonly orderItemModel;
+  private readonly productModel;
   private readonly memberService;
 
 constructor() {
     this.orderModel = OrderModel;
     this.orderItemModel = OrderItemModel;
+    this.productModel = ProductModel;
     this.memberService = new MemberService();
   }
 
   public async createOrder(
-    member: Member, 
+    member: Member,
     input: OrderItemInput[]
   ): Promise<any> {
-   const memberId = shapeIntoMongooseObjectId(member._id);
-   const amount = input.reduce((accumulator: number, item: OrderItemInput) => {
-     return accumulator + item.itemPrice * item.itemQuantity;
-   }, 0);
-   const delivery = amount < 100 ? 5 : 0;
-//    console.log("values:", amount, delivery);
+    const memberId = shapeIntoMongooseObjectId(member._id);
 
+    if (!Array.isArray(input) || input.length === 0 || input.length > MAX_ORDER_ITEMS)
+      throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_INPUT);
 
-try {
-    const newOrder = await this.orderModel.create({
+    // Merge duplicate lines and validate quantities; client prices are ignored
+    const quantities = new Map<string, number>();
+    for (const item of input) {
+      const quantity = Number(item?.itemQuantity);
+      if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_ITEM_QUANTITY)
+        throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_INPUT);
+      const productId = String(shapeIntoMongooseObjectId(String(item?.productId)));
+      quantities.set(productId, (quantities.get(productId) ?? 0) + quantity);
+    }
+
+    const products = await this.productModel
+      .find({
+        _id: { $in: Array.from(quantities.keys()).map((id) => new Types.ObjectId(id)) },
+        productStatus: ProductStatus.PROCESS,
+      })
+      .lean()
+      .exec();
+    if (products.length !== quantities.size)
+      throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_INPUT);
+
+    const items = products.map((product) => ({
+      productId: product._id,
+      itemPrice: product.productPrice,
+      itemQuantity: quantities.get(String(product._id)) as number,
+    }));
+    const amount = items.reduce((sum, item) => sum + item.itemPrice * item.itemQuantity, 0);
+    const delivery = amount < 100 ? 5 : 0;
+
+    let newOrder;
+    try {
+      newOrder = await this.orderModel.create({
         orderTotal: amount + delivery,
         orderDelivery: delivery,
         memberId: memberId,
-    }); 
-
-    const orderId = newOrder._id;
-    await this.recordOrderItem(orderId, input);
-    return newOrder;
-
-} catch(err) {
-    console.log("Error, model:createOrder:", err);
-    throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
-}
-
-}
-
-
-private async recordOrderItem(
-    orderId: Types.ObjectId, 
-    input: OrderItemInput[]
- ): Promise<void> {
-  const promisedList = input.map( async (item: OrderItemInput) => {
-    item.orderId = orderId;
-    item.productId = shapeIntoMongooseObjectId(item.productId);
-     await this.orderItemModel.create(item);
-     return "INSERTED";
-  });
-
-  await Promise.all(promisedList);
-
-}
+      });
+      await this.orderItemModel.insertMany(
+        items.map((item) => ({ ...item, orderId: newOrder!._id }))
+      );
+      return newOrder;
+    } catch (err) {
+      console.log("Error, model:createOrder:", err);
+      // Do not leave an order without items behind
+      if (newOrder) {
+        await this.orderModel.deleteOne({ _id: newOrder._id }).exec();
+        await this.orderItemModel.deleteMany({ orderId: newOrder._id }).exec();
+      }
+      throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
+    }
+  }
 
 
   public async getMyOrders(
@@ -117,29 +142,31 @@ private async recordOrderItem(
     input: OrderUpdateInput
   ): Promise<any> {
     const memberId = shapeIntoMongooseObjectId(member._id),
-     orderId = shapeIntoMongooseObjectId(input.orderId),
-     orderStatus = input.orderStatus;
+      orderId = shapeIntoMongooseObjectId(String(input?.orderId)),
+      orderStatus = input?.orderStatus;
 
- 
+    const allowedFrom = ALLOWED_TRANSITIONS[orderStatus as OrderStatus];
+    if (!allowedFrom)
+      throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_STATUS_CHANGE);
+
+    // The status filter makes each transition happen at most once, atomically
     const result = await this.orderModel
-    .findOneAndUpdate(
-      { memberId: memberId,
-         _id: orderId
-        },
-      { orderStatus: orderStatus },
-      { new: true }
-    )
-     .exec();
+      .findOneAndUpdate(
+        { memberId: memberId, _id: orderId, orderStatus: allowedFrom },
+        { orderStatus: orderStatus },
+        { new: true }
+      )
+      .exec();
 
-    if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
+    if (!result)
+      throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_STATUS_CHANGE);
 
     // order status Pause => Process +1
-    if(orderStatus === OrderStatus.PROCESS) {
+    if (orderStatus === OrderStatus.PROCESS) {
       await this.memberService.addUserPoint(member, 1);
     }
 
     return result;
-
   }
 
 }

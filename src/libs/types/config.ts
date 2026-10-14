@@ -12,6 +12,21 @@ export const shapeIntoMongooseObjectId = (target: any) => {
   return new mongoose.Types.ObjectId(target);
 };
 
+/** Parse page/limit query params with safe defaults and an upper bound */
+export const parsePagination = (
+  page: unknown,
+  limit: unknown,
+  defaultLimit = 10,
+  maxLimit = 100
+) => {
+  const p = Math.floor(Number(page));
+  const l = Math.floor(Number(limit));
+  return {
+    page: Number.isFinite(p) && p >= 1 ? p : 1,
+    limit: Number.isFinite(l) && l >= 1 ? Math.min(l, maxLimit) : defaultLimit,
+  };
+};
+
 /** Copy only the allowed string fields from untrusted input */
 export const pickFields = <K extends string>(
   source: any,
