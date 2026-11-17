@@ -25,6 +25,7 @@ export enum Message {
   INVALID_INPUT = "Invalid input provided!",
   INVALID_FILE = "Only jpg, jpeg, png and webp images up to 5MB are allowed!",
   INVALID_STATUS_CHANGE = "This order status change is not allowed!",
+  PRODUCT_ALREADY_EXISTS = "A book with this title, author and language (or ISBN) already exists!",
 }
 
 class Errors extends Error {

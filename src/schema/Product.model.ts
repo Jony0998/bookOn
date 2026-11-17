@@ -1,10 +1,9 @@
 import mongoose, { Schema } from "mongoose";
 import {
   ProductCollection,
-  ProductSize,
-  ProductWeight,
+  ProductLanguage,
+  ProductStatus,
 } from "../libs/types/enums/product.enum";
-import { ProductStatus } from "../libs/types/enums/product.enum";
 
 const productSchema = new Schema(
   {
@@ -23,27 +22,56 @@ const productSchema = new Schema(
     productName: {
       type: String,
       required: true,
+      trim: true,
     },
+
+    productAuthor: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
     productPrice: {
       type: Number,
       required: true,
+      min: 0,
+    },
+
+    /** Sale price; shown instead of productPrice when set and lower */
+    productDiscountPrice: {
+      type: Number,
+      min: 0,
     },
 
     productLeftCount: {
       type: Number,
       required: true,
+      min: 0,
     },
 
-    productSize: {
+    productIsbn: {
       type: String,
-      enum: ProductSize,
-      default: ProductSize.MEDIUM,
+      trim: true,
     },
 
-    productVolume: {
+    productPublisher: {
       type: String,
-      enum: ProductWeight,
-      default: ProductWeight.MEDIUM,
+      trim: true,
+    },
+
+    productPublishYear: {
+      type: Number,
+    },
+
+    productPages: {
+      type: Number,
+      min: 1,
+    },
+
+    productLanguage: {
+      type: String,
+      enum: ProductLanguage,
+      default: ProductLanguage.UZ,
     },
 
     productDesc: {
@@ -67,15 +95,15 @@ const productSchema = new Schema(
   { timestamps: true } // updateAt , createAt
 );
 
+// The same title may exist in several languages, but not twice in one language
 productSchema.index(
-  {
-    productName: 1,
-    productSize: 1,
-    productVolume: 1,
-  },
-  {
-    unique: true,
-  }
+  { productName: 1, productAuthor: 1, productLanguage: 1 },
+  { unique: true }
+);
+// ISBN identifies one edition; only enforced when it is filled in
+productSchema.index(
+  { productIsbn: 1 },
+  { unique: true, partialFilterExpression: { productIsbn: { $type: "string" } } }
 );
 
 export default mongoose.model("Product", productSchema);

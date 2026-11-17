@@ -11,6 +11,7 @@ import { ViewInput } from "../libs/types/view";
 import { ViewGroup } from "../libs/types/enums/view.enum";
 import { LikeInput } from "../libs/types/like";
 import { LikeGroup } from "../libs/types/enums/like.enum";
+import { ParsedProductInput, assertDiscountBelowPrice } from "../libs/utils/product-input";
 
 class ProductService {
   private readonly productModel;
@@ -33,7 +34,8 @@ public async getProducts(inquiry: ProductInquiry): Promise<any[]> {
   if(inquiry.search) {
     // Escape user input so it is matched literally (prevents ReDoS / regex injection)
     const escaped = inquiry.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    match.productName = { $regex: new RegExp(escaped, "i") };
+    const pattern = new RegExp(escaped, "i");
+    match.$or = [{ productName: pattern }, { productAuthor: pattern }];
   }
 
   const sort: T = inquiry.order === "productPrice" 
@@ -108,10 +110,12 @@ public async getProduct(
   }
 
   public async createNewProduct(input: ProductInput): Promise<any> {
+    assertDiscountBelowPrice(input.productPrice, input.productDiscountPrice);
     try {
       return await this.productModel.create(input);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error, model:createNewProduct", err);
+      if (err?.code === 11000) throw new Errors(HttpCode.BAD_REQUEST, Message.PRODUCT_ALREADY_EXISTS);
       throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
     }
   }
@@ -148,16 +152,36 @@ public async getProduct(
 
   public async updateChosenProduct(
     id: string,
-    input: ProductUpdateInput
+    input: ParsedProductInput
   ): Promise<any> {
-    // string => objectId
-    id = shapeIntoMongooseObjectId(id);
-    const result = await this.productModel
-      .findOneAndUpdate({ _id: id }, input, { new: true })
-      .exec();
+    const productId = shapeIntoMongooseObjectId(id);
+    const set: ProductUpdateInput = input.set;
 
-    if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
-    return result;
+    const current = await this.productModel.findById(productId).lean().exec();
+    if (!current) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+
+    // Validate the discount against the price the product will have after the update
+    const discount = input.unset.includes("productDiscountPrice")
+      ? undefined
+      : set.productDiscountPrice ?? current.productDiscountPrice ?? undefined;
+    assertDiscountBelowPrice(set.productPrice ?? current.productPrice, discount);
+
+    const update: T = { $set: set };
+    if (input.unset.length)
+      update.$unset = Object.fromEntries(input.unset.map((key) => [key, 1]));
+
+    try {
+      const result = await this.productModel
+        .findOneAndUpdate({ _id: productId }, update, { new: true, runValidators: true })
+        .exec();
+      if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
+      return result;
+    } catch (err: any) {
+      if (err instanceof Errors) throw err;
+      console.error("Error, model:updateChosenProduct", err);
+      if (err?.code === 11000) throw new Errors(HttpCode.BAD_REQUEST, Message.PRODUCT_ALREADY_EXISTS);
+      throw new Errors(HttpCode.BAD_REQUEST, Message.UPDATE_FAILED);
+    }
   }
 }
 

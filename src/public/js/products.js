@@ -84,34 +84,99 @@ $(".new-product-status").on("change", async function (e) {
   }
 });
 
-function validateForm() {
-  const productName = $(".product-name").val();
-  const productPrice = $(".product-price").val();
-  const productLeftCount = $(".product-left-count").val();
-  const productCollection = $(".product-collection").val();
-  const productDesc = $(".product-desc").val();
-  const productStatus = $(".product-status").val();
+/** Returns an error message, or "" when the sale price is valid */
+function discountError(price, discount) {
+  if (discount === "" || discount === undefined || discount === null) return "";
+  return Number(discount) < Number(price) ? "" : "Sale price must be lower than the regular price!";
+}
 
-  if (
-    productName === "" ||
-    productPrice === "" ||
-    productLeftCount === "" ||
-    productCollection === "" ||
-    productDesc === "" ||
-    productStatus === ""
-  ) {
+function validateForm() {
+  const required = [
+    $(".product-name").val(),
+    $(".product-author").val(),
+    $(".product-price").val(),
+    $(".product-left-count").val(),
+    $(".product-collection").val(),
+    $(".product-desc").val(),
+    $(".product-status").val(),
+  ];
+
+  if (required.some((value) => !String(value || "").trim())) {
     alert("Please insert all details!!!");
     return false;
-  } else return true;
+  }
+  const error = discountError($(".product-price").val(), $(".product-discount-price").val());
+  if (error) {
+    alert(error);
+    return false;
+  }
+  return true;
 }
+
+/** EDIT MODAL **/
+const EDIT_FIELDS = [
+  "productName", "productAuthor", "productPrice", "productDiscountPrice", "productLeftCount",
+  "productCollection", "productLanguage", "productIsbn", "productPublisher",
+  "productPublishYear", "productPages", "productDesc",
+];
+
+$(function () {
+  const modalEl = document.getElementById("edit-product-modal");
+  if (!modalEl) return;
+  const modal = new bootstrap.Modal(modalEl);
+  const $form = $("#edit-product-form");
+  const $error = $("#edit-product-error");
+
+  $(".edit-product-btn").on("click", function () {
+    const product = $(this).data("product"); // jQuery parses the JSON attribute
+    $form.find("[name=_id]").val(product._id);
+    EDIT_FIELDS.forEach((field) => {
+      const value = product[field];
+      $form.find(`[name=${field}]`).val(value === undefined || value === null ? "" : value);
+    });
+    if (!product.productLanguage) $form.find("[name=productLanguage]").val("UZ");
+    $error.addClass("d-none").text("");
+    modal.show();
+  });
+
+  $form.on("submit", async function (e) {
+    e.preventDefault();
+    const id = $form.find("[name=_id]").val();
+    // Every field is sent; empty optional fields clear the stored value
+    const body = {};
+    EDIT_FIELDS.forEach((field) => {
+      body[field] = String($form.find(`[name=${field}]`).val() ?? "").trim();
+    });
+
+    const error =
+      (!body.productName || !body.productAuthor || body.productPrice === "" || body.productLeftCount === ""
+        ? "Name, author, price and stock are required!"
+        : "") || discountError(body.productPrice, body.productDiscountPrice);
+    if (error) {
+      $error.removeClass("d-none").text(error);
+      return;
+    }
+
+    const $save = $("#edit-product-save").prop("disabled", true);
+    try {
+      await axios.post(`/admin/product/${id}`, body);
+      location.reload();
+    } catch (err) {
+      const message = err?.response?.data?.message || "Product update failed!";
+      $error.removeClass("d-none").text(message);
+    } finally {
+      $save.prop("disabled", false);
+    }
+  });
+});
 
 function previewFileHandler(input, order) {
   const file = input.files[0];
   if (!file) return;
 
-  const validImageType = ["image/jpg", "image/jpeg", "image/png"];
+  const validImageType = ["image/jpg", "image/jpeg", "image/png", "image/webp"];
   if (!validImageType.includes(file.type)) {
-    alert("Faqat jpeg, jpg va png formatlar ruxsat etiladi!");
+    alert("Faqat jpeg, jpg, png va webp formatlar ruxsat etiladi!");
     input.value = "";
     return;
   }

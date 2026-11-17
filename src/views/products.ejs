@@ -182,17 +182,18 @@
                     <th class="col-number"><i class="bi bi-hash"></i> #</th>
                     <th class="col-product-name"><i class="bi bi-book"></i> Book Name</th>
                     <th class="col-type"><i class="bi bi-tags"></i> Type</th>
-                    <th class="col-size"><i class="bi bi-rulers"></i> Size</th>
-                    <th class="col-weight"><i class="bi bi-speedometer2"></i> Weight</th>
+                    <th class="col-author"><i class="bi bi-person"></i> Author</th>
+                    <th class="col-language"><i class="bi bi-translate"></i> Lang</th>
                     <th class="col-price"><i class="bi bi-currency-dollar"></i> Price</th>
                     <th class="col-stock"><i class="bi bi-box"></i> Stock</th>
                     <th class="col-status"><i class="bi bi-toggle-on"></i> Status</th>
+                    <th class="col-actions"></th>
                   </tr>
                 </thead>
                 <tbody>
                   <% products.map(function (value, key) { %>
                   <tr class="product-row"
-                      data-name="<%= value.productName.toLowerCase() %>"
+                      data-name="<%= (value.productName + ' ' + (value.productAuthor || '')).toLowerCase() %>"
                       data-status="<%= value.productStatus %>"
                       data-type="<%= value.productCollection %>">
                     <td><%= key + 1 %></td>
@@ -201,16 +202,15 @@
                       <%= value.productName %>
                     </td>
                     <td><span class="badge-soft"><%= value.productCollection %></span></td>
-                    <td>
-                      <i class="bi bi-rulers me-1" style="color:var(--primary2);"></i>
-                      <%= value.productSize || 'N/A' %>
-                    </td>
-                    <td>
-                      <i class="bi bi-speedometer2 me-1" style="color:var(--cyan);"></i>
-                      <%= value.productVolume || 'N/A' %>
-                    </td>
+                    <td><%= value.productAuthor || '—' %></td>
+                    <td><span class="badge-soft"><%= value.productLanguage || '—' %></span></td>
                     <td class="fw-semibold" style="color:var(--green);">
-                      <i class="bi bi-currency-dollar"></i><%= value.productPrice %>
+                      <% if (value.productDiscountPrice != null) { %>
+                        <i class="bi bi-currency-dollar"></i><%= value.productDiscountPrice %>
+                        <s class="ms-1 small" style="color:var(--muted);">$<%= value.productPrice %></s>
+                      <% } else { %>
+                        <i class="bi bi-currency-dollar"></i><%= value.productPrice %>
+                      <% } %>
                     </td>
                     <td>
                       <span style="color:<%= value.productLeftCount < 10 ? 'var(--red)' : 'var(--green)' %>;">
@@ -224,6 +224,27 @@
                         <option value="PROCESS" <%= value.productStatus === 'PROCESS' ? 'selected' : '' %>>PROCESS</option>
                         <option value="DELETE"  <%= value.productStatus === 'DELETE'  ? 'selected' : '' %>>DELETE</option>
                       </select>
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-sm btn-outline-secondary edit-product-btn"
+                        title="Edit book"
+                        data-product="<%= JSON.stringify({
+                          _id: value._id,
+                          productName: value.productName,
+                          productAuthor: value.productAuthor,
+                          productCollection: value.productCollection,
+                          productLanguage: value.productLanguage,
+                          productPrice: value.productPrice,
+                          productDiscountPrice: value.productDiscountPrice,
+                          productLeftCount: value.productLeftCount,
+                          productIsbn: value.productIsbn,
+                          productPublisher: value.productPublisher,
+                          productPublishYear: value.productPublishYear,
+                          productPages: value.productPages,
+                          productDesc: value.productDesc
+                        }) %>">
+                        <i class="bi bi-pencil-square"></i>
+                      </button>
                     </td>
                   </tr>
                   <% }) %>
@@ -276,29 +297,49 @@
                     <label class="form-label">
                       <i class="bi bi-book"></i> Book Name <span style="color:var(--red);">*</span>
                     </label>
-                    <input type="text" placeholder="Enter book title" name="productName"
+                    <input type="text" placeholder="Enter book title" name="productName" maxlength="200"
                       class="form-control form-control-lg product-name" required />
                   </div>
 
+                  <div class="form-group">
+                    <label class="form-label">
+                      <i class="bi bi-person"></i> Author <span style="color:var(--red);">*</span>
+                    </label>
+                    <input type="text" placeholder="e.g. Abdulla Qodiriy" name="productAuthor" maxlength="120"
+                      class="form-control form-control-lg product-author" required />
+                  </div>
+
                   <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                       <div class="form-group">
                         <label class="form-label">
                           <i class="bi bi-currency-dollar"></i> Price <span style="color:var(--red);">*</span>
                         </label>
                         <div class="input-group input-group-lg">
                           <span class="input-group-text">$</span>
-                          <input type="number" placeholder="0.00" name="productPrice"
+                          <input type="number" placeholder="0.00" name="productPrice" min="0" step="0.01"
                             class="form-control product-price" required />
                         </div>
                       </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label class="form-label">
+                          <i class="bi bi-tag"></i> Sale Price
+                        </label>
+                        <div class="input-group input-group-lg">
+                          <span class="input-group-text">$</span>
+                          <input type="number" placeholder="optional" name="productDiscountPrice" min="0" step="0.01"
+                            class="form-control product-discount-price" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
                       <div class="form-group">
                         <label class="form-label">
                           <i class="bi bi-box"></i> Stock Count <span style="color:var(--red);">*</span>
                         </label>
-                        <input type="number" placeholder="Available quantity" name="productLeftCount"
+                        <input type="number" placeholder="Available quantity" name="productLeftCount" min="0" step="1"
                           class="form-control form-control-lg product-left-count" required />
                       </div>
                     </div>
@@ -306,10 +347,10 @@
 
                   <div class="form-group">
                     <label class="form-label">
-                      <i class="bi bi-card-text"></i> Description
+                      <i class="bi bi-card-text"></i> Description <span style="color:var(--red);">*</span>
                     </label>
-                    <textarea name="productDesc" class="form-control product-desc" rows="4"
-                      placeholder="Describe the book: author, summary, content..."></textarea>
+                    <textarea name="productDesc" class="form-control product-desc" rows="4" maxlength="5000"
+                      placeholder="Short summary of the book..."></textarea>
                   </div>
                 </div>
 
@@ -344,13 +385,13 @@
                     <div class="col-md-4">
                       <div class="form-group">
                         <label class="form-label">
-                          <i class="bi bi-rulers"></i> Size <span style="color:var(--red);">*</span>
+                          <i class="bi bi-translate"></i> Language <span style="color:var(--red);">*</span>
                         </label>
-                        <select class="form-select form-select-lg product-size" name="productSize">
-                          <option value="SMALL">Small (Pocket)</option>
-                          <option value="MEDIUM" selected>Medium (Standard)</option>
-                          <option value="LARGE">Large (A4)</option>
-                          <option value="EXTRA_LARGE">Extra Large (A3)</option>
+                        <select class="form-select form-select-lg product-language" name="productLanguage">
+                          <option value="UZ" selected>O'zbekcha</option>
+                          <option value="RU">Русский</option>
+                          <option value="EN">English</option>
+                          <option value="OTHER">Other</option>
                         </select>
                       </div>
                     </div>
@@ -358,13 +399,40 @@
                     <div class="col-md-4">
                       <div class="form-group">
                         <label class="form-label">
-                          <i class="bi bi-speedometer2"></i> Weight <span style="color:var(--red);">*</span>
+                          <i class="bi bi-upc"></i> ISBN
                         </label>
-                        <select class="form-select form-select-lg product-volume" name="productVolume">
-                          <option value="LIGHT">Light (0-300g)</option>
-                          <option value="MEDIUM" selected>Medium (300-600g)</option>
-                          <option value="HEAVY">Heavy (600g+)</option>
-                        </select>
+                        <input type="text" placeholder="978-..." name="productIsbn" maxlength="20"
+                          class="form-control form-control-lg product-isbn" />
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label class="form-label">
+                          <i class="bi bi-building"></i> Publisher
+                        </label>
+                        <input type="text" placeholder="optional" name="productPublisher" maxlength="120"
+                          class="form-control form-control-lg" />
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label class="form-label">
+                          <i class="bi bi-calendar"></i> Publish Year
+                        </label>
+                        <input type="number" placeholder="e.g. 2024" name="productPublishYear" min="1450" step="1"
+                          class="form-control form-control-lg" />
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label class="form-label">
+                          <i class="bi bi-file-earmark-text"></i> Pages
+                        </label>
+                        <input type="number" placeholder="e.g. 320" name="productPages" min="1" step="1"
+                          class="form-control form-control-lg" />
                       </div>
                     </div>
                   </div>
@@ -428,8 +496,6 @@
               </div>
             </div>
 
-            <input name="restaurantIid" class="restaurant-id" type="hidden" />
-
             <div class="form-footer">
               <button type="button" class="btn btn-cancel" id="cancel-btn-footer">
                 <i class="bi bi-x-circle"></i> Cancel
@@ -442,6 +508,94 @@
         </div>
 
       </main>
+    </div>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div class="modal fade" id="edit-product-modal" tabindex="-1" aria-labelledby="edit-product-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <form class="modal-content" id="edit-product-form" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="edit-product-title"><i class="bi bi-pencil-square me-2"></i>Edit Book</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="_id" />
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Book Name *</label>
+              <input type="text" name="productName" class="form-control" maxlength="200" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Author *</label>
+              <input type="text" name="productAuthor" class="form-control" maxlength="120" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Price ($) *</label>
+              <input type="number" name="productPrice" class="form-control" min="0" step="0.01" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Sale Price ($)</label>
+              <input type="number" name="productDiscountPrice" class="form-control" min="0" step="0.01" placeholder="empty = no sale" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Stock *</label>
+              <input type="number" name="productLeftCount" class="form-control" min="0" step="1" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Category *</label>
+              <select name="productCollection" class="form-select">
+                <option value="FICTION">Fiction</option>
+                <option value="NON_FICTION">Non-Fiction</option>
+                <option value="SCIENCE">Science</option>
+                <option value="HISTORY">History</option>
+                <option value="BIOGRAPHY">Biography</option>
+                <option value="CHILDREN">Children</option>
+                <option value="TEXTBOOK">Textbook</option>
+                <option value="REFERENCE">Reference</option>
+                <option value="RELIGION">Religion</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Language *</label>
+              <select name="productLanguage" class="form-select">
+                <option value="UZ">O'zbekcha</option>
+                <option value="RU">Русский</option>
+                <option value="EN">English</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">ISBN</label>
+              <input type="text" name="productIsbn" class="form-control" maxlength="20" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Publisher</label>
+              <input type="text" name="productPublisher" class="form-control" maxlength="120" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Publish Year</label>
+              <input type="number" name="productPublishYear" class="form-control" min="1450" step="1" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Pages</label>
+              <input type="number" name="productPages" class="form-control" min="1" step="1" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea name="productDesc" class="form-control" rows="4" maxlength="5000"></textarea>
+            </div>
+          </div>
+          <div class="alert alert-danger mt-3 mb-0 d-none" id="edit-product-error"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-submit" id="edit-product-save">
+            <i class="bi bi-check-circle"></i> Save
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

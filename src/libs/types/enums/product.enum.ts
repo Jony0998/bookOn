@@ -1,16 +1,3 @@
-export enum ProductSize {
-    SMALL = "SMALL",
-    MEDIUM = "MEDIUM",
-    LARGE = "LARGE",
-    EXTRA_LARGE = "EXTRA_LARGE",
-}
-
-export enum ProductWeight {
-    LIGHT = "LIGHT",
-    MEDIUM = "MEDIUM",
-    HEAVY = "HEAVY",
-}
-
 export enum ProductStatus {
     PAUSE = "PAUSE",
     PROCESS = "PROCESS",
@@ -30,4 +17,10 @@ export enum ProductCollection {
     OTHER = "OTHER",
 }
 
-
+/** Language the book is written in */
+export enum ProductLanguage {
+    UZ = "UZ",
+    RU = "RU",
+    EN = "EN",
+    OTHER = "OTHER",
+}

@@ -2,9 +2,8 @@ import { ObjectId } from "mongoose";
 
 import {
   ProductCollection,
-  ProductSize,
+  ProductLanguage,
   ProductStatus,
-  ProductWeight,
 } from "./enums/product.enum";
 
 export interface Product {
@@ -12,13 +11,19 @@ export interface Product {
   productStatus: ProductStatus;
   productCollection: ProductCollection;
   productName: string;
+  productAuthor: string;
   productPrice: number;
+  productDiscountPrice?: number;
   productLeftCount: number;
-  productSize: ProductSize;
-  productVolume: ProductWeight; // Changed from number to ProductWeight enum
+  productIsbn?: string;
+  productPublisher?: string;
+  productPublishYear?: number;
+  productPages?: number;
+  productLanguage: ProductLanguage;
   productDesc?: string;
   productImages: string[];
   productViews: number;
+  productLikes: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,30 +36,22 @@ export interface ProductInquiry {
   search?: string;
 }
 
+/** Fields the admin may set; views, likes and timestamps are server-owned */
 export interface ProductInput {
   productStatus?: ProductStatus;
   productCollection: ProductCollection;
   productName: string;
+  productAuthor: string;
   productPrice: number;
+  productDiscountPrice?: number;
   productLeftCount: number;
-  productSize?: ProductSize;
-  productVolume?: ProductWeight; // Changed from number to ProductWeight enum
+  productIsbn?: string;
+  productPublisher?: string;
+  productPublishYear?: number;
+  productPages?: number;
+  productLanguage?: ProductLanguage;
   productDesc?: string;
   productImages?: string[];
-  productViews?: number;
 }
 
-export interface ProductUpdateInput {
-  _id: ObjectId;
-  productStatus?: ProductStatus;
-  productCollection?: ProductCollection;
-  productName?: string;
-  productPrice: number;
-  productLeftCount?: number;
-  productSize?: ProductSize;
-  productVolume?: ProductWeight; // Changed from number to ProductWeight enum
-  productDesc?: string;
-  productImages?: string[];
-  productViews?: number;
-}
-
+export type ProductUpdateInput = Partial<Omit<ProductInput, "productImages">>;
