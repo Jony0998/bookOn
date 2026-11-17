@@ -37,6 +37,7 @@ router.get("/member/:memberId", memberController.getMemberPublic);
 
 router.get("/product/all", productController.getProducts);
 router.get("/product/like-check", memberController.retrieveAuth, productController.checkUserLiked);
+router.get("/product/liked", memberController.verifyAuth, productController.getLikedProducts);
 router.post(
   "/product/like",
   memberController.verifyAuth,

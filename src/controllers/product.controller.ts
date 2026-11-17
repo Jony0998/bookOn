@@ -4,7 +4,7 @@ import { T } from "../libs/types/common";
 import { AdminRequest, ExtendedRequest } from "../libs/types/member";
 import ProductService from "../models/Product.service";
 import { ProductInput, ProductInquiry } from "../libs/types/product";
-import { ProductCollection } from "../libs/types/enums/product.enum";
+import { ProductCollection, ProductLanguage, ProductShelf } from "../libs/types/enums/product.enum";
 import { parsePagination } from "../libs/types/config";
 import { alertScript } from "../libs/utils/alert";
 import { parseProductInput } from "../libs/utils/product-input";
@@ -15,6 +15,14 @@ const discardUploads = (files?: Express.Multer.File[]) =>
   files?.forEach((file) => fs.unlink(file.path, () => {}));
 
 const productService = new ProductService();
+
+/** Admin labels for the home page "mood" shelves */
+const SHELF_LABELS = [
+  { value: ProductShelf.CLASSIC, label: "Klassika" },
+  { value: ProductShelf.UZBEK_LIT, label: "O'zbek adabiyoti" },
+  { value: ProductShelf.GROWTH, label: "O'sish uchun" },
+  { value: ProductShelf.EVENING_TEA, label: "Kechki choy bilan" },
+];
 const PRODUCT_SORT_FIELDS = ["createdAt", "updatedAt", "productPrice", "productViews", "productLikes"];
 
 const productController: T = {};
@@ -25,7 +33,7 @@ const productController: T = {};
 productController.getProducts = async (req: Request, res: Response) => {
   try {
     console.log("getProducts");
-    const {page, limit, order, productCollection, search} = req.query;
+    const {page, limit, order, productCollection, productLanguage, shelf, search} = req.query;
     const inquiry: ProductInquiry = {
       order: PRODUCT_SORT_FIELDS.includes(String(order)) ? String(order) : "createdAt",
       ...parsePagination(page, limit, 8, 50),
@@ -33,6 +41,9 @@ productController.getProducts = async (req: Request, res: Response) => {
     // Unknown collections simply match nothing (older clients send legacy values)
     if (productCollection) inquiry.productCollection = String(productCollection) as ProductCollection;
     if (search) inquiry.search = String(search).slice(0, 100);
+    // Unknown values match nothing rather than erroring, like productCollection
+    if (productLanguage) inquiry.productLanguage = String(productLanguage) as ProductLanguage;
+    if (shelf) inquiry.shelf = String(shelf) as ProductShelf;
 
     const result = await productService.getProducts(inquiry);
     
@@ -72,7 +83,7 @@ productController.getAllProducts = async (req: Request, res: Response) => {
     console.log("getAllProducts");
     const data = await productService.getAllProducts();
     // console.log("data:", data);
-    res.render("products", { products: data });
+    res.render("products", { products: data, shelves: SHELF_LABELS });
   } catch (err) {
     console.log("Error getAllProducts:", err);
     if (err instanceof Errors) res.status(err.code).json(err);
@@ -126,6 +137,17 @@ productController.likeProduct = async (req: ExtendedRequest, res: Response) => {
     res.status(HttpCode.OK).json(result);
   } catch (err) {
     console.log("Error likeProduct:", err);
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
+productController.getLikedProducts = async (req: ExtendedRequest, res: Response) => {
+  try {
+    const result = await productService.getLikedProducts(req.member._id);
+    res.status(HttpCode.OK).json(result);
+  } catch (err) {
+    console.log("Error getLikedProducts:", err);
     if (err instanceof Errors) res.status(err.code).json(err);
     else res.status(Errors.standard.code).json(Errors.standard);
   }

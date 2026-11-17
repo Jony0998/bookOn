@@ -2,6 +2,7 @@ import Errors, { HttpCode, Message } from "../types/Errors";
 import {
   ProductCollection,
   ProductLanguage,
+  ProductShelf,
   ProductStatus,
 } from "../types/enums/product.enum";
 import { ProductInput } from "../types/product";
@@ -88,6 +89,16 @@ export const parseProductInput = (body: unknown, mode: Mode): ParsedProductInput
     if (isBlank(value)) { handleBlank(key as keyof ProductInput, rule.required); continue; }
     if (!(rule.values as readonly unknown[]).includes(value)) throw invalid();
     set[key] = value;
+  }
+
+  // Checkbox groups arrive as a string (one ticked), an array, or not at all.
+  // The admin forms send an empty marker "" so "none ticked" can clear the list.
+  const shelves = source.productShelves;
+  if (shelves !== undefined) {
+    const list = (Array.isArray(shelves) ? shelves : [shelves]).filter((v) => v !== "");
+    const allowed = Object.values(ProductShelf) as unknown[];
+    if (!list.every((v) => allowed.includes(v))) throw invalid();
+    set.productShelves = Array.from(new Set(list)) as ProductShelf[];
   }
 
   const isbn = source.productIsbn;

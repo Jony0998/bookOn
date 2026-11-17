@@ -3,6 +3,7 @@ import { ObjectId } from "mongoose";
 import {
   ProductCollection,
   ProductLanguage,
+  ProductShelf,
   ProductStatus,
 } from "./enums/product.enum";
 
@@ -20,6 +21,7 @@ export interface Product {
   productPublishYear?: number;
   productPages?: number;
   productLanguage: ProductLanguage;
+  productShelves: ProductShelf[];
   productDesc?: string;
   productImages: string[];
   productViews: number;
@@ -33,6 +35,8 @@ export interface ProductInquiry {
   page: number;
   limit: number;
   productCollection?: ProductCollection;
+  productLanguage?: ProductLanguage;
+  shelf?: ProductShelf;
   search?: string;
 }
 
@@ -50,6 +54,7 @@ export interface ProductInput {
   productPublishYear?: number;
   productPages?: number;
   productLanguage?: ProductLanguage;
+  productShelves?: ProductShelf[];
   productDesc?: string;
   productImages?: string[];
 }

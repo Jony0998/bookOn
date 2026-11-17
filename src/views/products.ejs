@@ -241,6 +241,7 @@
                           productPublisher: value.productPublisher,
                           productPublishYear: value.productPublishYear,
                           productPages: value.productPages,
+                          productShelves: value.productShelves || [],
                           productDesc: value.productDesc
                         }) %>">
                         <i class="bi bi-pencil-square"></i>
@@ -435,6 +436,23 @@
                           class="form-control form-control-lg" />
                       </div>
                     </div>
+
+                    <div class="col-12">
+                      <div class="form-group">
+                        <label class="form-label">
+                          <i class="bi bi-bookshelf"></i> Home page shelves
+                        </label>
+                        <input type="hidden" name="productShelves" value="" />
+                        <div class="d-flex flex-wrap gap-3">
+                          <% shelves.forEach(function (shelf) { %>
+                          <label class="form-check-label d-flex align-items-center gap-2">
+                            <input class="form-check-input mt-0" type="checkbox" name="productShelves" value="<%= shelf.value %>" />
+                            <%= shelf.label %>
+                          </label>
+                          <% }) %>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -581,6 +599,17 @@
             <div class="col-md-4">
               <label class="form-label">Pages</label>
               <input type="number" name="productPages" class="form-control" min="1" step="1" />
+            </div>
+            <div class="col-12">
+              <label class="form-label d-block">Home page shelves</label>
+              <div class="d-flex flex-wrap gap-3" id="edit-shelves">
+                <% shelves.forEach(function (shelf) { %>
+                <label class="form-check-label d-flex align-items-center gap-2">
+                  <input class="form-check-input mt-0" type="checkbox" value="<%= shelf.value %>" />
+                  <%= shelf.label %>
+                </label>
+                <% }) %>
+              </div>
             </div>
             <div class="col-12">
               <label class="form-label">Description</label>

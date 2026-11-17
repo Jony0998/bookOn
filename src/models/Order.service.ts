@@ -64,7 +64,11 @@ constructor() {
 
     const items = products.map((product) => ({
       productId: product._id,
-      itemPrice: product.productPrice,
+      // Charge the sale price when the book is discounted (the admin form enforces discount < price)
+      itemPrice:
+        product.productDiscountPrice != null && product.productDiscountPrice < product.productPrice
+          ? product.productDiscountPrice
+          : product.productPrice,
       itemQuantity: quantities.get(String(product._id)) as number,
     }));
     const amount = items.reduce((sum, item) => sum + item.itemPrice * item.itemQuantity, 0);

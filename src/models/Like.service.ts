@@ -23,6 +23,17 @@ class LikeService {
     }
   }
 
+  public async getMemberLikedIds(memberId: any, likeGroup: string): Promise<any[]> {
+    const likes = await this.likeModel
+      .find({ memberId, likeGroup })
+      .sort({ createdAt: -1 })
+      .limit(500)
+      .select("likeRefId")
+      .lean()
+      .exec();
+    return likes.map((like) => like.likeRefId);
+  }
+
   public async deleteMemberLike(input: LikeInput): Promise<any> {
     return await this.likeModel
       .findOneAndDelete({ memberId: input.memberId, likeRefId: input.likeRefId })

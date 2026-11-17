@@ -29,8 +29,10 @@ public async getProducts(inquiry: ProductInquiry): Promise<any[]> {
   
   const match: T = {productStatus: ProductStatus.PROCESS};
 
-  if(inquiry.productCollection) 
+  if(inquiry.productCollection)
     match.productCollection = inquiry.productCollection;
+  if (inquiry.productLanguage) match.productLanguage = inquiry.productLanguage;
+  if (inquiry.shelf) match.productShelves = inquiry.shelf;
   if(inquiry.search) {
     // Escape user input so it is matched literally (prevents ReDoS / regex injection)
     const escaped = inquiry.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -120,8 +122,25 @@ public async getProduct(
     }
   }
 
+  /** Wishlist: active products the member liked, most recently liked first */
+  public async getLikedProducts(memberId: ObjectId): Promise<any[]> {
+    const ids = await this.likeService.getMemberLikedIds(memberId, LikeGroup.PRODUCT);
+    if (!ids.length) return [];
+    const products = await this.productModel
+      .find({ _id: { $in: ids }, productStatus: ProductStatus.PROCESS })
+      .lean()
+      .exec();
+    const order = new Map(ids.map((id, index) => [String(id), index]));
+    return products.sort((a, b) => (order.get(String(a._id)) ?? 0) - (order.get(String(b._id)) ?? 0));
+  }
+
   public async likeProduct(memberId: ObjectId, productId: string): Promise<any> {
     const product_id = shapeIntoMongooseObjectId(productId);
+    // Only active products can be liked; avoids likes pointing at nothing
+    const exists = await this.productModel
+      .exists({ _id: product_id, productStatus: ProductStatus.PROCESS })
+      .exec();
+    if (!exists) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
 
     const input: LikeInput = {
       memberId,

@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import {
   ProductCollection,
   ProductLanguage,
+  ProductShelf,
   ProductStatus,
 } from "../libs/types/enums/product.enum";
 
@@ -72,6 +73,11 @@ const productSchema = new Schema(
       type: String,
       enum: ProductLanguage,
       default: ProductLanguage.UZ,
+    },
+
+    productShelves: {
+      type: [{ type: String, enum: Object.values(ProductShelf) }],
+      default: [],
     },
 
     productDesc: {

@@ -135,6 +135,10 @@ $(function () {
       $form.find(`[name=${field}]`).val(value === undefined || value === null ? "" : value);
     });
     if (!product.productLanguage) $form.find("[name=productLanguage]").val("UZ");
+    const shelves = product.productShelves || [];
+    $("#edit-shelves input[type=checkbox]").each(function () {
+      this.checked = shelves.includes(this.value);
+    });
     $error.addClass("d-none").text("");
     modal.show();
   });
@@ -147,6 +151,7 @@ $(function () {
     EDIT_FIELDS.forEach((field) => {
       body[field] = String($form.find(`[name=${field}]`).val() ?? "").trim();
     });
+    body.productShelves = $("#edit-shelves input:checked").map(function () { return this.value; }).get();
 
     const error =
       (!body.productName || !body.productAuthor || body.productPrice === "" || body.productLeftCount === ""
