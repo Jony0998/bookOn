@@ -6,6 +6,7 @@ export enum HttpCode {
   UNAUTHORIZED = 401,
   FORBIDDEN = 403,
   NOT_FOUND = 404,
+  TOO_MANY_REQUESTS = 429,
   INTERNAL_SERVER_ERROR = 500,
 }
 
@@ -25,6 +26,14 @@ export enum Message {
   INVALID_INPUT = "Invalid input provided!",
   INVALID_FILE = "Only jpg, jpeg, png and webp images up to 5MB are allowed!",
   INVALID_STATUS_CHANGE = "This order status change is not allowed!",
+  USED_EMAIL = "This email is already registered!",
+  USED_NICK = "This username is already taken!",
+  INVALID_EMAIL = "Please enter a valid email address!",
+  INVALID_NICK = "Username must be 3-30 letters, digits or underscores!",
+  WEAK_PASSWORD = "Password must be at least 8 characters!",
+  WRONG_CREDENTIALS = "Wrong login or password!",
+  TOKEN_INVALID = "This link is invalid or has expired!",
+  TOO_MANY_REQUESTS = "Please wait a minute before trying again!",
   PRODUCT_ALREADY_EXISTS = "A book with this title, author and language (or ISBN) already exists!",
 }
 

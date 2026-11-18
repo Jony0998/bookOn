@@ -17,6 +17,10 @@ router.post("/member/login", memberController.login); // call
 router.post("/member/signup", memberController.signup); // call
 // Logout must work even when the token is expired or missing
 router.post("/member/logout", memberController.logout);
+router.post("/member/verify-email", memberController.verifyEmail);
+router.post("/member/resend-verification", memberController.verifyAuth, memberController.resendVerification);
+router.post("/member/forgot-password", memberController.forgotPassword);
+router.post("/member/reset-password", memberController.resetPassword);
 router.get(
   "/member/detail",
   memberController.verifyAuth,

@@ -23,10 +23,22 @@ const memberSchema = new Schema({
     required: true,
   },
 
+  // Optional since email signup; unique when present
   memberPhone: {
     type: String,
     index: { unique: true, sparse: true },
-    required: true,
+  },
+
+  memberEmail: {
+    type: String,
+    lowercase: true,
+    trim: true,
+    index: { unique: true, sparse: true },
+  },
+
+  memberEmailVerified: {
+    type: Boolean,
+    default: false,
   },
 
   memberPassword: {

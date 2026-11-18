@@ -8,7 +8,9 @@ export interface Member {
   memberType: MemberType | string;
   memberStatus: MemberStatus | string;
   memberNick: string;
-  memberPhone: string;
+  memberPhone?: string;
+  memberEmail?: string;
+  memberEmailVerified?: boolean;
   memberPassword?: string;
   memberAddress?: string;
   memberDesc?: string;
@@ -21,15 +23,23 @@ export interface MemberInput {
   memberType?: MemberType;
   memberStatus?: MemberStatus;
   memberNick: string;
-  memberPhone: string;
+  memberPhone?: string;
+  memberEmail?: string;
   memberPassword: string;
   memberAddress?: string;
   memberDesc?: string;
   memberImage?: string;
 }
 
+/** Admin panel login (library account, by nick) */
 export interface LoginInput {
   memberNick: string;
+  memberPassword: string;
+}
+
+/** Shop login: `login` is an email address or a username */
+export interface SpaLoginInput {
+  login: string;
   memberPassword: string;
 }
 
@@ -38,6 +48,8 @@ export interface MemberUpdateInput {
   memberStatus?: MemberStatus;
   memberNick?: string;
   memberPhone?: string;
+  memberEmail?: string;
+  memberEmailVerified?: boolean;
   memberPassword?: string;
   memberAddress?: string;
   memberDesc?: string;

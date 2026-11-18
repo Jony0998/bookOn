@@ -4,7 +4,9 @@ import {
   Member,
   MemberInput,
   MemberUpdateInput,
+  SpaLoginInput,
 } from "../libs/types/member";
+import { duplicateError } from "../libs/utils/member-input";
 import Errors, { HttpCode, Message } from "../libs/types/Errors";
 import { MemberStatus, MemberType } from "../libs/types/enums/member.enum";
 import * as bcrypt from "bcrypt";
@@ -29,12 +31,15 @@ class MemberService {
 
   /*********************** SPA ***************************/
 
+  /** Public shop contact card: never the whole account (email, status, ...) */
   public async getLibrary(): Promise<any> {
     const result = await this.memberModel
-      .findOne({ memberType: MemberType.LIBRARY })
+      .findOne(
+        { memberType: MemberType.LIBRARY },
+        { ...PUBLIC_MEMBER_FIELDS, memberPhone: 1, memberAddress: 1 }
+      )
       .lean()
       .exec();
-     // result.target = "test";
 
     if (!result) throw new Errors(HttpCode.NOT_FOUND, Message.NO_DATA_FOUND);
 
@@ -51,36 +56,59 @@ class MemberService {
       return result.toJSON();
     } catch (err) {
       console.error("Error, model:signup", err);
-      throw new Errors(HttpCode.BAD_REQUEST, Message.USED_NICK_PHONE);
+      throw duplicateError(err) ?? new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
     }
   }
 
-  public async login(input: LoginInput): Promise<any> {
-    // TODO:  consider  member status later
+  /** Login by email or username; one generic error so accounts can't be probed */
+  public async login(input: SpaLoginInput): Promise<any> {
+    const login = input.login.trim();
+    const filter = login.includes("@")
+      ? { memberEmail: login.toLowerCase() }
+      : { memberNick: login };
     const member = await this.memberModel
       .findOne(
-        {
-          memberNick: input.memberNick,
-          memberStatus: { $ne: MemberStatus.DELETE },
-        },
+        { ...filter, memberStatus: { $ne: MemberStatus.DELETE } },
         { memberNick: 1, memberPassword: 1, memberStatus: 1 }
       )
       .exec();
-    if (!member) throw new Errors(HttpCode.NOT_FOUND, Message.NO_MEMBER_NICK);
-    else if (member.memberStatus === MemberStatus.BLOCK) {
-      throw new Errors(HttpCode.FORBIDDEN, Message.BLOCKED_USER);
-    }
 
-    const isMatch = await bcrypt.compare(
-      input.memberPassword,
-      member.memberPassword
-    );
-    if (!isMatch) {
-      throw new Errors(HttpCode.UNAUTHORIZED, Message.WRONG_PASSWORD);
-    }
+    const isMatch = member ? await bcrypt.compare(input.memberPassword, member.memberPassword) : false;
+    if (!member || !isMatch) throw new Errors(HttpCode.UNAUTHORIZED, Message.WRONG_CREDENTIALS);
+    if (member.memberStatus === MemberStatus.BLOCK)
+      throw new Errors(HttpCode.FORBIDDEN, Message.BLOCKED_USER);
+
     return await this.memberModel.findById(member._id).lean().exec();
-    // lean() ishlatish orqali buz databasedan olingan malumotni ozgartirishimiz
-    // mumkun boladi
+  }
+
+  public async findActiveByEmail(email: string): Promise<any> {
+    return await this.memberModel
+      .findOne({ memberEmail: email, memberStatus: MemberStatus.ACTIVE })
+      .lean()
+      .exec();
+  }
+
+  public async findActiveById(memberId: any): Promise<any> {
+    return await this.memberModel
+      .findOne({ _id: shapeIntoMongooseObjectId(memberId), memberStatus: MemberStatus.ACTIVE })
+      .lean()
+      .exec();
+  }
+
+  public async markEmailVerified(memberId: any): Promise<void> {
+    await this.memberModel.updateOne({ _id: memberId }, { $set: { memberEmailVerified: true } }).exec();
+  }
+
+  /** New password from a reset link; following the link also proves the inbox */
+  public async setPassword(memberId: any, password: string): Promise<void> {
+    const hashed = await bcrypt.hash(password, await bcrypt.genSalt());
+    const result = await this.memberModel
+      .updateOne(
+        { _id: memberId, memberStatus: MemberStatus.ACTIVE },
+        { $set: { memberPassword: hashed, memberEmailVerified: true } }
+      )
+      .exec();
+    if (!result.matchedCount) throw new Errors(HttpCode.BAD_REQUEST, Message.TOKEN_INVALID);
   }
 
   public async getMemberDetail(member: Member): Promise<any> {
@@ -98,18 +126,19 @@ class MemberService {
   // define
   public async updateMember(
     member: Member,
-    input: MemberUpdateInput
+    input: MemberUpdateInput,
+    unset: (keyof MemberUpdateInput)[] = []
   ): Promise<any> {
     const memberId = shapeIntoMongooseObjectId(member._id);
+    const update: Record<string, unknown> = { $set: input };
+    if (unset.length) update.$unset = Object.fromEntries(unset.map((key) => [key, 1]));
     let result;
     try {
       result = await this.memberModel
-        .findOneAndUpdate({ _id: memberId }, input, { new: true })
+        .findOneAndUpdate({ _id: memberId }, update, { new: true })
         .exec();
     } catch (err: any) {
-      if (err?.code === 11000)
-        throw new Errors(HttpCode.BAD_REQUEST, Message.USED_NICK_PHONE);
-      throw err;
+      throw duplicateError(err) ?? err;
     }
     if (!result) throw new Errors(HttpCode.NOT_MODIFIED, Message.UPDATE_FAILED);
 
@@ -190,8 +219,7 @@ class MemberService {
       result.memberPassword = "";
       return result;
     } catch (err: any) {
-      if (err?.code === 11000) throw new Errors(HttpCode.BAD_REQUEST, Message.USED_NICK_PHONE);
-      throw new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
+      throw duplicateError(err) ?? new Errors(HttpCode.BAD_REQUEST, Message.CREATE_FAILED);
     }
   }
 
