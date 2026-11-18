@@ -2,6 +2,7 @@ import express from "express";
 const routerAdmin = express.Router();
 import libraryController from "./controllers/library.controller";
 import productController from "./controllers/product.controller";
+import orderController from "./controllers/order.controller";
 import makeUploader from "./libs/utils/uploader";
 import OrderModel from "./schema/Order.model";
 import { OrderStatus } from "./libs/types/enums/order.enum";
@@ -62,6 +63,7 @@ routerAdmin.post(
   /** Order **/
 
   routerAdmin.get("/order/all", libraryController.verifyLibrary, libraryController.getOrders);
+  routerAdmin.post("/order/:id/status", libraryController.verifyLibrary, orderController.updateOrderByLibrary);
 
    /** User **/
 

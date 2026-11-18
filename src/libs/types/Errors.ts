@@ -35,6 +35,8 @@ export enum Message {
   WRONG_CREDENTIALS = "Wrong login or password!",
   TOKEN_INVALID = "This link is invalid or has expired!",
   TOO_MANY_REQUESTS = "Please wait a minute before trying again!",
+  OUT_OF_STOCK = "Not enough copies in stock!",
+  INVALID_ADDRESS = "Please enter a delivery address (5-200 characters)!",
   PRODUCT_ALREADY_EXISTS = "A book with this title, author and language (or ISBN) already exists!",
 }
 

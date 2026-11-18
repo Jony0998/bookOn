@@ -43,19 +43,25 @@
               <span class="ad-pill is-<%= o.orderStatus %>"><%= STATUS_LABEL[o.orderStatus] %></span>
             </div>
             <span class="ad-muted"><%= dateTime(o.createdAt) %></span>
+<%
+              // Checkout details win; older orders fall back to the profile
+              const phone = o.orderPhone || m.memberPhone;
+              const address = o.orderAddress || m.memberAddress;
+%>
             <div class="ad-order__contact">
               <span><i class="bi bi-person"></i> <b><%= m.memberNick || 'Oʻchirilgan hisob' %></b></span>
-              <% if (m.memberPhone && /^\+?\d{7,15}$/.test(m.memberPhone)) { %>
-                <span><i class="bi bi-telephone"></i> <a href="tel:<%= m.memberPhone %>"><%= m.memberPhone %></a></span>
+              <% if (phone && /^\+?\d{7,15}$/.test(phone)) { %>
+                <span><i class="bi bi-telephone"></i> <a href="tel:<%= phone %>"><%= phone %></a></span>
               <% } else { %>
                 <span class="is-missing"><i class="bi bi-telephone-x"></i> Telefon kiritilmagan</span>
               <% } %>
-              <% if (m.memberAddress) { %>
-                <span><i class="bi bi-geo-alt"></i> <%= m.memberAddress %></span>
+              <% if (address) { %>
+                <span><i class="bi bi-geo-alt"></i> <%= address %></span>
               <% } else { %>
                 <span class="is-missing"><i class="bi bi-geo-alt"></i> Manzil kiritilmagan</span>
               <% } %>
               <% if (m.memberEmail) { %><span><i class="bi bi-envelope"></i> <a href="mailto:<%= m.memberEmail %>"><%= m.memberEmail %></a></span><% } %>
+              <% if (o.orderNote) { %><span class="ad-order__note"><i class="bi bi-chat-left-text"></i> “<%= o.orderNote %>”</span><% } %>
             </div>
           </div>
 
@@ -78,6 +84,19 @@
             <span class="ad-eyebrow" style="justify-content:flex-end">Jami · <%= books %> ta kitob</span>
             <strong class="ad-num"><%= money(o.orderTotal) %></strong>
             <span class="ad-muted" style="font-size:13px">Yetkazish: <%= o.orderDelivery ? money(o.orderDelivery) : 'bepul' %></span>
+            <div class="ad-order__actions">
+              <% if (o.orderStatus === 'PAUSE') { %>
+                <button type="button" class="ad-btn ad-btn--primary ad-btn--sm order-action" data-id="<%= o._id %>" data-status="PROCESS"
+                  data-confirm="Buyurtmani tasdiqlaysizmi? Kitoblar ombordan ayiriladi va xaridorga 1 ball beriladi."><i class="bi bi-check2"></i> Tasdiqlash</button>
+                <button type="button" class="ad-btn ad-btn--ghost ad-btn--sm order-action" data-id="<%= o._id %>" data-status="DELETE"
+                  data-confirm="Buyurtma bekor qilinsinmi?">Bekor qilish</button>
+              <% } else if (o.orderStatus === 'PROCESS') { %>
+                <button type="button" class="ad-btn ad-btn--primary ad-btn--sm order-action" data-id="<%= o._id %>" data-status="FINISH"
+                  data-confirm="Buyurtma xaridorga yetkazildimi?"><i class="bi bi-truck"></i> Yetkazildi</button>
+                <button type="button" class="ad-btn ad-btn--ghost ad-btn--sm order-action" data-id="<%= o._id %>" data-status="DELETE"
+                  data-confirm="Buyurtma bekor qilinsinmi? Kitoblar omborga qaytariladi.">Bekor qilish</button>
+              <% } %>
+            </div>
           </div>
         </article>
         <% }) %>
@@ -85,4 +104,27 @@
       <% } %>
     </main>
   </div>
+
+  <script>
+    // Library actions: confirm / delivered / cancel
+    document.querySelectorAll(".order-action").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        if (!confirm(btn.dataset.confirm)) return;
+        var group = btn.parentElement.querySelectorAll("button");
+        group.forEach(function (b) { b.disabled = true; });
+        try {
+          await axios.post("/admin/order/" + btn.dataset.id + "/status", { orderStatus: btn.dataset.status });
+          location.reload();
+        } catch (err) {
+          var msg = (err && err.response && err.response.data && err.response.data.message) || "";
+          alert(msg === "Not enough copies in stock!"
+            ? "Omborda yetarli kitob yoʻq. Zaxirani yangilang yoki buyurtmani bekor qiling."
+            : msg === "This order status change is not allowed!"
+              ? "Bu buyurtma holati allaqachon oʻzgargan. Sahifa yangilanadi."
+              : "Amalni bajarib boʻlmadi. Qaytadan urinib koʻring.");
+          location.reload();
+        }
+      });
+    });
+  </script>
 <%- include('includes/footer') %>
