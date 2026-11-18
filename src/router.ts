@@ -21,6 +21,7 @@ router.post("/member/verify-email", memberController.verifyEmail);
 router.post("/member/resend-verification", memberController.verifyAuth, memberController.resendVerification);
 router.post("/member/forgot-password", memberController.forgotPassword);
 router.post("/member/reset-password", memberController.resetPassword);
+router.post("/member/change-password", memberController.verifyAuth, memberController.changePassword);
 router.get(
   "/member/detail",
   memberController.verifyAuth,

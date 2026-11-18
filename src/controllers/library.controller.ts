@@ -7,23 +7,43 @@ import { MemberType } from "../libs/types/enums/member.enum";
 import Errors, { HttpCode, Message } from "../libs/types/Errors";
 import { pickFields } from "../libs/types/config";
 import { alertScript } from "../libs/utils/alert";
+import DashboardService, { LOW_STOCK } from "../models/Dashboard.service";
+import { OrderStatus } from "../libs/types/enums/order.enum";
 const memberService = new MemberService();
+const dashboardService = new DashboardService();
 
 const libraryController: T = {};
-libraryController.goHome = (req: Request, res: Response) => {
+/** Dashboard; anonymous visitors go to the login page (it used to be public) */
+libraryController.goHome = async (req: AdminRequest, res: Response) => {
   try {
     console.log("goHome");
-    res.render("home");
-    // send | json | redirect | end | render
+    if (req.session?.member?.memberType !== MemberType.LIBRARY) return res.redirect("/admin/login");
+    const summary = await dashboardService.getSummary();
+    res.render("home", { summary, admin: req.session.member, active: "home", lowStockLimit: LOW_STOCK });
   } catch (err) {
     console.log("Error, getHome:", err);
-    res.redirect("/admin");
+    res.status(HttpCode.INTERNAL_SERVER_ERROR).send(alertScript(Message.SOMETHING_WENT_WRONG, "/admin/product/all"));
   }
 };
 
-libraryController.getSignup = (req: Request, res: Response) => {
+libraryController.getOrders = async (req: AdminRequest, res: Response) => {
   try {
-    res.render("signup");
+    console.log("getOrders");
+    const requested = String(req.query.status ?? "");
+    const status = (Object.values(OrderStatus) as string[]).includes(requested) ? (requested as OrderStatus) : undefined;
+    const orders = await dashboardService.getOrders(status);
+    res.render("orders", { orders, status: status ?? "", admin: req.session.member, active: "orders" });
+  } catch (err) {
+    console.log("Error getOrders:", err);
+    res.status(HttpCode.INTERNAL_SERVER_ERROR).send(alertScript(Message.SOMETHING_WENT_WRONG, "/admin"));
+  }
+};
+
+libraryController.getSignup = async (req: Request, res: Response) => {
+  try {
+    // Only one library account may exist; show the form only before it does
+    const libraryExists = await memberService.getLibrary().then(() => true).catch(() => false);
+    res.render("signup", { libraryExists });
     console.log("getSignup");
   } catch (err) {
     console.log("Error getSignup:", err);
@@ -33,6 +53,7 @@ libraryController.getSignup = (req: Request, res: Response) => {
 libraryController.getLogin = (req: Request, res: Response) => {
   try {
     console.log("getLogin");
+    if ((req as AdminRequest).session?.member?.memberType === MemberType.LIBRARY) return res.redirect("/admin");
     res.render("login");
   } catch (err) {
     console.log("Error getLogin:", err);
@@ -125,7 +146,7 @@ libraryController.logout = async (req: AdminRequest, res: Response) => {
 libraryController.getUsers = async (req: Request, res: Response) => {
   try {
     const result = await memberService.getUsers();
-    res.render("users", { users: result });
+    res.render("users", { users: result, admin: (req as AdminRequest).session.member, active: "users" });
   } catch (err) {
     console.log("Error getUsers:", err);
     res.redirect("/admin/login");

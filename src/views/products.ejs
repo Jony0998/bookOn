@@ -1,532 +1,261 @@
-<%- include('includes/header') %>
+<%- include('includes/header', { pageTitle: 'Kitoblar' }) %>
+<%
+  const live = products.filter(function (p) { return p.productStatus !== 'DELETE'; });
+  const genres = Object.keys(GENRE_LABEL);
+  const langs = [['UZ', 'Oʻzbekcha'], ['RU', 'Ruscha'], ['EN', 'Inglizcha'], ['OTHER', 'Boshqa']];
+  const img = (p) => p.productImages && p.productImages[0] ? '/' + p.productImages[0] : '/img/default.jpeg';
+%>
+<body>
+  <div class="ad-shell">
+    <%- include('includes/sidebar') %>
 
-<body class="app-bg">
-  <div class="app-shell">
-
-    <!-- SIDEBAR -->
-    <aside class="app-sidebar">
-      <div class="brand">
-        <div class="brand-icon">📚</div>
-        <div class="brand-text">
-          <div class="brand-name">BOOKON</div>
-          <div class="brand-tag">Admin Panel</div>
+    <main class="ad-main">
+      <header class="ad-head">
+        <div>
+          <span class="ad-eyebrow">Katalog</span>
+          <h1>Kitoblar</h1>
+          <p>Yangi kitob qoʻshing, maʼlumotlarni tahrirlang, narx, chegirma va zaxirani boshqaring.</p>
         </div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-section-label">Navigation</div>
-        <ul class="nav-list">
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/">
-              <i class="bi bi-house-door-fill"></i> Dashboard
-            </a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="/admin/product/all">
-              <i class="bi bi-grid-3x3-gap-fill"></i> Products
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/user/all">
-              <i class="bi bi-people-fill"></i> Users
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      <div class="sidebar-footer">
-        <div class="sidebar-user">
-          <div class="sidebar-user-avatar">👤</div>
-          <div class="sidebar-user-info">
-            <div class="sidebar-user-name">Admin</div>
-            <div class="sidebar-user-role">Administrator</div>
-          </div>
-          <a href="/admin/logout" onclick="return confirm('Are you sure you want to logout?')" style="color:var(--muted);font-size:18px;">
-            <i class="bi bi-box-arrow-right"></i>
-          </a>
-        </div>
-      </div>
-    </aside>
-
-    <!-- MAIN -->
-    <div class="app-main">
-
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <div class="topbar-breadcrumb">
-            <i class="bi bi-house-door"></i>
-            <span>/</span>
-            <a href="/admin/" style="color:var(--muted);">Dashboard</a>
-            <span>/</span>
-            <span class="current">Products</span>
-          </div>
-        </div>
-        <div class="topbar-right">
-          <div class="topbar-dot"></div>
-          <span class="topbar-badge">
-            <i class="bi bi-box-seam me-1"></i><%= products.length %> items
-          </span>
+        <div class="ad-head__actions">
+          <button class="ad-btn ad-btn--primary" id="process-btn" type="button"><i class="bi bi-plus-lg"></i> Yangi kitob</button>
         </div>
       </header>
 
-      <main class="app-content">
+      <section class="ad-kpis" aria-label="Katalog koʻrsatkichlari">
+        <div class="ad-card ad-kpi">
+          <span class="ad-kpi__icon"><i class="bi bi-collection"></i></span>
+          <span class="ad-kpi__value ad-num"><%= live.length %></span>
+          <span class="ad-kpi__label">Jami kitoblar</span>
+        </div>
+        <div class="ad-card ad-kpi">
+          <span class="ad-kpi__icon is-ok"><i class="bi bi-check2-circle"></i></span>
+          <span class="ad-kpi__value ad-num"><%= products.filter(function (p) { return p.productStatus === 'PROCESS'; }).length %></span>
+          <span class="ad-kpi__label">Sotuvda</span>
+        </div>
+        <div class="ad-card ad-kpi">
+          <span class="ad-kpi__icon is-gold"><i class="bi bi-pause-circle"></i></span>
+          <span class="ad-kpi__value ad-num"><%= products.filter(function (p) { return p.productStatus === 'PAUSE'; }).length %></span>
+          <span class="ad-kpi__label">Toʻxtatilgan</span>
+          <span class="ad-kpi__sub">Saytda koʻrinmaydi</span>
+        </div>
+        <div class="ad-card ad-kpi">
+          <span class="ad-kpi__icon is-danger"><i class="bi bi-exclamation-triangle"></i></span>
+          <span class="ad-kpi__value ad-num"><%= live.filter(function (p) { return p.productLeftCount < 10; }).length %></span>
+          <span class="ad-kpi__label">Tugab bormoqda</span>
+          <span class="ad-kpi__sub">10 donadan kam</span>
+        </div>
+      </section>
 
-        <!-- STAT CARDS -->
-        <div class="stat-cards">
-          <div class="stat-card-new card-indigo">
-            <div class="stat-card-top">
-              <div class="stat-icon-new indigo"><i class="bi bi-box-seam"></i></div>
-            </div>
-            <div class="stat-value-new"><%= products.length %></div>
-            <div class="stat-label-new">Total Products</div>
-          </div>
-
-          <div class="stat-card-new card-green">
-            <div class="stat-card-top">
-              <div class="stat-icon-new green"><i class="bi bi-check-circle-fill"></i></div>
-              <div class="stat-trend up"><i class="bi bi-check"></i> Active</div>
-            </div>
-            <div class="stat-value-new"><%= products.filter(p => p.productStatus === 'PROCESS').length %></div>
-            <div class="stat-label-new">Active Products</div>
-          </div>
-
-          <div class="stat-card-new card-gold">
-            <div class="stat-card-top">
-              <div class="stat-icon-new gold"><i class="bi bi-pause-circle-fill"></i></div>
-              <div class="stat-trend down"><i class="bi bi-pause"></i> Paused</div>
-            </div>
-            <div class="stat-value-new"><%= products.filter(p => p.productStatus === 'PAUSE').length %></div>
-            <div class="stat-label-new">Paused</div>
-          </div>
-
-          <div class="stat-card-new card-cyan">
-            <div class="stat-card-top">
-              <div class="stat-icon-new cyan"><i class="bi bi-exclamation-triangle-fill"></i></div>
-              <div class="stat-trend down"><i class="bi bi-arrow-down"></i> Low</div>
-            </div>
-            <div class="stat-value-new"><%= products.filter(p => p.productLeftCount < 10).length %></div>
-            <div class="stat-label-new">Low Stock</div>
-          </div>
+      <!-- CREATE FORM -->
+      <section class="ad-card" id="product-form-card" style="display:none;margin-bottom:24px" aria-labelledby="new-book-title">
+        <div class="ad-card__head" style="padding-bottom:18px;border-bottom:1px solid var(--line)">
+          <h2 class="ad-card__title" id="new-book-title"><i class="bi bi-journal-plus"></i> Yangi kitob qoʻshish</h2>
+          <button class="ad-icon-btn" id="cancel-btn" type="button" aria-label="Yopish"><i class="bi bi-x-lg"></i></button>
         </div>
 
-        <!-- PRODUCTS TABLE -->
-        <div class="products-table-wrapper">
-          <div class="products-header-bright">
-            <div class="d-flex align-items-center gap-3">
-              <div class="products-icon-wrapper">
-                <i class="bi bi-grid-3x3-gap-fill"></i>
+        <form onsubmit="return validateForm()" action="/admin/product/create" method="POST" enctype="multipart/form-data">
+          <input name="productStatus" value="PAUSE" class="product-status" type="hidden" />
+
+          <div class="ad-form-section">
+            <h3 class="ad-form-section__title"><i class="bi bi-info-circle"></i> Asosiy maʼlumot</h3>
+            <div class="row g-3">
+              <div class="col-md-7">
+                <label class="form-label" for="new-name">Kitob nomi <span class="req">*</span></label>
+                <input id="new-name" type="text" name="productName" maxlength="200" class="form-control product-name" placeholder="Masalan: Oʻtkan kunlar" required />
               </div>
-              <div>
-                <h4 class="mb-0 fw-bold">Library Catalog</h4>
-                <p class="mb-0 small" style="color:var(--muted);">Manage your product catalog</p>
+              <div class="col-md-5">
+                <label class="form-label" for="new-author">Muallif <span class="req">*</span></label>
+                <input id="new-author" type="text" name="productAuthor" maxlength="120" class="form-control product-author" placeholder="Masalan: Abdulla Qodiriy" required />
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="new-desc">Tavsif <span class="req">*</span></label>
+                <textarea id="new-desc" name="productDesc" rows="4" maxlength="5000" class="form-control product-desc" placeholder="Kitob nima haqida? 2–4 jumla kifoya."></textarea>
+                <div class="ad-hint">Bu matn kitob sahifasida “Kitob haqida” boʻlimida koʻrinadi.</div>
               </div>
             </div>
-            <button class="btn-add-product" id="process-btn">
-              <i class="bi bi-plus-circle-fill"></i>
-              <span>New Product</span>
-            </button>
           </div>
 
-          <!-- Filters -->
-          <div class="products-filters-section">
-            <div class="row g-2">
+          <div class="ad-form-section">
+            <h3 class="ad-form-section__title"><i class="bi bi-tag"></i> Narx va zaxira</h3>
+            <div class="row g-3">
               <div class="col-md-4">
-                <div class="filter-input-wrapper">
-                  <i class="bi bi-search filter-icon"></i>
-                  <input type="text" class="filter-input" id="search-input" placeholder="Search books by name...">
-                </div>
+                <label class="form-label" for="new-price">Narx ($) <span class="req">*</span></label>
+                <input id="new-price" type="number" name="productPrice" min="0" step="0.01" class="form-control product-price" placeholder="0.00" required />
               </div>
-              <div class="col-md-3">
-                <div class="filter-select-wrapper">
-                  <i class="bi bi-funnel filter-icon"></i>
-                  <select class="filter-select" id="status-filter">
-                    <option value="">All Status</option>
-                    <option value="PROCESS">✓ Active</option>
-                    <option value="PAUSE">⏸ Paused</option>
-                    <option value="DELETE">✗ Deleted</option>
-                  </select>
-                </div>
+              <div class="col-md-4">
+                <label class="form-label" for="new-sale">Chegirma narxi ($)</label>
+                <input id="new-sale" type="number" name="productDiscountPrice" min="0" step="0.01" class="form-control product-discount-price" placeholder="ixtiyoriy" />
+                <div class="ad-hint">Asosiy narxdan kichik boʻlishi kerak.</div>
               </div>
-              <div class="col-md-3">
-                <div class="filter-select-wrapper">
-                  <i class="bi bi-tags filter-icon"></i>
-                  <select class="filter-select" id="type-filter">
-                    <option value="">All Types</option>
-                    <option value="FICTION">📚 Fiction</option>
-                    <option value="NON_FICTION">📖 Non-Fiction</option>
-                    <option value="SCIENCE">🔬 Science</option>
-                    <option value="HISTORY">📜 History</option>
-                    <option value="BIOGRAPHY">👤 Biography</option>
-                    <option value="CHILDREN">🧸 Children</option>
-                    <option value="TEXTBOOK">📝 Textbook</option>
-                    <option value="REFERENCE">📚 Reference</option>
-                    <option value="RELIGION">🕌 Religion</option>
-                    <option value="OTHER">📦 Other</option>
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-2">
-                <button class="btn-clear-filters" id="clear-filters">
-                  <i class="bi bi-x-circle"></i>
-                  <span>Clear</span>
-                </button>
+              <div class="col-md-4">
+                <label class="form-label" for="new-stock">Omborda (dona) <span class="req">*</span></label>
+                <input id="new-stock" type="number" name="productLeftCount" min="0" step="1" class="form-control product-left-count" placeholder="0" required />
               </div>
             </div>
           </div>
 
-          <div class="products-table-content">
-            <div class="table-responsive">
-              <table class="table-products-bright" id="products-table">
-                <thead>
-                  <tr>
-                    <th class="col-number"><i class="bi bi-hash"></i> #</th>
-                    <th class="col-product-name"><i class="bi bi-book"></i> Book Name</th>
-                    <th class="col-type"><i class="bi bi-tags"></i> Type</th>
-                    <th class="col-author"><i class="bi bi-person"></i> Author</th>
-                    <th class="col-language"><i class="bi bi-translate"></i> Lang</th>
-                    <th class="col-price"><i class="bi bi-currency-dollar"></i> Price</th>
-                    <th class="col-stock"><i class="bi bi-box"></i> Stock</th>
-                    <th class="col-status"><i class="bi bi-toggle-on"></i> Status</th>
-                    <th class="col-actions"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% products.map(function (value, key) { %>
-                  <tr class="product-row"
-                      data-name="<%= (value.productName + ' ' + (value.productAuthor || '')).toLowerCase() %>"
-                      data-status="<%= value.productStatus %>"
-                      data-type="<%= value.productCollection %>">
-                    <td><%= key + 1 %></td>
-                    <td class="fw-semibold">
-                      <i class="bi bi-book me-2" style="color:var(--primary2);"></i>
-                      <%= value.productName %>
-                    </td>
-                    <td><span class="badge-soft"><%= value.productCollection %></span></td>
-                    <td><%= value.productAuthor || '—' %></td>
-                    <td><span class="badge-soft"><%= value.productLanguage || '—' %></span></td>
-                    <td class="fw-semibold" style="color:var(--green);">
-                      <% if (value.productDiscountPrice != null) { %>
-                        <i class="bi bi-currency-dollar"></i><%= value.productDiscountPrice %>
-                        <s class="ms-1 small" style="color:var(--muted);">$<%= value.productPrice %></s>
-                      <% } else { %>
-                        <i class="bi bi-currency-dollar"></i><%= value.productPrice %>
-                      <% } %>
-                    </td>
-                    <td>
-                      <span style="color:<%= value.productLeftCount < 10 ? 'var(--red)' : 'var(--green)' %>;">
-                        <i class="bi bi-<%= value.productLeftCount < 10 ? 'exclamation-triangle' : 'check-circle' %> me-1"></i>
-                        <%= value.productLeftCount %>
-                      </span>
-                    </td>
-                    <td>
-                      <select class="form-select form-select-sm new-product-status" id="<%= value._id %>">
-                        <option value="PAUSE"   <%= value.productStatus === 'PAUSE'   ? 'selected' : '' %>>PAUSE</option>
-                        <option value="PROCESS" <%= value.productStatus === 'PROCESS' ? 'selected' : '' %>>PROCESS</option>
-                        <option value="DELETE"  <%= value.productStatus === 'DELETE'  ? 'selected' : '' %>>DELETE</option>
-                      </select>
-                    </td>
-                    <td>
-                      <button type="button" class="btn btn-sm btn-outline-secondary edit-product-btn"
-                        title="Edit book"
-                        data-product="<%= JSON.stringify({
-                          _id: value._id,
-                          productName: value.productName,
-                          productAuthor: value.productAuthor,
-                          productCollection: value.productCollection,
-                          productLanguage: value.productLanguage,
-                          productPrice: value.productPrice,
-                          productDiscountPrice: value.productDiscountPrice,
-                          productLeftCount: value.productLeftCount,
-                          productIsbn: value.productIsbn,
-                          productPublisher: value.productPublisher,
-                          productPublishYear: value.productPublishYear,
-                          productPages: value.productPages,
-                          productShelves: value.productShelves || [],
-                          productDesc: value.productDesc
-                        }) %>">
-                        <i class="bi bi-pencil-square"></i>
-                      </button>
-                    </td>
-                  </tr>
+          <div class="ad-form-section">
+            <h3 class="ad-form-section__title"><i class="bi bi-bookmark"></i> Tafsilotlar</h3>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label" for="productCollection">Janr <span class="req">*</span></label>
+                <select class="form-select product-collection" name="productCollection" id="productCollection">
+                  <% genres.forEach(function (g, i) { %><option value="<%= g %>" <%= i === 0 ? 'selected' : '' %>><%= GENRE_LABEL[g] %></option><% }) %>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="new-lang">Til <span class="req">*</span></label>
+                <select class="form-select product-language" name="productLanguage" id="new-lang">
+                  <% langs.forEach(function (l) { %><option value="<%= l[0] %>"><%= l[1] %></option><% }) %>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="new-isbn">ISBN</label>
+                <input id="new-isbn" type="text" name="productIsbn" maxlength="20" class="form-control product-isbn" placeholder="978-…" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="new-pub">Nashriyot</label>
+                <input id="new-pub" type="text" name="productPublisher" maxlength="120" class="form-control" placeholder="ixtiyoriy" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="new-year">Nashr yili</label>
+                <input id="new-year" type="number" name="productPublishYear" min="1450" step="1" class="form-control" placeholder="2024" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="new-pages">Sahifalar</label>
+                <input id="new-pages" type="number" name="productPages" min="1" step="1" class="form-control" placeholder="320" />
+              </div>
+              <div class="col-12">
+                <span class="form-label d-block">Bosh sahifadagi javonlar</span>
+                <input type="hidden" name="productShelves" value="" />
+                <div class="ad-shelves">
+                  <% shelves.forEach(function (shelf) { %>
+                  <label class="ad-check"><input type="checkbox" name="productShelves" value="<%= shelf.value %>" /> <%= shelf.label %></label>
                   <% }) %>
-                </tbody>
-              </table>
-              <div id="no-results" class="text-center py-5" style="display:none;">
-                <i class="bi bi-inbox fs-1 d-block mb-2" style="color:var(--muted);"></i>
-                <p style="color:var(--muted);">No products found matching your filters</p>
+                </div>
+                <div class="ad-hint">Kitob “Kayfiyatingizga mos javon” boʻlimidagi tanlangan javonlarda chiqadi.</div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- CREATE FORM -->
-        <div class="product-form-wrapper mt-4" id="product-form-card" style="display:none;">
-          <div class="product-form-header">
-            <div class="d-flex align-items-center gap-3">
-              <div class="form-icon-wrapper">
-                <i class="bi bi-plus-circle-fill"></i>
+          <div class="ad-form-section">
+            <h3 class="ad-form-section__title"><i class="bi bi-images"></i> Muqova rasmlari</h3>
+            <div class="ad-uploads">
+              <% [1, 2, 3, 4, 5].forEach(function (n) { %>
+              <div class="upload-box" onclick="document.getElementById('file-<%= n %>').click()" role="button" tabindex="0" aria-label="Rasm <%= n %>">
+                <img src="/img/upload.svg" class="upload-preview" id="image-section-<%= n %>" alt="" />
+                <input type="file" id="file-<%= n %>" name="productImages" class="d-none" accept="image/jpeg,image/png,image/webp" onchange="previewFileHandler(this, <%= n %>)" <%= n === 1 ? 'required' : '' %> />
+                <span class="upload-label"><%= n === 1 ? 'Asosiy muqova *' : 'Rasm ' + n %></span>
               </div>
-              <div>
-                <h4 class="mb-0 fw-bold">Create New Product</h4>
-                <p style="color:var(--muted);" class="mb-0 small">Add a new book to the catalog</p>
-              </div>
+              <% }) %>
             </div>
-            <button class="btn-close-form" id="cancel-btn">
-              <i class="bi bi-x-lg"></i>
-            </button>
+            <div class="ad-hint">JPG, PNG yoki WEBP, har biri 5 MB gacha. Birinchi rasm katalogda muqova sifatida chiqadi.</div>
           </div>
 
-          <form
-            onsubmit="return validateForm()"
-            action="/admin/product/create"
-            method="POST"
-            class="product-form-body"
-            enctype="multipart/form-data"
-          >
-            <input name="productStatus" value="PAUSE" class="product-status" type="hidden" />
+          <div class="ad-form-foot">
+            <button type="button" class="ad-btn ad-btn--ghost" id="cancel-btn-footer">Bekor qilish</button>
+            <button type="submit" class="ad-btn ad-btn--primary"><i class="bi bi-check2"></i> Kitobni saqlash</button>
+          </div>
+        </form>
+      </section>
 
-            <div class="row g-4">
-              <!-- Left: Basic Info -->
-              <div class="col-lg-8">
-                <div class="form-section">
-                  <div class="section-header">
-                    <i class="bi bi-info-circle"></i>
-                    <span>Basic Information</span>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">
-                      <i class="bi bi-book"></i> Book Name <span style="color:var(--red);">*</span>
-                    </label>
-                    <input type="text" placeholder="Enter book title" name="productName" maxlength="200"
-                      class="form-control form-control-lg product-name" required />
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">
-                      <i class="bi bi-person"></i> Author <span style="color:var(--red);">*</span>
-                    </label>
-                    <input type="text" placeholder="e.g. Abdulla Qodiriy" name="productAuthor" maxlength="120"
-                      class="form-control form-control-lg product-author" required />
-                  </div>
-
-                  <div class="row g-3">
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label class="form-label">
-                          <i class="bi bi-currency-dollar"></i> Price <span style="color:var(--red);">*</span>
-                        </label>
-                        <div class="input-group input-group-lg">
-                          <span class="input-group-text">$</span>
-                          <input type="number" placeholder="0.00" name="productPrice" min="0" step="0.01"
-                            class="form-control product-price" required />
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label class="form-label">
-                          <i class="bi bi-tag"></i> Sale Price
-                        </label>
-                        <div class="input-group input-group-lg">
-                          <span class="input-group-text">$</span>
-                          <input type="number" placeholder="optional" name="productDiscountPrice" min="0" step="0.01"
-                            class="form-control product-discount-price" />
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label class="form-label">
-                          <i class="bi bi-box"></i> Stock Count <span style="color:var(--red);">*</span>
-                        </label>
-                        <input type="number" placeholder="Available quantity" name="productLeftCount" min="0" step="1"
-                          class="form-control form-control-lg product-left-count" required />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">
-                      <i class="bi bi-card-text"></i> Description <span style="color:var(--red);">*</span>
-                    </label>
-                    <textarea name="productDesc" class="form-control product-desc" rows="4" maxlength="5000"
-                      placeholder="Short summary of the book..."></textarea>
-                  </div>
-                </div>
-
-                <!-- Category & Specs -->
-                <div class="form-section">
-                  <div class="section-header">
-                    <i class="bi bi-grid"></i>
-                    <span>Category & Specifications</span>
-                  </div>
-
-                  <div class="row g-3">
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label class="form-label">
-                          <i class="bi bi-folder"></i> Category <span style="color:var(--red);">*</span>
-                        </label>
-                        <select class="form-select form-select-lg product-collection" name="productCollection" id="productCollection">
-                          <option value="FICTION" selected>📚 Fiction</option>
-                          <option value="NON_FICTION">📖 Non-Fiction</option>
-                          <option value="SCIENCE">🔬 Science</option>
-                          <option value="HISTORY">📜 History</option>
-                          <option value="BIOGRAPHY">👤 Biography</option>
-                          <option value="CHILDREN">🧸 Children</option>
-                          <option value="TEXTBOOK">📝 Textbook</option>
-                          <option value="REFERENCE">📚 Reference</option>
-                          <option value="RELIGION">🕌 Religion</option>
-                          <option value="OTHER">📦 Other</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label class="form-label">
-                          <i class="bi bi-translate"></i> Language <span style="color:var(--red);">*</span>
-                        </label>
-                        <select class="form-select form-select-lg product-language" name="productLanguage">
-                          <option value="UZ" selected>O'zbekcha</option>
-                          <option value="RU">Русский</option>
-                          <option value="EN">English</option>
-                          <option value="OTHER">Other</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label class="form-label">
-                          <i class="bi bi-upc"></i> ISBN
-                        </label>
-                        <input type="text" placeholder="978-..." name="productIsbn" maxlength="20"
-                          class="form-control form-control-lg product-isbn" />
-                      </div>
-                    </div>
-
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label class="form-label">
-                          <i class="bi bi-building"></i> Publisher
-                        </label>
-                        <input type="text" placeholder="optional" name="productPublisher" maxlength="120"
-                          class="form-control form-control-lg" />
-                      </div>
-                    </div>
-
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label class="form-label">
-                          <i class="bi bi-calendar"></i> Publish Year
-                        </label>
-                        <input type="number" placeholder="e.g. 2024" name="productPublishYear" min="1450" step="1"
-                          class="form-control form-control-lg" />
-                      </div>
-                    </div>
-
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label class="form-label">
-                          <i class="bi bi-file-earmark-text"></i> Pages
-                        </label>
-                        <input type="number" placeholder="e.g. 320" name="productPages" min="1" step="1"
-                          class="form-control form-control-lg" />
-                      </div>
-                    </div>
-
-                    <div class="col-12">
-                      <div class="form-group">
-                        <label class="form-label">
-                          <i class="bi bi-bookshelf"></i> Home page shelves
-                        </label>
-                        <input type="hidden" name="productShelves" value="" />
-                        <div class="d-flex flex-wrap gap-3">
-                          <% shelves.forEach(function (shelf) { %>
-                          <label class="form-check-label d-flex align-items-center gap-2">
-                            <input class="form-check-input mt-0" type="checkbox" name="productShelves" value="<%= shelf.value %>" />
-                            <%= shelf.label %>
-                          </label>
-                          <% }) %>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right: Images -->
-              <div class="col-lg-4">
-                <div class="form-section h-100">
-                  <div class="section-header">
-                    <i class="bi bi-images"></i>
-                    <span>Product Images</span>
-                    <span class="badge-soft ms-2" style="background:rgba(239,68,68,.12);color:#f87171;border-color:rgba(239,68,68,.25);">Required</span>
-                  </div>
-
-                  <div class="image-upload-grid">
-                    <div class="upload-box upload-box-primary" onclick="document.getElementById('file-1').click()">
-                      <img src="/img/upload.svg" class="upload-preview" id="image-section-1" />
-                      <div class="upload-overlay">
-                        <i class="bi bi-camera"></i>
-                        <span>Upload</span>
-                      </div>
-                      <input type="file" id="file-1" name="productImages" class="d-none image-one"
-                        accept="image/*" onchange="previewFileHandler(this, 1)" required />
-                      <span class="upload-label">Image 1 *</span>
-                    </div>
-
-                    <div class="upload-box" onclick="document.getElementById('file-2').click()">
-                      <img src="/img/upload.svg" class="upload-preview" id="image-section-2" />
-                      <div class="upload-overlay"><i class="bi bi-plus"></i></div>
-                      <input type="file" id="file-2" name="productImages" class="d-none image-two"
-                        accept="image/*" onchange="previewFileHandler(this, 2)" />
-                      <span class="upload-label">Image 2</span>
-                    </div>
-
-                    <div class="upload-box" onclick="document.getElementById('file-3').click()">
-                      <img src="/img/upload.svg" class="upload-preview" id="image-section-3" />
-                      <div class="upload-overlay"><i class="bi bi-plus"></i></div>
-                      <input type="file" id="file-3" name="productImages" class="d-none image-three"
-                        accept="image/*" onchange="previewFileHandler(this, 3)" />
-                      <span class="upload-label">Image 3</span>
-                    </div>
-
-                    <div class="upload-box" onclick="document.getElementById('file-4').click()">
-                      <img src="/img/upload.svg" class="upload-preview" id="image-section-4" />
-                      <div class="upload-overlay"><i class="bi bi-plus"></i></div>
-                      <input type="file" id="file-4" name="productImages" class="d-none image-four"
-                        accept="image/*" onchange="previewFileHandler(this, 4)" />
-                      <span class="upload-label">Image 4</span>
-                    </div>
-
-                    <div class="upload-box" onclick="document.getElementById('file-5').click()">
-                      <img src="/img/upload.svg" class="upload-preview" id="image-section-5" />
-                      <div class="upload-overlay"><i class="bi bi-plus"></i></div>
-                      <input type="file" id="file-5" name="productImages" class="d-none image-five"
-                        accept="image/*" onchange="previewFileHandler(this, 5)" />
-                      <span class="upload-label">Image 5</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-footer">
-              <button type="button" class="btn btn-cancel" id="cancel-btn-footer">
-                <i class="bi bi-x-circle"></i> Cancel
-              </button>
-              <button type="submit" class="btn btn-submit">
-                <i class="bi bi-check-circle"></i> Create Product
-              </button>
-            </div>
-          </form>
+      <!-- LIST -->
+      <section class="ad-card" aria-label="Kitoblar roʻyxati">
+        <div class="ad-toolbar">
+          <label class="ad-search">
+            <i class="bi bi-search"></i>
+            <span class="visually-hidden">Qidirish</span>
+            <input type="search" id="search-input" placeholder="Nom yoki muallif boʻyicha qidiring" />
+          </label>
+          <select class="form-select ad-select" id="status-filter" aria-label="Holat" style="width:auto">
+            <option value="">Barcha holatlar</option>
+            <option value="PROCESS">Sotuvda</option>
+            <option value="PAUSE">Toʻxtatilgan</option>
+            <option value="DELETE">Oʻchirilgan</option>
+          </select>
+          <select class="form-select ad-select" id="type-filter" aria-label="Janr" style="width:auto">
+            <option value="">Barcha janrlar</option>
+            <% genres.forEach(function (g) { %><option value="<%= g %>"><%= GENRE_LABEL[g] %></option><% }) %>
+          </select>
+          <button class="ad-btn ad-btn--ghost ad-btn--sm" id="clear-filters" type="button"><i class="bi bi-x-circle"></i> Tozalash</button>
         </div>
 
-      </main>
-    </div>
+        <div class="ad-table-wrap">
+          <table class="ad-table" id="products-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Kitob</th>
+                <th>Janr</th>
+                <th>Til</th>
+                <th class="is-num">Narx</th>
+                <th class="is-num">Zaxira</th>
+                <th>Holat</th>
+                <th><span class="visually-hidden">Amallar</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% products.forEach(function (value, key) { %>
+              <tr class="product-row"
+                  data-name="<%= (value.productName + ' ' + (value.productAuthor || '')).toLowerCase() %>"
+                  data-status="<%= value.productStatus %>"
+                  data-type="<%= value.productCollection %>">
+                <td class="ad-muted ad-num"><%= key + 1 %></td>
+                <td>
+                  <div class="ad-book">
+                    <img class="ad-thumb" src="<%= img(value) %>" alt="" onerror="this.src='/img/default.jpeg'" />
+                    <div>
+                      <div class="ad-book__title"><%= value.productName %></div>
+                      <div class="ad-book__author"><%= value.productAuthor && value.productAuthor !== 'Unknown' ? value.productAuthor : 'Muallif kiritilmagan' %></div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="ad-tag"><%= GENRE_LABEL[value.productCollection] || value.productCollection %></span></td>
+                <td><span class="ad-tag"><%= value.productLanguage || '—' %></span></td>
+                <td class="is-num ad-price">
+                  <% if (value.productDiscountPrice != null) { %>
+                    <strong><%= money(value.productDiscountPrice) %></strong><s><%= money(value.productPrice) %></s>
+                  <% } else { %>
+                    <strong><%= money(value.productPrice) %></strong>
+                  <% } %>
+                </td>
+                <td class="is-num"><span class="ad-stock <%= value.productLeftCount < 10 ? 'is-low' : '' %>"><%= value.productLeftCount %></span></td>
+                <td>
+                  <select class="form-select ad-status-select new-product-status" id="<%= value._id %>" aria-label="Holat: <%= value.productName %>">
+                    <option value="PROCESS" <%= value.productStatus === 'PROCESS' ? 'selected' : '' %>>Sotuvda</option>
+                    <option value="PAUSE"   <%= value.productStatus === 'PAUSE'   ? 'selected' : '' %>>Toʻxtatilgan</option>
+                    <option value="DELETE"  <%= value.productStatus === 'DELETE'  ? 'selected' : '' %>>Oʻchirilgan</option>
+                  </select>
+                </td>
+                <td>
+                  <button type="button" class="ad-icon-btn edit-product-btn" title="Tahrirlash" aria-label="Tahrirlash: <%= value.productName %>"
+                    data-product="<%= JSON.stringify({
+                      _id: value._id,
+                      productName: value.productName,
+                      productAuthor: value.productAuthor,
+                      productCollection: value.productCollection,
+                      productLanguage: value.productLanguage,
+                      productPrice: value.productPrice,
+                      productDiscountPrice: value.productDiscountPrice,
+                      productLeftCount: value.productLeftCount,
+                      productIsbn: value.productIsbn,
+                      productPublisher: value.productPublisher,
+                      productPublishYear: value.productPublishYear,
+                      productPages: value.productPages,
+                      productShelves: value.productShelves || [],
+                      productDesc: value.productDesc
+                    }) %>">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+          <div id="no-results" class="ad-no-results" style="display:none;"><i class="bi bi-search"></i> Filtrga mos kitob topilmadi</div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <!-- EDIT MODAL -->
@@ -534,101 +263,46 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <form class="modal-content" id="edit-product-form" novalidate>
         <div class="modal-header">
-          <h5 class="modal-title fw-bold" id="edit-product-title"><i class="bi bi-pencil-square me-2"></i>Edit Book</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h2 class="modal-title" id="edit-product-title" style="font-size:22px"><i class="bi bi-pencil-square me-2" style="color:var(--accent)"></i>Kitobni tahrirlash</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Yopish"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" name="_id" />
           <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Book Name *</label>
-              <input type="text" name="productName" class="form-control" maxlength="200" required />
+            <div class="col-md-7"><label class="form-label">Kitob nomi <span class="req">*</span></label><input type="text" name="productName" class="form-control" maxlength="200" required /></div>
+            <div class="col-md-5"><label class="form-label">Muallif <span class="req">*</span></label><input type="text" name="productAuthor" class="form-control" maxlength="120" required /></div>
+            <div class="col-md-4"><label class="form-label">Narx ($) <span class="req">*</span></label><input type="number" name="productPrice" class="form-control" min="0" step="0.01" required /></div>
+            <div class="col-md-4"><label class="form-label">Chegirma narxi ($)</label><input type="number" name="productDiscountPrice" class="form-control" min="0" step="0.01" placeholder="boʻsh = chegirmasiz" /></div>
+            <div class="col-md-4"><label class="form-label">Omborda <span class="req">*</span></label><input type="number" name="productLeftCount" class="form-control" min="0" step="1" required /></div>
+            <div class="col-md-4"><label class="form-label">Janr</label>
+              <select name="productCollection" class="form-select"><% genres.forEach(function (g) { %><option value="<%= g %>"><%= GENRE_LABEL[g] %></option><% }) %></select>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Author *</label>
-              <input type="text" name="productAuthor" class="form-control" maxlength="120" required />
+            <div class="col-md-4"><label class="form-label">Til</label>
+              <select name="productLanguage" class="form-select"><% langs.forEach(function (l) { %><option value="<%= l[0] %>"><%= l[1] %></option><% }) %></select>
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Price ($) *</label>
-              <input type="number" name="productPrice" class="form-control" min="0" step="0.01" required />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Sale Price ($)</label>
-              <input type="number" name="productDiscountPrice" class="form-control" min="0" step="0.01" placeholder="empty = no sale" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Stock *</label>
-              <input type="number" name="productLeftCount" class="form-control" min="0" step="1" required />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Category *</label>
-              <select name="productCollection" class="form-select">
-                <option value="FICTION">Fiction</option>
-                <option value="NON_FICTION">Non-Fiction</option>
-                <option value="SCIENCE">Science</option>
-                <option value="HISTORY">History</option>
-                <option value="BIOGRAPHY">Biography</option>
-                <option value="CHILDREN">Children</option>
-                <option value="TEXTBOOK">Textbook</option>
-                <option value="REFERENCE">Reference</option>
-                <option value="RELIGION">Religion</option>
-                <option value="OTHER">Other</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Language *</label>
-              <select name="productLanguage" class="form-select">
-                <option value="UZ">O'zbekcha</option>
-                <option value="RU">Русский</option>
-                <option value="EN">English</option>
-                <option value="OTHER">Other</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">ISBN</label>
-              <input type="text" name="productIsbn" class="form-control" maxlength="20" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Publisher</label>
-              <input type="text" name="productPublisher" class="form-control" maxlength="120" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Publish Year</label>
-              <input type="number" name="productPublishYear" class="form-control" min="1450" step="1" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Pages</label>
-              <input type="number" name="productPages" class="form-control" min="1" step="1" />
-            </div>
+            <div class="col-md-4"><label class="form-label">ISBN</label><input type="text" name="productIsbn" class="form-control" maxlength="20" /></div>
+            <div class="col-md-4"><label class="form-label">Nashriyot</label><input type="text" name="productPublisher" class="form-control" maxlength="120" /></div>
+            <div class="col-md-4"><label class="form-label">Nashr yili</label><input type="number" name="productPublishYear" class="form-control" min="1450" step="1" /></div>
+            <div class="col-md-4"><label class="form-label">Sahifalar</label><input type="number" name="productPages" class="form-control" min="1" step="1" /></div>
             <div class="col-12">
-              <label class="form-label d-block">Home page shelves</label>
-              <div class="d-flex flex-wrap gap-3" id="edit-shelves">
+              <span class="form-label d-block">Bosh sahifadagi javonlar</span>
+              <div class="ad-shelves" id="edit-shelves">
                 <% shelves.forEach(function (shelf) { %>
-                <label class="form-check-label d-flex align-items-center gap-2">
-                  <input class="form-check-input mt-0" type="checkbox" value="<%= shelf.value %>" />
-                  <%= shelf.label %>
-                </label>
+                <label class="ad-check"><input type="checkbox" value="<%= shelf.value %>" /> <%= shelf.label %></label>
                 <% }) %>
               </div>
             </div>
-            <div class="col-12">
-              <label class="form-label">Description</label>
-              <textarea name="productDesc" class="form-control" rows="4" maxlength="5000"></textarea>
-            </div>
+            <div class="col-12"><label class="form-label">Tavsif</label><textarea name="productDesc" class="form-control" rows="4" maxlength="5000"></textarea></div>
           </div>
           <div class="alert alert-danger mt-3 mb-0 d-none" id="edit-product-error"></div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-submit" id="edit-product-save">
-            <i class="bi bi-check-circle"></i> Save
-          </button>
+          <button type="button" class="ad-btn ad-btn--ghost" data-bs-dismiss="modal">Bekor qilish</button>
+          <button type="submit" class="ad-btn ad-btn--primary" id="edit-product-save"><i class="bi bi-check2"></i> Saqlash</button>
         </div>
       </form>
     </div>
   </div>
 
   <script type="text/javascript" src="/js/products.js"></script>
-</body>
-
 <%- include('includes/footer') %>

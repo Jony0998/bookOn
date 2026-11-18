@@ -1,206 +1,152 @@
-<%- include('includes/header') %>
+<%- include('includes/header', { pageTitle: 'Bosh panel' }) %>
+<%
+  const s = summary;
+  const hour = new Date().getHours();
+  const greet = hour < 12 ? 'Xayrli tong' : hour < 18 ? 'Xayrli kun' : 'Xayrli kech';
+  const img = (p) => p && p.productImages && p.productImages[0] ? '/' + p.productImages[0] : '/img/default.jpeg';
+%>
+<body>
+  <div class="ad-shell">
+    <%- include('includes/sidebar') %>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.js"></script>
-
-<body class="app-bg">
-  <div class="app-shell">
-
-    <!-- SIDEBAR -->
-    <aside class="app-sidebar">
-      <div class="brand">
-        <div class="brand-icon">📚</div>
-        <div class="brand-text">
-          <div class="brand-name">BOOKON</div>
-          <div class="brand-tag">Admin Panel</div>
+    <main class="ad-main">
+      <header class="ad-head">
+        <div>
+          <span class="ad-eyebrow">Bosh panel · <%= date(new Date()) %></span>
+          <h1><%= greet %>, <%= admin.memberNick %></h1>
+          <p>Doʻkoningizdagi bugungi holat: buyurtmalar, kitoblar zaxirasi va kitobxonlar.</p>
         </div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-section-label">Navigation</div>
-        <ul class="nav-list">
-          <li class="nav-item active">
-            <a class="nav-link" href="/admin">
-              <i class="bi bi-house-door-fill"></i> Dashboard
-            </a>
-          </li>
-          <% if(!member) { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/signup">
-              <i class="bi bi-person-plus-fill"></i> Sign Up
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/login">
-              <i class="bi bi-box-arrow-in-right"></i> Login
-            </a>
-          </li>
-          <% } else { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/product/all">
-              <i class="bi bi-grid-3x3-gap-fill"></i> Products
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/user/all">
-              <i class="bi bi-people-fill"></i> Users
-            </a>
-          </li>
-          <% } %>
-        </ul>
-      </div>
-
-      <% if(member) { %>
-      <div class="sidebar-footer">
-        <div class="sidebar-user">
-          <div class="sidebar-user-avatar">👤</div>
-          <div class="sidebar-user-info">
-            <div class="sidebar-user-name"><%= member.memberNick %></div>
-            <div class="sidebar-user-role">Administrator</div>
-          </div>
-          <a href="/admin/logout" onclick="return confirm('Are you sure you want to logout?')" style="color:var(--muted);font-size:18px;">
-            <i class="bi bi-box-arrow-right"></i>
-          </a>
-        </div>
-      </div>
-      <% } %>
-    </aside>
-
-    <!-- MAIN -->
-    <div class="app-main">
-
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <div class="topbar-breadcrumb">
-            <i class="bi bi-house-door"></i>
-            <span>/</span>
-            <span class="current">Dashboard</span>
-          </div>
-        </div>
-        <div class="topbar-right">
-          <div class="topbar-dot"></div>
-          <span class="topbar-badge">
-            <i class="bi bi-shield-check me-1"></i>Admin
-          </span>
+        <div class="ad-head__actions">
+          <a class="ad-btn ad-btn--ghost" href="/admin/order/all?status=PAUSE"><i class="bi bi-hourglass-split"></i> Kutilayotganlar</a>
+          <a class="ad-btn ad-btn--primary" href="/admin/product/all#new"><i class="bi bi-plus-lg"></i> Yangi kitob</a>
         </div>
       </header>
 
-      <main class="app-content">
+      <!-- KPIs -->
+      <section class="ad-kpis" aria-label="Asosiy koʻrsatkichlar">
+        <div class="ad-card ad-kpi">
+          <span class="ad-kpi__icon is-ok"><i class="bi bi-cash-coin"></i></span>
+          <span class="ad-kpi__value ad-num"><%= money(s.revenue) %></span>
+          <span class="ad-kpi__label">Umumiy tushum</span>
+          <span class="ad-kpi__sub">Soʻnggi 30 kunda: <b><%= money(s.revenue30) %></b></span>
+        </div>
+        <div class="ad-card ad-kpi">
+          <span class="ad-kpi__icon is-gold"><i class="bi bi-box-seam"></i></span>
+          <span class="ad-kpi__value ad-num"><%= s.orders.pending + s.orders.process + s.orders.finish %></span>
+          <span class="ad-kpi__label">Buyurtmalar</span>
+          <span class="ad-kpi__sub"><b><%= s.orders.pending %></b> tasi tasdiqlanishini kutmoqda</span>
+        </div>
+        <div class="ad-card ad-kpi">
+          <span class="ad-kpi__icon"><i class="bi bi-book"></i></span>
+          <span class="ad-kpi__value ad-num"><%= s.products.active %><small class="ad-muted" style="font-size:18px"> / <%= s.products.total %></small></span>
+          <span class="ad-kpi__label">Sotuvdagi kitoblar</span>
+          <span class="ad-kpi__sub">Omborda jami <b><%= s.products.stockUnits %></b> dona</span>
+        </div>
+        <div class="ad-card ad-kpi">
+          <span class="ad-kpi__icon"><i class="bi bi-people"></i></span>
+          <span class="ad-kpi__value ad-num"><%= s.members.active %></span>
+          <span class="ad-kpi__label">Faol kitobxonlar</span>
+          <span class="ad-kpi__sub">Shu hafta: <b>+<%= s.members.newWeek %></b><%= s.members.blocked ? ' · bloklangan: ' + s.members.blocked : '' %></span>
+        </div>
+      </section>
 
-        <!-- HERO -->
-        <div class="dash-hero">
-          <div class="hero-content">
-            <div class="hero-greeting">
-              <i class="bi bi-stars"></i> Welcome back
+      <div class="ad-grid-2">
+        <div class="ad-stack">
+          <!-- Pipeline -->
+          <section class="ad-card">
+            <div class="ad-card__head">
+              <h2 class="ad-card__title"><i class="bi bi-signpost-split"></i> Buyurtmalar oqimi</h2>
+              <a class="ad-btn ad-btn--ghost ad-btn--sm" href="/admin/order/all">Barchasi</a>
             </div>
-            <h1 class="hero-title">
-              BOOKON <span>Admin Panel</span>
-            </h1>
-            <p class="hero-desc">
-              Manage your library products, users, and orders. Everything is under your control with the modern admin panel.
-            </p>
-            <% if(!member) { %>
-            <div class="hero-actions">
-              <a class="btn-hero-primary" href="/admin/signup">
-                <i class="bi bi-person-plus-fill"></i> Get Started
-              </a>
-              <a class="btn-hero-secondary" href="/admin/login">
-                <i class="bi bi-box-arrow-in-right"></i> Login
-              </a>
+            <div class="ad-card__body">
+              <div class="ad-pipe">
+                <a href="/admin/order/all?status=PAUSE"><strong class="ad-num"><%= s.orders.pending %></strong><span class="ad-pill is-PAUSE">Kutilmoqda</span></a>
+                <a href="/admin/order/all?status=PROCESS"><strong class="ad-num"><%= s.orders.process %></strong><span class="ad-pill is-PROCESS">Yoʻlda</span></a>
+                <a href="/admin/order/all?status=FINISH"><strong class="ad-num"><%= s.orders.finish %></strong><span class="ad-pill is-FINISH">Yetkazildi</span></a>
+              </div>
             </div>
-            <% } else { %>
-            <div class="hero-actions">
-              <a class="btn-hero-primary" href="/admin/product/all">
-                <i class="bi bi-grid-3x3-gap-fill"></i> Products
-              </a>
-              <a class="btn-hero-secondary" href="/admin/user/all">
-                <i class="bi bi-people-fill"></i> Users
-              </a>
+          </section>
+
+          <!-- Recent orders -->
+          <section class="ad-card">
+            <div class="ad-card__head">
+              <h2 class="ad-card__title"><i class="bi bi-clock-history"></i> Soʻnggi buyurtmalar</h2>
             </div>
-            <% } %>
-          </div>
-          <div class="hero-decoration">
-            <div class="hero-book"></div>
-          </div>
+            <div class="ad-card__body">
+              <% if (!s.recentOrders.length) { %>
+                <div class="ad-empty"><i class="bi bi-inbox"></i>Hali buyurtma yoʻq</div>
+              <% } else { %>
+              <ul class="ad-list">
+                <% s.recentOrders.forEach(function (o) { const first = o.products[0]; %>
+                <li>
+                  <img class="ad-thumb" src="<%= img(first) %>" alt="" onerror="this.src='/img/default.jpeg'" />
+                  <div class="ad-list__main">
+                    <span class="ad-list__title"><%= orderNo(o._id) %> · <%= o.member ? o.member.memberNick : 'Oʻchirilgan hisob' %></span>
+                    <span class="ad-list__sub"><%= dateTime(o.createdAt) %> · <%= o.items.reduce(function (n, i) { return n + i.itemQuantity; }, 0) %> ta kitob</span>
+                  </div>
+                  <span class="ad-pill is-<%= o.orderStatus %>"><%= STATUS_LABEL[o.orderStatus] %></span>
+                  <strong class="ad-num"><%= money(o.orderTotal) %></strong>
+                </li>
+                <% }) %>
+              </ul>
+              <% } %>
+            </div>
+          </section>
         </div>
 
-        <% if(member) { %>
-
-        <!-- STAT CARDS -->
-        <div class="stat-cards">
-          <div class="stat-card-new card-indigo">
-            <div class="stat-card-top">
-              <div class="stat-icon-new indigo"><i class="bi bi-book-fill"></i></div>
-              <div class="stat-trend up"><i class="bi bi-arrow-up"></i> Live</div>
+        <div class="ad-stack">
+          <!-- Low stock -->
+          <section class="ad-card">
+            <div class="ad-card__head">
+              <h2 class="ad-card__title"><i class="bi bi-exclamation-triangle"></i> Tugab borayotganlar</h2>
+              <span class="ad-tag"><%= lowStockLimit %> donadan kam</span>
             </div>
-            <div class="stat-value-new">∞</div>
-            <div class="stat-label-new">Total Products</div>
-          </div>
-
-          <div class="stat-card-new card-gold">
-            <div class="stat-card-top">
-              <div class="stat-icon-new gold"><i class="bi bi-people-fill"></i></div>
-              <div class="stat-trend up"><i class="bi bi-arrow-up"></i> Active</div>
+            <div class="ad-card__body">
+              <% if (!s.lowStock.length) { %>
+                <div class="ad-empty"><i class="bi bi-check2-circle"></i>Barcha kitoblar yetarli</div>
+              <% } else { %>
+              <ul class="ad-list">
+                <% s.lowStock.forEach(function (p) { %>
+                <li>
+                  <img class="ad-thumb ad-thumb--sm" src="<%= img(p) %>" alt="" onerror="this.src='/img/default.jpeg'" />
+                  <div class="ad-list__main">
+                    <span class="ad-list__title"><%= p.productName %></span>
+                    <span class="ad-list__sub"><%= p.productAuthor && p.productAuthor !== 'Unknown' ? p.productAuthor : '—' %></span>
+                  </div>
+                  <span class="ad-stock is-low ad-num"><%= p.productLeftCount %> dona</span>
+                </li>
+                <% }) %>
+              </ul>
+              <% } %>
             </div>
-            <div class="stat-value-new">∞</div>
-            <div class="stat-label-new">Total Users</div>
-          </div>
+          </section>
 
-          <div class="stat-card-new card-green">
-            <div class="stat-card-top">
-              <div class="stat-icon-new green"><i class="bi bi-bag-check-fill"></i></div>
-              <div class="stat-trend up"><i class="bi bi-arrow-up"></i> New</div>
+          <!-- Most viewed -->
+          <section class="ad-card">
+            <div class="ad-card__head">
+              <h2 class="ad-card__title"><i class="bi bi-graph-up-arrow"></i> Eng koʻp koʻrilgan</h2>
             </div>
-            <div class="stat-value-new">∞</div>
-            <div class="stat-label-new">Orders</div>
-          </div>
-
-          <div class="stat-card-new card-cyan">
-            <div class="stat-card-top">
-              <div class="stat-icon-new cyan"><i class="bi bi-graph-up-arrow"></i></div>
-              <div class="stat-trend up"><i class="bi bi-arrow-up"></i> Up</div>
+            <div class="ad-card__body">
+              <% if (!s.topViewed.length) { %>
+                <div class="ad-empty"><i class="bi bi-book"></i>Sotuvda kitob yoʻq</div>
+              <% } else { %>
+              <ul class="ad-list">
+                <% s.topViewed.forEach(function (p, i) { %>
+                <li>
+                  <span class="ad-num ad-muted" style="width:18px;font-weight:800"><%= i + 1 %></span>
+                  <img class="ad-thumb ad-thumb--sm" src="<%= img(p) %>" alt="" onerror="this.src='/img/default.jpeg'" />
+                  <div class="ad-list__main">
+                    <span class="ad-list__title"><%= p.productName %></span>
+                    <span class="ad-list__sub"><i class="bi bi-eye"></i> <%= p.productViews || 0 %> · <i class="bi bi-heart"></i> <%= p.productLikes || 0 %></span>
+                  </div>
+                </li>
+                <% }) %>
+              </ul>
+              <% } %>
             </div>
-            <div class="stat-value-new">∞</div>
-            <div class="stat-label-new">Monthly Revenue</div>
-          </div>
+          </section>
         </div>
-
-        <!-- QUICK ACTIONS -->
-        <div class="quick-grid">
-          <a class="quick-card" href="/admin/product/all">
-            <div class="quick-card-icon" style="background:rgba(99,102,241,.15);color:#818cf8;">
-              <i class="bi bi-grid-3x3-gap-fill"></i>
-            </div>
-            <h5>Products</h5>
-            <p>View and manage the book catalog</p>
-            <div class="quick-card-arrow"><i class="bi bi-arrow-right"></i></div>
-          </a>
-
-          <a class="quick-card" href="/admin/user/all">
-            <div class="quick-card-icon" style="background:rgba(245,158,11,.15);color:#fbbf24;">
-              <i class="bi bi-people-fill"></i>
-            </div>
-            <h5>Users</h5>
-            <p>Manage user list and status</p>
-            <div class="quick-card-arrow"><i class="bi bi-arrow-right"></i></div>
-          </a>
-
-          <a class="quick-card" href="/admin/logout" onclick="return confirm('Are you sure you want to logout?')">
-            <div class="quick-card-icon" style="background:rgba(239,68,68,.12);color:#f87171;">
-              <i class="bi bi-box-arrow-right"></i>
-            </div>
-            <h5>Logout</h5>
-            <p>Sign out from admin panel</p>
-            <div class="quick-card-arrow"><i class="bi bi-arrow-right"></i></div>
-          </a>
-        </div>
-
-        <% } %>
-
-      </main>
-    </div>
+      </div>
+    </main>
   </div>
-
-  <script type="text/javascript" src="/js/home.js"></script>
-</body>
-
 <%- include('includes/footer') %>

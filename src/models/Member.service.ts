@@ -99,6 +99,17 @@ class MemberService {
     await this.memberModel.updateOne({ _id: memberId }, { $set: { memberEmailVerified: true } }).exec();
   }
 
+  /** Signed-in password change: the current password must match */
+  public async changePassword(memberId: any, current: string, next: string): Promise<void> {
+    const member = await this.memberModel
+      .findOne({ _id: shapeIntoMongooseObjectId(memberId), memberStatus: MemberStatus.ACTIVE }, { memberPassword: 1 })
+      .exec();
+    if (!member || !(await bcrypt.compare(current, member.memberPassword)))
+      throw new Errors(HttpCode.BAD_REQUEST, Message.WRONG_PASSWORD);
+    const hashed = await bcrypt.hash(next, await bcrypt.genSalt());
+    await this.memberModel.updateOne({ _id: member._id }, { $set: { memberPassword: hashed } }).exec();
+  }
+
   /** New password from a reset link; following the link also proves the inbox */
   public async setPassword(memberId: any, password: string): Promise<void> {
     const hashed = await bcrypt.hash(password, await bcrypt.genSalt());

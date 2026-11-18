@@ -136,6 +136,18 @@ const ROOT = path.join(__dirname, "..", "..");
     check("changing to a bad phone gives a phone-specific error", res.status === 400 && /phone/i.test(body.message), body.message);
     if (saved.memberImage) fsMod.rmSync(path.join(ROOT, saved.memberImage), { force: true });
 
+    // ---- change password while signed in
+    res = await fetch(`${api}/member/change-password`, json({ currentPassword: "wrong-one", newPassword: "changed-pass-1" }, cookie));
+    check("change password needs the current one", res.status === 400);
+    res = await fetch(`${api}/member/change-password`, json({ currentPassword: "brand-new-pass", newPassword: "short" }, cookie));
+    check("change password rejects weak new one", res.status === 400);
+    res = await fetch(`${api}/member/change-password`, json({ currentPassword: "brand-new-pass", newPassword: "changed-pass-1" }));
+    check("change password needs login", res.status === 401);
+    res = await fetch(`${api}/member/change-password`, json({ currentPassword: "brand-new-pass", newPassword: "changed-pass-1" }, cookie));
+    check("change password", res.status === 200);
+    res = await fetch(`${api}/member/login`, json({ login: nick, memberPassword: "changed-pass-1" }));
+    check("login with changed password", res.status === 200);
+
     // ---- public endpoints never leak emails
     const library = await (await fetch(`${api}/member/library`)).json();
     const top = await (await fetch(`${api}/member/top-users`)).json();

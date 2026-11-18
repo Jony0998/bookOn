@@ -41,7 +41,16 @@ const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
       (auth ? admin : (u, i) => fetch(api + u, i))(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
     const html = await (await admin("/admin/product/all")).text();
-    check("admin products page renders", html.includes("Author") && html.includes("edit-product-modal") && html.includes("Home page shelves"));
+    check("admin products page renders", html.includes("Muallif") && html.includes("edit-product-modal") && html.includes("Bosh sahifadagi javonlar") && html.includes("ad-side"));
+    const dash = await admin("/admin");
+    const dashHtml = await dash.text();
+    check("dashboard renders with stats", dash.status === 200 && dashHtml.includes("Umumiy tushum") && dashHtml.includes("Buyurtmalar oqimi"));
+    const ordersPage = await admin("/admin/order/all?status=PAUSE");
+    check("orders page renders", ordersPage.status === 200 && (await ordersPage.text()).includes("Buyurtmalar"));
+    const anonDash = await fetch(`${api}/admin`, { redirect: "manual" });
+    check("dashboard requires login", anonDash.status === 302 && /\/admin\/login/.test(anonDash.headers.get("location") || ""));
+    const anonOrders = await fetch(`${api}/admin/order/all`);
+    check("orders page requires login", anonOrders.status === 401);
 
     target = await products.findOne({ productStatus: "PROCESS" });
     const id = String(target._id);
@@ -100,7 +109,7 @@ const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
     const before = fs.readdirSync(uploads).length;
     let text = await (await admin("/admin/product/create", { method: "POST", body: makeForm() })).text();
     const created = await products.findOne({ productName: "E2E Book" });
-    check("create with book fields + shelves", text.includes("Successful creation") && created?.productPrice === 12.5 && JSON.stringify(created?.productShelves) === '["UZBEK_LIT"]');
+    check("create with book fields + shelves", text.includes("Kitob qoʻshildi") && created?.productPrice === 12.5 && JSON.stringify(created?.productShelves) === '["UZBEK_LIT"]');
     text = await (await admin("/admin/product/create", { method: "POST", body: makeForm() })).text();
     await new Promise((r) => setTimeout(r, 300));
     check("duplicate create rejected", text.includes("already exists"));

@@ -83,7 +83,7 @@ productController.getAllProducts = async (req: Request, res: Response) => {
     console.log("getAllProducts");
     const data = await productService.getAllProducts();
     // console.log("data:", data);
-    res.render("products", { products: data, shelves: SHELF_LABELS });
+    res.render("products", { products: data, shelves: SHELF_LABELS, admin: (req as AdminRequest).session?.member, active: "products" });
   } catch (err) {
     console.log("Error getAllProducts:", err);
     if (err instanceof Errors) res.status(err.code).json(err);
@@ -104,7 +104,7 @@ productController.createNewProduct = async (
     data.productImages = req.files.map((ele) => ele.path.replace(/\\/g, "/"));
 
     await productService.createNewProduct(data);
-    res.send(alertScript("Successful creation", "/admin/product/all"));
+    res.send(alertScript("Kitob qoʻshildi. U “Toʻxtatilgan” holatda — sotuvga chiqarish uchun holatini “Sotuvda” qiling.", "/admin/product/all"));
   } catch (err) {
     console.log("Error createNewProduct:", err);
     discardUploads(req.files);

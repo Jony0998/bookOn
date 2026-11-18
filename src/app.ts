@@ -86,6 +86,29 @@ app.use(function (req, res, next) {
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
+/** Formatting helpers for the admin templates (Uzbek, same rules as the shop) */
+const UZ_MONTHS = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
+app.locals.money = (value: number) => {
+  const n = Math.round((Number(value) || 0) * 100) / 100;
+  return `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
+};
+app.locals.date = (value: Date | string) => {
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? "" : `${d.getDate()}-${UZ_MONTHS[d.getMonth()]}, ${d.getFullYear()}`;
+};
+app.locals.dateTime = (value: Date | string) => {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getDate()}-${UZ_MONTHS[d.getMonth()]}, ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+app.locals.orderNo = (id: unknown) => `#${String(id).slice(-6).toUpperCase()}`;
+app.locals.STATUS_LABEL = { PAUSE: "Kutilmoqda", PROCESS: "Yoʻlda", FINISH: "Yetkazildi", DELETE: "Bekor qilingan", ACTIVE: "Faol", BLOCK: "Bloklangan" };
+app.locals.GENRE_LABEL = {
+  FICTION: "Badiiy", NON_FICTION: "Ilmiy-ommabop", SCIENCE: "Ilmiy", HISTORY: "Tarix", BIOGRAPHY: "Biografiya",
+  CHILDREN: "Bolalar uchun", TEXTBOOK: "Darsliklar", REFERENCE: "Maʼlumotnomalar", RELIGION: "Diniy", OTHER: "Boshqa",
+};
+
 /** 4-ROUTERS **/
 app.use("/admin", routerAdmin); // SSR: EJS
 app.use("/", router); // SPA: REACT

@@ -1,4 +1,4 @@
-console.log("Users frontend javascript file");
+// Admin: readers page (status change, search, filter)
 
 $(function () {
   // Update status
@@ -15,11 +15,11 @@ $(function () {
         const result = response.data;
         if (result.data) {
           $(".member-status").blur();
-        } else alert("User Update Failed!");
+        } else alert("Holatni saqlab boʻlmadi. Qaytadan urinib koʻring.");
       })
       .catch((err) => {
         console.log("error:", err);
-        alert("User update failed!");
+        alert("Holatni saqlab boʻlmadi. Qaytadan urinib koʻring.");
       });
   });
 

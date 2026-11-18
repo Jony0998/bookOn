@@ -1,243 +1,65 @@
-<%- include('includes/header') %>
+<%- include('includes/header', { pageTitle: 'Kutubxonani roʻyxatdan oʻtkazish' }) %>
+<body>
+  <div class="ad-auth">
+    <aside class="ad-auth__art" aria-hidden="true">
+      <%- include('includes/girih', { cls: 'ad-girih', pid: 'signup' }) %>
+      <span class="ad-brand">
+        <svg width="34" height="34" viewBox="0 0 40 40" style="color:#3cc3c8"><rect x="9" y="9" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" /><rect x="9" y="9" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" transform="rotate(45 20 20)" /><circle cx="20" cy="20" r="3.2" fill="#f2b53a" /></svg>
+        <span><span class="ad-brand__name">Book<span>On</span></span><span class="ad-brand__tag">Boshqaruv paneli</span></span>
+      </span>
+      <div>
+        <p class="ad-auth__quote">Kutubxonangizni <em>bir daqiqada</em> oching.</p>
+        <p class="ad-auth__note">Doʻkonda faqat bitta kutubxona hisobi boʻladi. U kitoblar katalogi va buyurtmalarni boshqaradi.</p>
+      </div>
+    </aside>
 
-<body class="app-bg">
-  <div class="auth-page-modern">
-    <div class="auth-container">
-      <!-- Left Side - Branding -->
-      <div class="auth-branding">
-        <div class="branding-content">
-          <div class="brand-logo">
-            <i class="bi bi-book"></i>
-          </div>
-          <h1 class="brand-title">BOOKON</h1>
-          <p class="brand-subtitle">Library Management System</p>
-          <div class="brand-features">
-            <div class="feature-item">
-              <i class="bi bi-check-circle-fill"></i>
-              <span>Manage your library</span>
-            </div>
-            <div class="feature-item">
-              <i class="bi bi-check-circle-fill"></i>
-              <span>Track books & users</span>
-            </div>
-            <div class="feature-item">
-              <i class="bi bi-check-circle-fill"></i>
-              <span>Easy administration</span>
-            </div>
+    <section class="ad-auth__panel">
+      <% if (libraryExists) { %>
+        <div class="ad-auth__form">
+          <span class="ad-eyebrow">Kutubxona hisobi</span>
+          <h1>Hisob allaqachon mavjud</h1>
+          <p class="lead">Bu doʻkonda kutubxona hisobi ochilgan. Ikkinchi hisob yaratib boʻlmaydi — mavjud hisob bilan kiring.</p>
+          <a class="ad-btn ad-btn--primary" href="/admin/login" style="min-height:52px"><i class="bi bi-box-arrow-in-right"></i> Kirishga oʻtish</a>
+        </div>
+      <% } else { %>
+      <form class="ad-auth__form" action="/admin/signup" method="POST" enctype="multipart/form-data" onsubmit="return validateSignupForm()">
+        <span class="ad-eyebrow">Birinchi qadam</span>
+        <h1>Kutubxonani roʻyxatdan oʻtkazish</h1>
+        <p class="lead">Bu maʼlumotlar Yordam sahifasida xaridorlar uchun aloqa sifatida koʻrinadi.</p>
+
+        <div class="ad-avatar-pick file-box">
+          <img class="upload-img-frame" src="/img/default.jpeg" alt="" />
+          <div>
+            <label class="ad-btn ad-btn--ghost ad-btn--sm" for="memberImage" style="cursor:pointer"><i class="bi bi-image"></i> Logotip tanlash</label>
+            <input class="d-none upload-hidden member-image" id="memberImage" name="memberImage" type="file" accept="image/jpeg,image/png,image/webp" />
+            <input class="upload-name form-control mt-2" value="" placeholder="Fayl tanlanmagan" readonly tabindex="-1" style="min-height:34px;font-size:13px" />
           </div>
         </div>
-      </div>
 
-      <!-- Right Side - Signup Form -->
-      <div class="auth-form-wrapper">
-        <div class="auth-form-card">
-          <div class="auth-header">
-            <h2 class="auth-title">Create Account</h2>
-            <p class="auth-subtitle">Register your library and start managing books</p>
+        <div>
+          <label class="form-label" for="memberNick">Kutubxona nomi (login) <span class="req">*</span></label>
+          <input class="form-control member-nick" id="memberNick" name="memberNick" type="text" autocomplete="username" required />
+        </div>
+        <div>
+          <label class="form-label" for="memberPhone">Telefon <span class="req">*</span></label>
+          <input class="form-control member-phone" id="memberPhone" name="memberPhone" type="tel" placeholder="+998 90 123 45 67" autocomplete="tel" required />
+        </div>
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <label class="form-label" for="memberPassword">Parol <span class="req">*</span></label>
+            <input class="form-control member-password" id="memberPassword" name="memberPassword" type="password" autocomplete="new-password" required />
           </div>
-
-          <form onsubmit="return validateSignupForm()" action="/admin/signup" method="POST" enctype="multipart/form-data" class="auth-form">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <div class="form-group-modern">
-                  <label for="memberNick" class="form-label-modern">
-                    <i class="bi bi-person-circle"></i> Username
-                  </label>
-                  <div class="input-wrapper">
-                    <i class="bi bi-person input-icon"></i>
-                    <input
-                      type="text"
-                      class="form-control-modern"
-                      id="memberNick"
-                      name="memberNick"
-                      placeholder="Enter username"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group-modern">
-                  <label for="memberPhone" class="form-label-modern">
-                    <i class="bi bi-telephone"></i> Phone
-                  </label>
-                  <div class="input-wrapper">
-                    <i class="bi bi-telephone-fill input-icon"></i>
-                    <input
-                      type="text"
-                      class="form-control-modern"
-                      id="memberPhone"
-                      name="memberPhone"
-                      placeholder="Enter phone number"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="row g-3">
-              <div class="col-md-6">
-                <div class="form-group-modern">
-                  <label for="memberPassword" class="form-label-modern">
-                    <i class="bi bi-lock"></i> Password
-                  </label>
-                  <div class="input-wrapper">
-                    <i class="bi bi-lock-fill input-icon"></i>
-                    <input
-                      type="password"
-                      class="form-control-modern"
-                      id="memberPassword"
-                      name="memberPassword"
-                      placeholder="Create password"
-                      required
-                    />
-                    <button type="button" class="password-toggle" onclick="togglePassword('memberPassword')">
-                      <i class="bi bi-eye" id="toggle-icon-memberPassword"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group-modern">
-                  <label for="confirmPassword" class="form-label-modern">
-                    <i class="bi bi-lock"></i> Confirm Password
-                  </label>
-                  <div class="input-wrapper">
-                    <i class="bi bi-lock-fill input-icon"></i>
-                    <input
-                      type="password"
-                      class="form-control-modern"
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      placeholder="Confirm password"
-                      required
-                    />
-                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
-                      <i class="bi bi-eye" id="toggle-icon-confirmPassword"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group-modern">
-              <label class="form-label-modern">
-                <i class="bi bi-image"></i> Library Image
-              </label>
-              <div class="image-upload-modern">
-                <div class="image-preview-wrapper">
-                  <img id="preview-image" src="/img/library.jpg" alt="Library Preview" class="image-preview">
-                  <div class="image-overlay">
-                    <i class="bi bi-camera-fill"></i>
-                    <span>Click to upload</span>
-                  </div>
-                </div>
-                <input
-                  type="file"
-                  id="input-file"
-                  class="d-none"
-                  name="memberImage"
-                  accept="image/jpeg,image/jpg,image/png"
-                  onchange="previewImage(this)"
-                />
-                <label for="input-file" class="upload-label">
-                  <i class="bi bi-cloud-arrow-up"></i>
-                  <span>Choose Image</span>
-                </label>
-                <small class="upload-hint">
-                  <i class="bi bi-info-circle"></i>
-                  Only .jpg, .jpeg, or .png formats allowed (Max 5MB)
-                </small>
-              </div>
-            </div>
-
-            <input name="memberType" value="LIBRARY" type="hidden" />
-
-            <button type="submit" name="signup" class="btn-auth-primary">
-              <span>Create Account</span>
-              <i class="bi bi-arrow-right"></i>
-            </button>
-          </form>
-
-          <div class="auth-footer">
-            <p class="auth-footer-text">
-              Already have an account?
-              <a href="/admin/login" class="auth-link">Sign In</a>
-            </p>
-            <a href="/admin" class="auth-link-secondary">
-              <i class="bi bi-arrow-left"></i> Back to Home
-            </a>
+          <div class="col-sm-6">
+            <label class="form-label" for="confirmPassword">Parolni takrorlang <span class="req">*</span></label>
+            <input class="form-control confirm-password" id="confirmPassword" type="password" autocomplete="new-password" required />
           </div>
         </div>
-      </div>
-    </div>
+
+        <button type="submit" class="ad-btn ad-btn--primary" style="min-height:52px"><i class="bi bi-check2"></i> Hisob yaratish</button>
+        <p class="ad-auth__switch">Hisob bormi? <a href="/admin/login" style="font-weight:700">Kirish</a></p>
+      </form>
+      <% } %>
+    </section>
   </div>
-
-  <script>
-    function previewImage(input) {
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const preview = document.getElementById('preview-image');
-          preview.src = e.target.result;
-          preview.parentElement.classList.add('has-image');
-        };
-        reader.readAsDataURL(input.files[0]);
-      }
-    }
-
-    function togglePassword(inputId) {
-      const input = document.getElementById(inputId);
-      const icon = document.getElementById('toggle-icon-' + inputId);
-      
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('bi-eye');
-        icon.classList.add('bi-eye-slash');
-      } else {
-        input.type = 'password';
-        icon.classList.remove('bi-eye-slash');
-        icon.classList.add('bi-eye');
-      }
-    }
-
-    function validateSignupForm() {
-      const memberNick = document.getElementById('memberNick').value;
-      const memberPhone = document.getElementById('memberPhone').value;
-      const memberPassword = document.getElementById('memberPassword').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const fileInput = document.getElementById('input-file');
-
-      if (!memberNick || !memberPhone || !memberPassword || !confirmPassword) {
-        alert("Please fill in all required fields!");
-        return false;
-      }
-
-      if (memberPassword !== confirmPassword) {
-        alert("Passwords do not match. Please check and try again!");
-        return false;
-      }
-
-      if (memberPassword.length < 6) {
-        alert("Password must be at least 6 characters long!");
-        return false;
-      }
-
-      if (!fileInput.files || fileInput.files.length === 0) {
-        alert("Please select a library image!");
-        return false;
-      }
-
-      return true;
-    }
-
-    // Click on image preview to trigger file input
-    document.getElementById('preview-image').parentElement.addEventListener('click', function() {
-      document.getElementById('input-file').click();
-    });
-  </script>
   <script type="text/javascript" src="/js/signup.js"></script>
-</body>
-
 <%- include('includes/footer') %>

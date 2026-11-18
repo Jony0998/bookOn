@@ -1,4 +1,4 @@
-console.log("Products frontend javascript file");
+// Admin: books page (filters, create form, status, edit modal)
 
 $(function () {
   // Book categories don't need conditional display logic anymore
@@ -77,17 +77,17 @@ $(".new-product-status").on("change", async function (e) {
     const result = response.data;
     if (result.data) {
       $(".new-product-status").blur();
-    } else alert("Product Update failed!");
+    } else alert("Holatni saqlab boʻlmadi. Qaytadan urinib koʻring.");
   } catch (err) {
     console.log(err);
-    alert("Product Update failed!");
+    alert("Holatni saqlab boʻlmadi. Qaytadan urinib koʻring.");
   }
 });
 
 /** Returns an error message, or "" when the sale price is valid */
 function discountError(price, discount) {
   if (discount === "" || discount === undefined || discount === null) return "";
-  return Number(discount) < Number(price) ? "" : "Sale price must be lower than the regular price!";
+  return Number(discount) < Number(price) ? "" : "Chegirma narxi asosiy narxdan kichik boʻlishi kerak.";
 }
 
 function validateForm() {
@@ -102,7 +102,7 @@ function validateForm() {
   ];
 
   if (required.some((value) => !String(value || "").trim())) {
-    alert("Please insert all details!!!");
+    alert("Majburiy maydonlarni toʻldiring: nom, muallif, narx, zaxira va tavsif.");
     return false;
   }
   const error = discountError($(".product-price").val(), $(".product-discount-price").val());
@@ -155,7 +155,7 @@ $(function () {
 
     const error =
       (!body.productName || !body.productAuthor || body.productPrice === "" || body.productLeftCount === ""
-        ? "Name, author, price and stock are required!"
+        ? "Nom, muallif, narx va zaxira majburiy."
         : "") || discountError(body.productPrice, body.productDiscountPrice);
     if (error) {
       $error.removeClass("d-none").text(error);
@@ -167,7 +167,7 @@ $(function () {
       await axios.post(`/admin/product/${id}`, body);
       location.reload();
     } catch (err) {
-      const message = err?.response?.data?.message || "Product update failed!";
+      const message = err?.response?.data?.message || "Saqlab boʻlmadi. Qaytadan urinib koʻring.";
       $error.removeClass("d-none").text(message);
     } finally {
       $save.prop("disabled", false);
@@ -181,7 +181,7 @@ function previewFileHandler(input, order) {
 
   const validImageType = ["image/jpg", "image/jpeg", "image/png", "image/webp"];
   if (!validImageType.includes(file.type)) {
-    alert("Faqat jpeg, jpg, png va webp formatlar ruxsat etiladi!");
+    alert("Faqat JPG, PNG yoki WEBP rasm (5 MB gacha).");
     input.value = "";
     return;
   }
@@ -194,3 +194,8 @@ function previewFileHandler(input, order) {
   };
   reader.readAsDataURL(file);
 }
+
+// Dashboard's "Yangi kitob" link opens the create form directly
+$(function () {
+  if (location.hash === "#new") $("#process-btn").trigger("click");
+});

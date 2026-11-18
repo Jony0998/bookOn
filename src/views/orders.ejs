@@ -1,0 +1,88 @@
+<%- include('includes/header', { pageTitle: 'Buyurtmalar' }) %>
+<%
+  const tabs = [
+    { key: '', label: 'Barchasi' },
+    { key: 'PAUSE', label: 'Kutilmoqda' },
+    { key: 'PROCESS', label: 'Yoʻlda' },
+    { key: 'FINISH', label: 'Yetkazildi' },
+    { key: 'DELETE', label: 'Bekor qilingan' },
+  ];
+  const img = (p) => p && p.productImages && p.productImages[0] ? '/' + p.productImages[0] : '/img/default.jpeg';
+%>
+<body>
+  <div class="ad-shell">
+    <%- include('includes/sidebar') %>
+
+    <main class="ad-main">
+      <header class="ad-head">
+        <div>
+          <span class="ad-eyebrow">Savdo</span>
+          <h1>Buyurtmalar</h1>
+          <p>Kim, nima va qayerga — yetkazish uchun kerakli hamma maʼlumot bir joyda. Toʻlov yetkazib berilganda olinadi.</p>
+        </div>
+      </header>
+
+      <nav class="ad-segment" aria-label="Holat boʻyicha" style="margin-bottom:20px">
+        <% tabs.forEach(function (tab) { %>
+          <a href="/admin/order/all<%= tab.key ? '?status=' + tab.key : '' %>" class="<%= status === tab.key ? 'is-active' : '' %>" <%= status === tab.key ? 'aria-current=page' : '' %>><%= tab.label %></a>
+        <% }) %>
+      </nav>
+
+      <% if (!orders.length) { %>
+        <div class="ad-card"><div class="ad-empty" style="padding:56px 16px"><i class="bi bi-inbox"></i><b>Bu boʻlimda buyurtma yoʻq</b><span>Yangi buyurtmalar shu yerda paydo boʻladi.</span></div></div>
+      <% } else { %>
+      <div class="ad-orders">
+        <% orders.forEach(function (o) {
+             const m = o.member || {};
+             const books = o.items.reduce(function (n, i) { return n + i.itemQuantity; }, 0);
+        %>
+        <article class="ad-card ad-order">
+          <div class="ad-order__meta">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span class="ad-order__id"><%= orderNo(o._id) %></span>
+              <span class="ad-pill is-<%= o.orderStatus %>"><%= STATUS_LABEL[o.orderStatus] %></span>
+            </div>
+            <span class="ad-muted"><%= dateTime(o.createdAt) %></span>
+            <div class="ad-order__contact">
+              <span><i class="bi bi-person"></i> <b><%= m.memberNick || 'Oʻchirilgan hisob' %></b></span>
+              <% if (m.memberPhone && /^\+?\d{7,15}$/.test(m.memberPhone)) { %>
+                <span><i class="bi bi-telephone"></i> <a href="tel:<%= m.memberPhone %>"><%= m.memberPhone %></a></span>
+              <% } else { %>
+                <span class="is-missing"><i class="bi bi-telephone-x"></i> Telefon kiritilmagan</span>
+              <% } %>
+              <% if (m.memberAddress) { %>
+                <span><i class="bi bi-geo-alt"></i> <%= m.memberAddress %></span>
+              <% } else { %>
+                <span class="is-missing"><i class="bi bi-geo-alt"></i> Manzil kiritilmagan</span>
+              <% } %>
+              <% if (m.memberEmail) { %><span><i class="bi bi-envelope"></i> <a href="mailto:<%= m.memberEmail %>"><%= m.memberEmail %></a></span><% } %>
+            </div>
+          </div>
+
+          <ul class="ad-list ad-order__items" aria-label="Kitoblar">
+            <% o.items.forEach(function (item) {
+                 const p = o.products.find(function (x) { return String(x._id) === String(item.productId); });
+            %>
+            <li>
+              <img class="ad-thumb ad-thumb--sm" src="<%= img(p) %>" alt="" onerror="this.src='/img/default.jpeg'" />
+              <div class="ad-list__main">
+                <span class="ad-list__title"><%= p ? p.productName : 'Oʻchirilgan kitob' %></span>
+                <span class="ad-list__sub"><%= money(item.itemPrice) %> × <%= item.itemQuantity %></span>
+              </div>
+              <strong class="ad-num"><%= money(item.itemPrice * item.itemQuantity) %></strong>
+            </li>
+            <% }) %>
+          </ul>
+
+          <div class="ad-order__total">
+            <span class="ad-eyebrow" style="justify-content:flex-end">Jami · <%= books %> ta kitob</span>
+            <strong class="ad-num"><%= money(o.orderTotal) %></strong>
+            <span class="ad-muted" style="font-size:13px">Yetkazish: <%= o.orderDelivery ? money(o.orderDelivery) : 'bepul' %></span>
+          </div>
+        </article>
+        <% }) %>
+      </div>
+      <% } %>
+    </main>
+  </div>
+<%- include('includes/footer') %>

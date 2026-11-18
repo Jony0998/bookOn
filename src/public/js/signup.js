@@ -1,4 +1,4 @@
-console.log("Signup frontend javascript file");
+// Admin: library signup form
 
 $(function () {
   const fileTarget = $(".file-box .upload-hidden");
@@ -8,13 +8,12 @@ $(function () {
     if (window.FileReader) {
       const uploadFile = $(this)[0].files[0],
        fileType = uploadFile["type"],
-       validImageType = ["image/jpg", "image/jpeg", "image/png"];
+       validImageType = ["image/jpg", "image/jpeg", "image/png", "image/webp"];
       if (!validImageType.includes(fileType)) {
-        alert("Please insert only jpeg , jpg and png!");
+        alert("Faqat JPG, PNG yoki WEBP rasm.");
         return false;
       } else {
         if (uploadFile) {
-          console.log(URL.createObjectURL(uploadFile));
           $(".upload-img-frame")
             .attr("src", URL.createObjectURL(uploadFile))
             .addClass("success");
@@ -38,21 +37,20 @@ function validateSignupForm() {
     memberPassword === "" ||
     confirmPassword === ""
   ) {
-    alert("Please insert all required inputs!");
+    alert("Barcha majburiy maydonlarni toʻldiring.");
     return false;
   }
 
   if (memberPassword !== confirmPassword) {
-    alert("Password differs, please check!");
+    alert("Parollar mos kelmadi.");
     return false;
   }
 
 
-  const memberImage = $(".member-image").get(0).files[0].name
-  ? $(".member-image").get(0).files[0].name
-  : null;
+  const file = $(".member-image").get(0).files[0];
+  const memberImage = file ? file.name : null;
 if (!memberImage) {
-  alert("Please insert restaurant image!");
+  alert("Kutubxona logotipini tanlang.");
   return false;
 }
 }
