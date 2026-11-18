@@ -16,6 +16,7 @@ if (missingEnv.length) {
 import fs from "fs";
 import server from "./app";
 import mongoose from "mongoose";
+import { mailConfigured } from "./libs/utils/mailer";
 
 mongoose.set("strictQuery", true);
 
@@ -39,7 +40,8 @@ mongoose
 
     server.listen(PORT, function () {
       console.info(`Server running at http://localhost:${PORT}/`);
-      console.info(`Admin at http://localhost:${PORT}/admin\n`);
+      console.info(`Admin at http://localhost:${PORT}/admin`);
+      console.info(`Mail: ${mailConfigured() ? "enabled" : "not configured (emails are not sent)"}\n`);
     });
   })
   .catch((err) => {

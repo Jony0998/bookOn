@@ -4,8 +4,23 @@ import nodemailer, { Transporter } from "nodemailer";
  * Transactional email over SMTP (any provider: Resend, Gmail, Mailgun, ...).
  * Env: SMTP_HOST, SMTP_PORT (465 = TLS), SMTP_USER, SMTP_PASS, MAIL_FROM,
  * PUBLIC_URL (site origin used in links, e.g. https://bookon.sale).
- * Without SMTP_HOST nothing is sent; in development the link is logged instead.
+ * Shortcut: RESEND_API_KEY alone means Resend's SMTP (smtp.resend.com).
+ * With neither, nothing is sent; in development the link is logged instead.
  */
+const DEFAULT_FROM = "BookOn <no-reply@bookon.sale>";
+
+const smtpSettings = () => {
+  if (process.env.SMTP_HOST)
+    return {
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT) || 465,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    };
+  if (process.env.RESEND_API_KEY)
+    return { host: "smtp.resend.com", port: 465, user: "resend", pass: process.env.RESEND_API_KEY };
+  return null;
+};
 export type MailLang = "uz" | "ru" | "en";
 export type MailKind = "verify" | "reset";
 
@@ -14,22 +29,21 @@ let transporter: Transporter | null | undefined;
 
 const getTransporter = (): Transporter | null => {
   if (transporter !== undefined) return transporter;
-  const host = process.env.SMTP_HOST;
-  if (!host) {
+  const smtp = smtpSettings();
+  if (!smtp) {
     transporter = null;
     return null;
   }
-  const port = Number(process.env.SMTP_PORT) || 465;
   transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined,
+    host: smtp.host,
+    port: smtp.port,
+    secure: smtp.port === 465,
+    auth: smtp.user ? { user: smtp.user, pass: smtp.pass } : undefined,
   });
   return transporter;
 };
 
-export const mailConfigured = () => !!process.env.SMTP_HOST;
+export const mailConfigured = () => !!smtpSettings();
 
 export const publicUrl = () => (process.env.PUBLIC_URL || "http://localhost:3000").replace(/\/+$/, "");
 
@@ -78,7 +92,7 @@ export const sendAuthMail = async (kind: MailKind, to: string, nick: string, lin
   }
   try {
     await transport.sendMail({
-      from: process.env.MAIL_FROM || process.env.SMTP_USER,
+      from: process.env.MAIL_FROM || DEFAULT_FROM,
       to,
       subject: mail.subject,
       html: mail.html,
