@@ -114,6 +114,28 @@ const ROOT = path.join(__dirname, "..", "..");
     check("changing email resets verification", res.status === 200 && body.memberEmail === newEmail && body.memberEmailVerified === false, `status ${res.status}`);
     check("empty phone is removed, not stored", !("memberPhone" in body));
 
+    // ---- regression: an old free-text phone ("Jony") must not block saving other fields
+    await members.updateOne({ memberNick: nick }, { $set: { memberPhone: `legacy ${stamp}` } });
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+    const legacy = new FormData();
+    legacy.append("memberNick", nick);
+    legacy.append("memberPhone", `legacy ${stamp}`);
+    legacy.append("memberDesc", "Kitobsevar");
+    legacy.append("memberImage", new Blob([png], { type: "image/png" }), "me.png");
+    res = await fetch(`${api}/member/update`, { method: "POST", headers: { Cookie: cookie }, body: legacy });
+    body = await res.json();
+    const saved = await members.findOne({ memberNick: nick });
+    check("legacy phone does not block saving desc + photo", res.status === 200 && saved.memberDesc === "Kitobsevar" && /^uploads\/members\//.test(saved.memberImage || ""), `status ${res.status}`);
+    const fsMod = require("fs");
+    check("uploaded photo is on disk", !!saved.memberImage && fsMod.existsSync(path.join(ROOT, saved.memberImage)));
+    const badPhone = new FormData();
+    badPhone.append("memberNick", nick);
+    badPhone.append("memberPhone", "12ab");
+    res = await fetch(`${api}/member/update`, { method: "POST", headers: { Cookie: cookie }, body: badPhone });
+    body = await res.json();
+    check("changing to a bad phone gives a phone-specific error", res.status === 400 && /phone/i.test(body.message), body.message);
+    if (saved.memberImage) fsMod.rmSync(path.join(ROOT, saved.memberImage), { force: true });
+
     // ---- public endpoints never leak emails
     const library = await (await fetch(`${api}/member/library`)).json();
     const top = await (await fetch(`${api}/member/top-users`)).json();

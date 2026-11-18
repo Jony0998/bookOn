@@ -29,6 +29,7 @@ export enum Message {
   USED_EMAIL = "This email is already registered!",
   USED_NICK = "This username is already taken!",
   INVALID_EMAIL = "Please enter a valid email address!",
+  INVALID_PHONE = "Phone must be 7-15 digits, optionally starting with +!",
   INVALID_NICK = "Username must be 3-30 letters, digits or underscores!",
   WEAK_PASSWORD = "Password must be at least 8 characters!",
   WRONG_CREDENTIALS = "Wrong login or password!",

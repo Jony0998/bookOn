@@ -28,7 +28,7 @@ export const assertPassword = (value: unknown): string => {
 /** Phones are kept as digits with an optional leading + */
 export const normalizePhone = (value: string): string => {
   const phone = value.replace(/[\s()-]/g, "");
-  if (!/^\+?\d{7,15}$/.test(phone)) throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_INPUT);
+  if (!/^\+?\d{7,15}$/.test(phone)) throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_PHONE);
   return phone;
 };
 

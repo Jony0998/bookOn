@@ -17,6 +17,8 @@ import { AUTH_TIMER, pickFields } from "../libs/types/config";
 import { assertNick, assertPassword, normalizeEmail, normalizePhone } from "../libs/utils/member-input";
 import { publicUrl, sendAuthMail, toMailLang } from "../libs/utils/mailer";
 
+import fs from "fs";
+
 const memberService = new MemberService();
 const authService = new AuthService();
 const authTokenService = new AuthTokenService();
@@ -158,8 +160,10 @@ memberController.updateMember = async (
     // Existing usernames may predate the current rules; only a changed nick is checked
     if (fields.memberNick !== undefined && fields.memberNick !== current.memberNick)
       input.memberNick = assertNick(fields.memberNick);
-    // Empty optional fields are removed (an empty phone would clash in the unique index)
-    if (fields.memberPhone !== undefined) {
+    // Only a changed phone is validated: older accounts may hold free text there
+    // (the library account had "Jony"), which must not block saving other fields.
+    // Empty optional fields are removed (an empty phone would clash in the unique index).
+    if (fields.memberPhone !== undefined && fields.memberPhone !== (current.memberPhone ?? "")) {
       if (fields.memberPhone) input.memberPhone = normalizePhone(fields.memberPhone);
       else unset.push("memberPhone");
     }
@@ -187,6 +191,8 @@ memberController.updateMember = async (
     res.status(HttpCode.OK).json(result);
   } catch (err) {
     console.log("Error updateMember:", err);
+    // The upload was not saved to the profile: do not leave the file behind
+    if (req.file) fs.unlink(req.file.path, () => {});
     if (err instanceof Errors) res.status(err.code).json(err);
     else res.status(Errors.standard.code).json(Errors.standard);
   }
