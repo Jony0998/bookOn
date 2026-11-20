@@ -1,0 +1,102 @@
+<%- include('includes/header', { pageTitle: 'Yangiliklar' }) %>
+<%
+  const published = articles.filter(function (a) { return a.articleStatus === 'PUBLISHED'; });
+  const drafts = articles.filter(function (a) { return a.articleStatus !== 'PUBLISHED'; });
+  const totalViews = articles.reduce(function (n, a) { return n + (a.articleViews || 0); }, 0);
+%>
+<body>
+  <div class="ad-shell">
+    <%- include('includes/sidebar') %>
+
+    <main class="ad-main">
+      <header class="ad-head">
+        <div>
+          <span class="ad-eyebrow">Kontent</span>
+          <h1>Yangiliklar va maqolalar</h1>
+          <p>Yangi kelgan kitoblar, aksiyalar va tavsiyalar haqida yozing. Maqolaga kitoblarni biriktirsangiz, ular maqola ostida “Savatga” tugmasi bilan chiqadi.</p>
+        </div>
+        <div class="ad-head__actions">
+          <a class="ad-btn ad-btn--primary" href="/admin/article/new"><i class="bi bi-pencil-square"></i> Yangi maqola</a>
+        </div>
+      </header>
+
+      <section class="ad-kpis" aria-label="Koʻrsatkichlar">
+        <div class="ad-card ad-kpi"><span class="ad-kpi__icon is-ok"><i class="bi bi-broadcast"></i></span><span class="ad-kpi__value ad-num"><%= published.length %></span><span class="ad-kpi__label">Eʼlon qilingan</span></div>
+        <div class="ad-card ad-kpi"><span class="ad-kpi__icon is-gold"><i class="bi bi-journal-text"></i></span><span class="ad-kpi__value ad-num"><%= drafts.length %></span><span class="ad-kpi__label">Qoralama</span><span class="ad-kpi__sub">Saytda koʻrinmaydi</span></div>
+        <div class="ad-card ad-kpi"><span class="ad-kpi__icon"><i class="bi bi-eye"></i></span><span class="ad-kpi__value ad-num"><%= totalViews %></span><span class="ad-kpi__label">Jami oʻqishlar</span></div>
+        <div class="ad-card ad-kpi"><span class="ad-kpi__icon"><i class="bi bi-tags"></i></span><span class="ad-kpi__value ad-num"><%= new Set([].concat.apply([], articles.map(function (a) { return a.articleTags || []; }))).size %></span><span class="ad-kpi__label">Teglar</span></div>
+      </section>
+
+      <% if (!articles.length) { %>
+        <div class="ad-card"><div class="ad-empty" style="padding:56px 16px">
+          <i class="bi bi-newspaper"></i><b>Hali maqola yoʻq</b>
+          <span>Birinchi yangilikni yozing — masalan, “Bu oy kelgan yangi kitoblar”.</span>
+          <a class="ad-btn ad-btn--primary" href="/admin/article/new" style="margin-top:8px"><i class="bi bi-pencil-square"></i> Yangi maqola</a>
+        </div></div>
+      <% } else { %>
+      <section class="ad-card" aria-label="Maqolalar roʻyxati">
+        <div class="ad-table-wrap">
+          <table class="ad-table">
+            <thead><tr><th>Maqola</th><th>Til</th><th>Teglar</th><th class="is-num">Oʻqishlar</th><th>Holat</th><th><span class="visually-hidden">Amallar</span></th></tr></thead>
+            <tbody>
+              <% articles.forEach(function (a) { %>
+              <tr>
+                <td>
+                  <div class="ad-book" style="min-width:300px">
+                    <img class="ad-thumb" style="width:72px;height:48px;border-radius:8px" src="<%= a.articleImage ? '/' + a.articleImage : '/img/default.jpeg' %>" alt="" onerror="this.src='/img/default.jpeg'" />
+                    <div>
+                      <div class="ad-book__title"><%= a.articleTitle %></div>
+                      <div class="ad-book__author">
+                        <%= a.articleStatus === 'PUBLISHED' && a.publishedAt ? 'Eʼlon: ' + date(a.publishedAt) : 'Tahrir: ' + date(a.updatedAt) %>
+                        · <%= a.articleReadMinutes || 1 %> daq. oʻqish
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="ad-tag"><%= a.articleLanguage %></span></td>
+                <td style="max-width:220px"><% (a.articleTags || []).forEach(function (tag) { %><span class="ad-tag" style="margin:2px">#<%= tag %></span><% }) %></td>
+                <td class="is-num"><%= a.articleViews || 0 %></td>
+                <td><span class="ad-pill <%= a.articleStatus === 'PUBLISHED' ? 'is-FINISH' : 'is-PAUSE' %>"><%= a.articleStatus === 'PUBLISHED' ? 'Eʼlon qilingan' : 'Qoralama' %></span></td>
+                <td style="white-space:nowrap">
+                  <a class="ad-icon-btn" href="/admin/article/<%= a._id %>/edit" title="Tahrirlash" aria-label="Tahrirlash: <%= a.articleTitle %>"><i class="bi bi-pencil"></i></a>
+                  <% if (a.articleStatus === 'PUBLISHED') { %>
+                    <a class="ad-icon-btn" href="/news/<%= a.articleSlug %>" target="_blank" rel="noopener" title="Saytda koʻrish" aria-label="Saytda koʻrish"><i class="bi bi-box-arrow-up-right"></i></a>
+                  <% } %>
+                  <button type="button" class="ad-icon-btn article-status" data-id="<%= a._id %>" data-status="<%= a.articleStatus === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED' %>"
+                    title="<%= a.articleStatus === 'PUBLISHED' ? 'Qoralamaga qaytarish' : 'Eʼlon qilish' %>"
+                    aria-label="<%= a.articleStatus === 'PUBLISHED' ? 'Qoralamaga qaytarish' : 'Eʼlon qilish' %>">
+                    <i class="bi <%= a.articleStatus === 'PUBLISHED' ? 'bi-eye-slash' : 'bi-broadcast' %>"></i>
+                  </button>
+                  <button type="button" class="ad-icon-btn article-delete" data-id="<%= a._id %>" data-title="<%= a.articleTitle %>" title="Oʻchirish" aria-label="Oʻchirish"><i class="bi bi-trash" style="color:var(--danger)"></i></button>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <% } %>
+    </main>
+  </div>
+
+  <script>
+    document.querySelectorAll(".article-status").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        btn.disabled = true;
+        try {
+          await axios.post("/admin/article/" + btn.dataset.id + "/status", { articleStatus: btn.dataset.status });
+          location.reload();
+        } catch (e) { alert("Holatni oʻzgartirib boʻlmadi."); btn.disabled = false; }
+      });
+    });
+    document.querySelectorAll(".article-delete").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        if (!confirm("“" + btn.dataset.title + "” maqolasi butunlay oʻchirilsinmi? Bu amalni qaytarib boʻlmaydi.")) return;
+        try {
+          await axios.post("/admin/article/" + btn.dataset.id + "/delete");
+          location.reload();
+        } catch (e) { alert("Oʻchirib boʻlmadi."); }
+      });
+    });
+  </script>
+<%- include('includes/footer') %>

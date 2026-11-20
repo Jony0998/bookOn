@@ -328,6 +328,30 @@ a { color: var(--accent); }
 .ad-check:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
 .ad-form-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 24px; border-top: 1px solid var(--line); }
 
+/* ---------- Article editor ---------- */
+.ad-article { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+.ad-article__title { font-family: var(--font-display); font-size: 22px !important; font-weight: 600; min-height: 54px !important; }
+.ad-article__body { font-size: 16px !important; line-height: 1.7; min-height: 420px; }
+.ad-format { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ad-format div { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 12px; background: var(--surface2); }
+.ad-format code { color: var(--accent); font-weight: 700; font-size: 14px; }
+.ad-format span { font-size: 13px; color: var(--ink2); }
+.ad-cover-pick { position: relative; display: block; aspect-ratio: 1200 / 630; border-radius: 14px; overflow: hidden; border: 2px dashed var(--line); background: var(--surface2); cursor: pointer; }
+.ad-cover-pick img { width: 100%; height: 100%; object-fit: contain; padding: 24%; opacity: 0.55; }
+.ad-cover-pick img.has-image { object-fit: cover; padding: 0; opacity: 1; }
+.ad-cover-pick span { position: absolute; right: 10px; bottom: 10px; padding: 6px 12px; border-radius: 999px; background: var(--ink); color: var(--bg); font-size: 12px; font-weight: 800; }
+.ad-cover-pick:hover { border-color: var(--accent); }
+.ad-book-pick { display: flex; flex-direction: column; gap: 6px; max-height: 360px; overflow-y: auto; }
+.ad-book-pick__item { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 12px; border: 1.5px solid transparent; cursor: pointer; }
+.ad-book-pick__item:hover { background: var(--surface2); }
+.ad-book-pick__item:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.ad-book-pick__item input { accent-color: var(--accent); width: 16px; height: 16px; flex: none; }
+.ad-book-pick__item img { width: 30px; height: 42px; border-radius: 2px 6px 6px 2px; object-fit: cover; flex: none; background: var(--surface2); }
+.ad-book-pick__item span { display: flex; flex-direction: column; min-width: 0; font-size: 14px; }
+.ad-book-pick__item small { color: var(--ink2); }
+.ad-saved { display: flex; align-items: center; gap: 10px; margin: -8px 0 20px; padding: 12px 16px; border-radius: 14px; background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); font-weight: 800; }
+@media (max-width: 1200px) { .ad-article { grid-template-columns: minmax(0, 1fr); } }
+
 /* Bootstrap modal & alert themed */
 .modal-content { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-lg); }
 .modal-header, .modal-footer { border-color: var(--line); }

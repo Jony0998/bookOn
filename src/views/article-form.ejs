@@ -1,0 +1,170 @@
+<%- include('includes/header', { pageTitle: article ? 'Maqolani tahrirlash' : 'Yangi maqola' }) %>
+<%
+  const a = article || {};
+  const isNew = !article;
+  const chosen = (a.articleProducts || []).map(String);
+  const langs = [['UZ', 'Oʻzbekcha'], ['RU', 'Ruscha'], ['EN', 'Inglizcha']];
+%>
+<body>
+  <div class="ad-shell">
+    <%- include('includes/sidebar') %>
+
+    <main class="ad-main">
+      <header class="ad-head">
+        <div>
+          <a href="/admin/article/all" class="ad-muted" style="font-weight:700;text-decoration:none"><i class="bi bi-arrow-left"></i> Yangiliklar</a>
+          <h1><%= isNew ? 'Yangi maqola' : 'Maqolani tahrirlash' %></h1>
+          <p><%= isNew ? 'Qoralama sifatida saqlab, keyin eʼlon qilishingiz mumkin.' : (a.articleStatus === 'PUBLISHED' ? 'Bu maqola saytda koʻrinmoqda.' : 'Bu maqola hali qoralama — saytda koʻrinmaydi.') %></p>
+        </div>
+        <% if (!isNew && a.articleStatus === 'PUBLISHED') { %>
+          <div class="ad-head__actions"><a class="ad-btn ad-btn--ghost" href="/news/<%= a.articleSlug %>" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Saytda koʻrish</a></div>
+        <% } %>
+      </header>
+
+      <% if (typeof saved !== 'undefined' && saved) { %>
+        <div class="ad-saved" role="status"><i class="bi bi-check2-circle"></i> Saqlandi<%= a.articleStatus === 'PUBLISHED' ? ' va saytda eʼlon qilingan' : ' (qoralama)' %>.</div>
+      <% } %>
+
+      <form class="ad-article" action="<%= isNew ? '/admin/article/create' : '/admin/article/' + a._id %>" method="POST" enctype="multipart/form-data" id="article-form">
+        <div class="ad-stack">
+          <section class="ad-card ad-card__body">
+            <div class="mb-3">
+              <label class="form-label" for="a-title">Sarlavha <span class="req">*</span></label>
+              <input class="form-control ad-article__title" id="a-title" name="articleTitle" maxlength="160" required value="<%= a.articleTitle || '' %>" placeholder="Masalan: Noyabrda kelgan yangi kitoblar" />
+              <div class="ad-hint"><span data-count="a-title">0</span>/160</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="a-excerpt">Qisqa tavsif</label>
+              <textarea class="form-control" id="a-excerpt" name="articleExcerpt" rows="2" maxlength="300" placeholder="1–2 jumla: roʻyxatda va Telegram’da ulashganda koʻrinadi. Boʻsh qolsa, matn boshidan olinadi."><%= a.articleExcerpt || '' %></textarea>
+              <div class="ad-hint"><span data-count="a-excerpt">0</span>/300</div>
+            </div>
+            <div>
+              <label class="form-label" for="a-body">Matn <span class="req">*</span></label>
+              <textarea class="form-control ad-article__body" id="a-body" name="articleBody" rows="18" maxlength="20000" required placeholder="Maqola matni…"><%= a.articleBody || '' %></textarea>
+              <div class="ad-hint d-flex justify-content-between flex-wrap gap-2">
+                <span><span data-count="a-body">0</span> belgi · ~<span id="a-minutes">1</span> daq. oʻqish</span>
+                <span>Boʻsh qator — yangi xatboshi</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="ad-card">
+            <div class="ad-card__head"><h2 class="ad-card__title"><i class="bi bi-type"></i> Matnni bezash</h2></div>
+            <div class="ad-card__body">
+              <div class="ad-format">
+                <div><code>## Sarlavha</code><span>Boʻlim sarlavhasi</span></div>
+                <div><code>&gt; Iqtibos</code><span>Ajratilgan iqtibos</span></div>
+                <div><code>- Band</code><span>Roʻyxat bandi</span></div>
+                <div><code>(boʻsh qator)</code><span>Yangi xatboshi</span></div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="ad-stack">
+          <section class="ad-card">
+            <div class="ad-card__head"><h2 class="ad-card__title"><i class="bi bi-broadcast"></i> Eʼlon qilish</h2>
+              <span class="ad-pill <%= a.articleStatus === 'PUBLISHED' ? 'is-FINISH' : 'is-PAUSE' %>"><%= a.articleStatus === 'PUBLISHED' ? 'Eʼlon qilingan' : 'Qoralama' %></span>
+            </div>
+            <div class="ad-card__body d-grid gap-2">
+              <button type="submit" name="intent" value="publish" class="ad-btn ad-btn--primary"><i class="bi bi-send"></i> <%= a.articleStatus === 'PUBLISHED' ? 'Saqlash (eʼlonda qoladi)' : 'Saqlash va eʼlon qilish' %></button>
+              <button type="submit" name="intent" value="draft" class="ad-btn ad-btn--ghost"><i class="bi bi-journal"></i> <%= a.articleStatus === 'PUBLISHED' ? 'Qoralamaga qaytarish' : 'Qoralama sifatida saqlash' %></button>
+              <% if (!isNew) { %><div class="ad-hint">Oʻqishlar: <b><%= a.articleViews || 0 %></b><%= a.publishedAt ? ' · eʼlon: ' + date(a.publishedAt) : '' %></div><% } %>
+            </div>
+          </section>
+
+          <section class="ad-card">
+            <div class="ad-card__head"><h2 class="ad-card__title"><i class="bi bi-image"></i> Muqova</h2></div>
+            <div class="ad-card__body">
+              <label class="ad-cover-pick" for="a-image">
+                <img id="a-cover" src="<%= a.articleImage ? '/' + a.articleImage : '/img/upload.svg' %>" alt="" class="<%= a.articleImage ? 'has-image' : '' %>" />
+                <span><%= a.articleImage ? 'Almashtirish' : 'Rasm tanlash' %></span>
+              </label>
+              <input class="d-none" id="a-image" name="articleImage" type="file" accept="image/jpeg,image/png,image/webp" />
+              <div class="ad-hint">Gorizontal rasm (masalan 1200×630) eng yaxshi chiqadi. JPG, PNG yoki WEBP, 5 MB gacha.</div>
+            </div>
+          </section>
+
+          <section class="ad-card">
+            <div class="ad-card__head"><h2 class="ad-card__title"><i class="bi bi-sliders"></i> Sozlamalar</h2></div>
+            <div class="ad-card__body">
+              <div class="mb-3">
+                <label class="form-label" for="a-lang">Maqola tili</label>
+                <select class="form-select" id="a-lang" name="articleLanguage">
+                  <% langs.forEach(function (l) { %><option value="<%= l[0] %>" <%= (a.articleLanguage || 'UZ') === l[0] ? 'selected' : '' %>><%= l[1] %></option><% }) %>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" for="a-tags">Teglar</label>
+                <input class="form-control" id="a-tags" name="articleTags" maxlength="200" value="<%= (a.articleTags || []).join(', ') %>" placeholder="yangi kitoblar, aksiya, tavsiya" />
+                <div class="ad-hint">Vergul bilan ajrating, 6 tagacha.</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="ad-card">
+            <div class="ad-card__head"><h2 class="ad-card__title"><i class="bi bi-book"></i> Biriktirilgan kitoblar</h2><span class="ad-tag"><span id="a-picked"><%= chosen.length %></span>/8</span></div>
+            <div class="ad-card__body">
+              <input type="hidden" name="articleProducts" value="" />
+              <div class="ad-book-pick">
+                <% books.forEach(function (b) { const on = chosen.includes(String(b._id)); %>
+                <label class="ad-book-pick__item">
+                  <input type="checkbox" name="articleProducts" value="<%= b._id %>" <%= on ? 'checked' : '' %> />
+                  <img src="<%= b.productImages && b.productImages[0] ? '/' + b.productImages[0] : '/img/default.jpeg' %>" alt="" onerror="this.src='/img/default.jpeg'" />
+                  <span><b><%= b.productName %></b><small><%= b.productAuthor && b.productAuthor !== 'Unknown' ? b.productAuthor : '' %><%= b.productStatus !== 'PROCESS' ? ' · toʻxtatilgan' : '' %></small></span>
+                </label>
+                <% }) %>
+              </div>
+              <div class="ad-hint">Faqat sotuvdagi kitoblar saytda koʻrinadi.</div>
+            </div>
+          </section>
+        </aside>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      // character counters and reading time
+      document.querySelectorAll("[data-count]").forEach(function (el) {
+        var input = document.getElementById(el.dataset.count);
+        var update = function () {
+          el.textContent = input.value.length;
+          if (input.id === "a-body") {
+            var words = input.value.trim().split(/\s+/).filter(Boolean).length;
+            document.getElementById("a-minutes").textContent = Math.max(1, Math.round(words / 200));
+          }
+        };
+        input.addEventListener("input", update);
+        update();
+      });
+      // cover preview
+      var file = document.getElementById("a-image");
+      file.addEventListener("change", function () {
+        var f = file.files[0];
+        if (!f) return;
+        if (["image/jpeg", "image/png", "image/webp"].indexOf(f.type) < 0 || f.size > 5 * 1024 * 1024) {
+          alert("Faqat JPG, PNG yoki WEBP rasm, 5 MB gacha."); file.value = ""; return;
+        }
+        var img = document.getElementById("a-cover");
+        img.src = URL.createObjectURL(f);
+        img.classList.add("has-image");
+      });
+      // at most 8 books
+      var boxes = document.querySelectorAll(".ad-book-pick input[type=checkbox]");
+      var counter = document.getElementById("a-picked");
+      boxes.forEach(function (box) {
+        box.addEventListener("change", function () {
+          var n = document.querySelectorAll(".ad-book-pick input:checked").length;
+          if (n > 8) { box.checked = false; alert("Koʻpi bilan 8 ta kitob biriktirish mumkin."); n = 8; }
+          counter.textContent = n;
+        });
+      });
+      // warn before leaving with unsaved edits
+      var form = document.getElementById("article-form"), dirty = false;
+      form.addEventListener("input", function () { dirty = true; });
+      form.addEventListener("submit", function () { dirty = false; });
+      window.addEventListener("beforeunload", function (e) { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+    })();
+  </script>
+<%- include('includes/footer') %>

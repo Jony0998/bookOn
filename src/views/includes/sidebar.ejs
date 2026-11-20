@@ -30,6 +30,7 @@
       <% if (pending > 0) { %><span class="ad-nav__badge" title="Kutilayotgan buyurtmalar"><%= pending %></span><% } %>
     </a>
     <a href="/admin/product/all" class="<%= current === 'products' ? 'is-active' : '' %>" <%= current === 'products' ? 'aria-current=page' : '' %>><i class="bi bi-book"></i> Kitoblar</a>
+    <a href="/admin/article/all" class="<%= current === 'articles' ? 'is-active' : '' %>" <%= current === 'articles' ? 'aria-current=page' : '' %>><i class="bi bi-newspaper"></i> Yangiliklar</a>
     <a href="/admin/user/all" class="<%= current === 'users' ? 'is-active' : '' %>" <%= current === 'users' ? 'aria-current=page' : '' %>><i class="bi bi-people"></i> Kitobxonlar</a>
   </nav>
 

@@ -22,7 +22,7 @@ mongoose.set("strictQuery", true);
 
 // Ensure uploads directories exist (for production deploy)
 const uploadsDir = path.join(process.cwd(), "uploads");
-["", "members", "products"].forEach((sub) => {
+["", "members", "products", "articles"].forEach((sub) => {
   const dir = path.join(uploadsDir, sub);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });

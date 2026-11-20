@@ -4,6 +4,7 @@ import memberController from "./controllers/member.controller";
 import uploader from "./libs/utils/uploader";
 import productController from "./controllers/product.controller";
 import orderController from "./controllers/order.controller";
+import articleController from "./controllers/article.controller";
 
 /** Root: redirect to admin panel */
 router.get("/", (req, res) => res.redirect("/admin"));
@@ -54,6 +55,14 @@ router.get(
   productController.getProduct
 );
 
+
+/** Article (news / blog) **/
+
+router.get("/article/all", articleController.getArticles);
+router.get("/article/tags", articleController.getTags);
+router.get("/article/:slug", articleController.getArticle);
+// link previews for bots (nginx rewrites /news/:slug here for them)
+router.get("/og/news/:slug", articleController.ogArticle);
 
 /** Order **/
 
