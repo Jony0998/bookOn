@@ -50,7 +50,7 @@
         %>
         <a class="ad-inbox__row <%= q.inquiryStatus === 'NEW' ? 'is-new' : '' %>" href="/admin/inquiry/<%= q._id %>">
           <% if (m && m.memberImage) { %>
-            <img class="ad-inbox__avatar" src="/<%= m.memberImage %>" alt="" onerror="this.src='/img/default.jpeg'" />
+            <img class="ad-inbox__avatar" width="44" height="44" src="/<%= m.memberImage %>" alt="" onerror="this.src='/img/default.jpeg'" />
           <% } else { %>
             <span class="ad-inbox__avatar" aria-hidden="true"><%= (q.inquiryName || '?').charAt(0).toUpperCase() %></span>
           <% } %>

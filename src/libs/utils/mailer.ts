@@ -6,11 +6,14 @@ import nodemailer, { Transporter } from "nodemailer";
  * PUBLIC_URL (site origin used in links, e.g. https://bookon.sale).
  * Shortcut: RESEND_API_KEY alone means Resend's SMTP (smtp.resend.com).
  * With neither, nothing is sent; in development the link is logged instead.
+ * MAIL_DISABLED=1 turns sending off whatever else is set (local runs, tests).
  */
 // Resend verifies the mail.bookon.sale subdomain (not the bare domain); MAIL_FROM overrides
 const DEFAULT_FROM = "BookOn <no-reply@mail.bookon.sale>";
 
 const smtpSettings = () => {
+  // Local runs and tests: never send, even when .env holds a real key
+  if (process.env.MAIL_DISABLED === "1") return null;
   if (process.env.SMTP_HOST)
     return {
       host: process.env.SMTP_HOST,

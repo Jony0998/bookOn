@@ -34,7 +34,7 @@ const startServer = async (root, port = 3013) => {
   const child = spawn(process.execPath, [require.resolve("ts-node/dist/bin.js", { paths: [root] }), "src/server.ts"], {
     cwd: root,
     // No mail provider: the server logs links instead of emailing test addresses
-    env: { ...process.env, PORT: String(port), NODE_ENV: "development", SMTP_HOST: "", RESEND_API_KEY: "" },
+    env: { ...process.env, PORT: String(port), NODE_ENV: "development", SMTP_HOST: "", RESEND_API_KEY: "", MAIL_DISABLED: "1" },
   });
   let log = "";
   child.stdout.on("data", (d) => (log += d));

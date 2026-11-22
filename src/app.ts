@@ -5,6 +5,8 @@ import multer from "multer";
 import Errors, { HttpCode, Message } from "./libs/types/Errors";
 import { alertScript } from "./libs/utils/alert";
 import path from "path";
+import fs from "fs";
+import crypto from "crypto";
 import router from "./router";
 import routerAdmin from "./router-admin";
 import morgan from "morgan";
@@ -85,6 +87,25 @@ app.use(function (req, res, next) {
 /** 3-VIEWS **/
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
+
+/**
+ * Static files are cached for a day in production, so a deploy that changes
+ * admin.css would keep showing the old styles. Templates link through asset(),
+ * which adds a content hash: same file -> same URL (cached), new file -> new URL.
+ */
+const assetVersions = new Map<string, string>();
+app.locals.asset = (file: string) => {
+  let version = assetVersions.get(file);
+  if (!version) {
+    try {
+      version = crypto.createHash("sha1").update(fs.readFileSync(path.join(__dirname, "public", file))).digest("hex").slice(0, 10);
+    } catch {
+      version = Date.now().toString(36);
+    }
+    assetVersions.set(file, version);
+  }
+  return `${file}?v=${version}`;
+};
 
 /** Formatting helpers for the admin templates (Uzbek, same rules as the shop) */
 const UZ_MONTHS = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
