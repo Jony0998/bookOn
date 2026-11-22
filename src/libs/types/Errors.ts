@@ -38,6 +38,10 @@ export enum Message {
   OUT_OF_STOCK = "Not enough copies in stock!",
   INVALID_ADDRESS = "Please enter a delivery address (5-200 characters)!",
   PRODUCT_ALREADY_EXISTS = "A book with this title, author and language (or ISBN) already exists!",
+  INVALID_NAME = "Please enter your name (2-60 characters)!",
+  INVALID_MESSAGE = "Please write your message (5-2000 characters)!",
+  TOO_MANY_INQUIRIES = "You have sent several messages recently. Please wait for the answer or try again in an hour!",
+  INQUIRY_TOO_LONG = "This conversation is too long. Please start a new message!",
 }
 
 class Errors extends Error {

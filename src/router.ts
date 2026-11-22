@@ -5,6 +5,7 @@ import uploader from "./libs/utils/uploader";
 import productController from "./controllers/product.controller";
 import orderController from "./controllers/order.controller";
 import articleController from "./controllers/article.controller";
+import inquiryController from "./controllers/inquiry.controller";
 
 /** Root: redirect to admin panel */
 router.get("/", (req, res) => res.redirect("/admin"));
@@ -63,6 +64,14 @@ router.get("/article/tags", articleController.getTags);
 router.get("/article/:slug", articleController.getArticle);
 // link previews for bots (nginx rewrites /news/:slug here for them)
 router.get("/og/news/:slug", articleController.ogArticle);
+
+/** Reception (reader questions to the library) **/
+
+router.post("/inquiry/create", memberController.retrieveAuth, inquiryController.create);
+router.get("/inquiry/mine", memberController.verifyAuth, inquiryController.getMine);
+router.get("/inquiry/unread", memberController.verifyAuth, inquiryController.unread);
+router.get("/inquiry/:id", memberController.retrieveAuth, inquiryController.getOne);
+router.post("/inquiry/:id/reply", memberController.retrieveAuth, inquiryController.reply);
 
 /** Order **/
 

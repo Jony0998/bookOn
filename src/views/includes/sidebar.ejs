@@ -2,6 +2,7 @@
   const current = typeof active !== "undefined" ? active : "";
   const me = typeof admin !== "undefined" && admin ? admin : null;
   const pending = typeof pendingCount !== "undefined" ? pendingCount : 0;
+  const newInquiries = typeof inquiryCount !== "undefined" ? inquiryCount : 0;
 %>
 <div class="ad-mobilebar">
   <button type="button" class="ad-menu-toggle" aria-label="Menyu" aria-controls="ad-side" aria-expanded="false"><i class="bi bi-list"></i></button>
@@ -28,6 +29,10 @@
     <a href="/admin/order/all" class="<%= current === 'orders' ? 'is-active' : '' %>" <%= current === 'orders' ? 'aria-current=page' : '' %>>
       <i class="bi bi-box-seam"></i> Buyurtmalar
       <% if (pending > 0) { %><span class="ad-nav__badge" title="Kutilayotgan buyurtmalar"><%= pending %></span><% } %>
+    </a>
+    <a href="/admin/inquiry/all" class="<%= current === 'inquiries' ? 'is-active' : '' %>" <%= current === 'inquiries' ? 'aria-current=page' : '' %>>
+      <i class="bi bi-chat-left-text"></i> Murojaatlar
+      <% if (newInquiries > 0) { %><span class="ad-nav__badge" title="Javob kutayotgan murojaatlar"><%= newInquiries %></span><% } %>
     </a>
     <a href="/admin/product/all" class="<%= current === 'products' ? 'is-active' : '' %>" <%= current === 'products' ? 'aria-current=page' : '' %>><i class="bi bi-book"></i> Kitoblar</a>
     <a href="/admin/article/all" class="<%= current === 'articles' ? 'is-active' : '' %>" <%= current === 'articles' ? 'aria-current=page' : '' %>><i class="bi bi-newspaper"></i> Yangiliklar</a>

@@ -9,7 +9,7 @@
     "build": "tsc && node scripts/copy-assets.js && node extra.js",
     "start:prod": "cross-env NODE_ENV=production node dist/server.js",
     "test": "npm run test:e2e",
-    "test:e2e": "node scripts/e2e/auth.e2e.js && node scripts/e2e/admin-products.e2e.js && node scripts/e2e/orders.e2e.js && node scripts/e2e/articles.e2e.js"
+    "test:e2e": "node scripts/e2e/auth.e2e.js && node scripts/e2e/admin-products.e2e.js && node scripts/e2e/orders.e2e.js && node scripts/e2e/articles.e2e.js && node scripts/e2e/inquiries.e2e.js"
   },
   "author": "JONY",
   "license": "ISC",

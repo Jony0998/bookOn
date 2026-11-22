@@ -7,7 +7,8 @@ import nodemailer, { Transporter } from "nodemailer";
  * Shortcut: RESEND_API_KEY alone means Resend's SMTP (smtp.resend.com).
  * With neither, nothing is sent; in development the link is logged instead.
  */
-const DEFAULT_FROM = "BookOn <no-reply@bookon.sale>";
+// Resend verifies the mail.bookon.sale subdomain (not the bare domain); MAIL_FROM overrides
+const DEFAULT_FROM = "BookOn <no-reply@mail.bookon.sale>";
 
 const smtpSettings = () => {
   if (process.env.SMTP_HOST)
@@ -22,7 +23,7 @@ const smtpSettings = () => {
   return null;
 };
 export type MailLang = "uz" | "ru" | "en";
-export type MailKind = "verify" | "reset";
+export type MailKind = "verify" | "reset" | "reply";
 
 const isProduction = process.env.NODE_ENV === "production";
 let transporter: Transporter | null | undefined;
@@ -60,30 +61,39 @@ const COPY: Record<MailKind, Record<MailLang, { subject: string; title: string; 
     ru: { subject: "BookOn: восстановление пароля", title: "Здравствуйте, {{nick}}!", body: "Мы получили запрос на сброс пароля. Нажмите кнопку, чтобы задать новый пароль.", button: "Задать новый пароль", note: "Ссылка действует 1 час. Если вы не запрашивали сброс, проигнорируйте письмо — пароль не изменится." },
     en: { subject: "BookOn: reset your password", title: "Hi {{nick}}!", body: "We received a request to reset your password. Press the button to set a new one.", button: "Set a new password", note: "The link is valid for 1 hour. If you didn't ask for this, ignore this email — your password stays the same." },
   },
+  reply: {
+    uz: { subject: "BookOn: murojaatingizga javob", title: "Salom, {{nick}}!", body: "BookOn kutubxonasi murojaatingizga javob berdi:", button: "Yozishmani ochish", note: "Javob yozish uchun tugmani bosing. Bu havola faqat sizga tegishli — uni boshqalarga bermang." },
+    ru: { subject: "BookOn: ответ на ваше обращение", title: "Здравствуйте, {{nick}}!", body: "Библиотека BookOn ответила на ваше обращение:", button: "Открыть переписку", note: "Нажмите кнопку, чтобы ответить. Эта ссылка только для вас — не передавайте её другим." },
+    en: { subject: "BookOn: a reply to your message", title: "Hi {{nick}}!", body: "The BookOn library replied to your message:", button: "Open the conversation", note: "Press the button to reply. This link is only for you — please don't share it." },
+  },
 };
 
 const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
 
-const render = (kind: MailKind, lang: MailLang, nick: string, link: string) => {
+const render = (kind: MailKind, lang: MailLang, nick: string, link: string, quote?: string) => {
   const c = COPY[kind][lang];
   const title = c.title.replace("{{nick}}", nick);
+  const quoteHtml = quote
+    ? `<tr><td style="padding-top:16px"><div style="background:#f5efe3;border-left:4px solid #0e7c86;border-radius:12px;padding:16px 18px;font-size:15px;line-height:1.6;white-space:pre-line">${escapeHtml(quote)}</div></td></tr>`
+    : "";
   const html = `<!doctype html><html lang="${lang}"><body style="margin:0;background:#fbf7ef;font-family:Arial,Helvetica,sans-serif;color:#1c1a27">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px"><tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #e6ddcb;border-radius:20px;padding:32px">
 <tr><td style="font-family:Georgia,serif;font-size:26px;font-weight:bold">Book<span style="color:#0e7c86">On</span></td></tr>
 <tr><td style="padding-top:24px;font-family:Georgia,serif;font-size:22px">${escapeHtml(title)}</td></tr>
 <tr><td style="padding-top:12px;font-size:16px;line-height:1.6;color:#5b5566">${escapeHtml(c.body)}</td></tr>
+${quoteHtml}
 <tr><td style="padding-top:24px"><a href="${escapeHtml(link)}" style="display:inline-block;background:#0e7c86;color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 26px;border-radius:999px">${escapeHtml(c.button)}</a></td></tr>
 <tr><td style="padding-top:20px;font-size:13px;line-height:1.6;color:#5b5566">${escapeHtml(c.note)}<br><br><a href="${escapeHtml(link)}" style="color:#0e7c86;word-break:break-all">${escapeHtml(link)}</a></td></tr>
 </table></td></tr></table></body></html>`;
-  const text = `${title}\n\n${c.body}\n\n${c.button}: ${link}\n\n${c.note}`;
+  const text = `${title}\n\n${c.body}\n\n${quote ? `${quote}\n\n` : ""}${c.button}: ${link}\n\n${c.note}`;
   return { subject: c.subject, html, text };
 };
 
-/** Sends (or, without SMTP in development, logs) a verify/reset email. Never throws. */
-export const sendAuthMail = async (kind: MailKind, to: string, nick: string, link: string, lang: MailLang): Promise<boolean> => {
-  const mail = render(kind, lang, nick, link);
+/** Sends (or, without SMTP in development, logs) a verify/reset/reply email. Never throws. */
+export const sendAuthMail = async (kind: MailKind, to: string, nick: string, link: string, lang: MailLang, quote?: string): Promise<boolean> => {
+  const mail = render(kind, lang, nick, link, quote);
   const transport = getTransporter();
   if (!transport) {
     if (isProduction) console.warn(`[mail] SMTP not configured, ${kind} email to ${to} not sent`);

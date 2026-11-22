@@ -1,0 +1,113 @@
+<%- include('includes/header', { pageTitle: 'Murojaat' }) %>
+<%
+  const q = inquiry;
+  const m = q.inquiryMember || null;
+  const o = q.inquiryOrder || null;
+  const TOPIC = { ORDER: 'Buyurtma', BOOK: 'Kitob haqida', DELIVERY: 'Yetkazib berish', ACCOUNT: 'Hisob', OTHER: 'Boshqa' };
+  const STATUS = { NEW: 'Javob kutmoqda', ANSWERED: 'Javob berilgan', CLOSED: 'Yopilgan' };
+  const LANG = { uz: 'Oʻzbekcha', ru: 'Ruscha', en: 'Inglizcha' };
+  const msgs = q.inquiryMessages || [];
+%>
+<body>
+  <div class="ad-shell">
+    <%- include('includes/sidebar') %>
+
+    <main class="ad-main">
+      <header class="ad-head">
+        <div>
+          <a class="ad-back" href="/admin/inquiry/all"><i class="bi bi-arrow-left"></i> Murojaatlar</a>
+          <h1><%= q.inquiryName %></h1>
+          <p><%= TOPIC[q.inquiryTopic] || 'Boshqa' %> · <%= dateTime(q.createdAt) %> · <span class="ad-pill is-<%= q.inquiryStatus %>"><%= STATUS[q.inquiryStatus] %></span></p>
+        </div>
+      </header>
+
+      <% if (sent) { %>
+        <div class="ad-saved" role="status">
+          <i class="bi bi-check2-circle"></i>
+          <span><%= mailed ? 'Javob yuborildi: saytda va kitobxonning emailida.' : 'Javob saqlandi — kitobxon uni saytdagi “Qabulxona”da koʻradi. Email yuborilmadi (pochta hali sozlanmagan yoki xatolik).' %></span>
+        </div>
+      <% } %>
+
+      <div class="ad-thread-grid">
+        <section class="ad-card" aria-label="Yozishma">
+          <ol class="ad-thread">
+            <% msgs.forEach(function (msg) { const mine = msg.messageFrom === 'LIBRARY'; %>
+            <li class="ad-msg <%= mine ? 'is-library' : '' %>">
+              <span class="ad-msg__who"><%= mine ? 'Kutubxona' : q.inquiryName %> · <%= dateTime(msg.createdAt) %></span>
+              <div class="ad-msg__bubble"><%= msg.messageText %></div>
+            </li>
+            <% }) %>
+          </ol>
+
+          <form class="ad-reply" method="POST" action="/admin/inquiry/<%= q._id %>/reply">
+            <label class="form-label fw-bold" for="reply-text">Javobingiz</label>
+            <textarea class="form-control" id="reply-text" name="message" rows="5" minlength="5" maxlength="2000" required placeholder="Salom, <%= q.inquiryName %>! ..."></textarea>
+            <div class="ad-reply__foot">
+              <span class="ad-hint">Kitobxon tilida yozing: <b><%= LANG[q.inquiryLang] || 'Oʻzbekcha' %></b>. Ctrl + Enter — yuborish.</span>
+              <button class="ad-btn ad-btn--primary" type="submit"><i class="bi bi-send"></i> Javob yuborish</button>
+            </div>
+          </form>
+        </section>
+
+        <aside class="ad-stack">
+          <section class="ad-card">
+            <div class="ad-card__head"><h2 class="ad-card__title"><i class="bi bi-person"></i> Kitobxon</h2></div>
+            <div class="ad-card__body ad-facts">
+              <% if (m) { %><div><span>Hisob</span><b>@<%= m.memberNick %></b></div><% } else { %><div><span>Hisob</span><b>Mehmon (roʻyxatdan oʻtmagan)</b></div><% } %>
+              <% if (q.inquiryEmail) { %><div><span>Email</span><a href="mailto:<%= q.inquiryEmail %>"><%= q.inquiryEmail %></a></div><% } %>
+              <% if (q.inquiryPhone) { %><div><span>Telefon</span><a href="tel:<%= q.inquiryPhone %>"><%= q.inquiryPhone %></a></div><% } %>
+              <div><span>Til</span><b><%= LANG[q.inquiryLang] || 'Oʻzbekcha' %></b></div>
+            </div>
+          </section>
+
+          <% if (o) { %>
+          <section class="ad-card">
+            <div class="ad-card__head"><h2 class="ad-card__title"><i class="bi bi-box-seam"></i> Buyurtma <%= orderNo(o._id) %></h2></div>
+            <div class="ad-card__body ad-facts">
+              <div><span>Holat</span><span class="ad-pill is-<%= o.orderStatus %>"><%= STATUS_LABEL[o.orderStatus] || o.orderStatus %></span></div>
+              <div><span>Summa</span><b><%= money(o.orderTotal) %></b></div>
+              <div><span>Sana</span><b><%= date(o.createdAt) %></b></div>
+              <% if (o.orderAddress) { %><div><span>Manzil</span><b><%= o.orderAddress %></b></div><% } %>
+              <a class="ad-btn ad-btn--ghost ad-btn--sm" href="/admin/order/all" style="margin-top:6px"><i class="bi bi-box-arrow-up-right"></i> Buyurtmalarga oʻtish</a>
+            </div>
+          </section>
+          <% } %>
+
+          <section class="ad-card">
+            <div class="ad-card__head"><h2 class="ad-card__title"><i class="bi bi-flag"></i> Holat</h2></div>
+            <div class="ad-card__body">
+              <% if (q.inquiryStatus === 'CLOSED') { %>
+                <p class="ad-hint" style="margin:0 0 12px">Yopilgan. Kitobxon yana yozsa, oʻzi qayta ochiladi.</p>
+                <button type="button" class="ad-btn ad-btn--ghost inquiry-status" data-status="NEW"><i class="bi bi-arrow-counterclockwise"></i> Qayta ochish</button>
+              <% } else { %>
+                <p class="ad-hint" style="margin:0 0 12px">Savol hal boʻlgan boʻlsa, yoping — roʻyxatda “Yopilgan”ga oʻtadi.</p>
+                <button type="button" class="ad-btn ad-btn--ghost inquiry-status" data-status="CLOSED"><i class="bi bi-check2-all"></i> Hal boʻldi, yopish</button>
+              <% } %>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      var last = document.querySelector(".ad-thread li:last-child");
+      if (last) last.scrollIntoView({ block: "nearest" });
+      var text = document.getElementById("reply-text");
+      text.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); text.form.requestSubmit(); }
+      });
+      text.form.addEventListener("submit", function () { text.form.querySelector("button[type=submit]").disabled = true; });
+      document.querySelectorAll(".inquiry-status").forEach(function (btn) {
+        btn.addEventListener("click", async function () {
+          btn.disabled = true;
+          try {
+            await axios.post("/admin/inquiry/<%= q._id %>/status", { inquiryStatus: btn.dataset.status });
+            location.href = "/admin/inquiry/<%= q._id %>";
+          } catch (e) { alert("Holatni oʻzgartirib boʻlmadi."); btn.disabled = false; }
+        });
+      });
+    })();
+  </script>
+<%- include('includes/footer') %>

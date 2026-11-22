@@ -1,0 +1,75 @@
+<%- include('includes/header', { pageTitle: 'Murojaatlar' }) %>
+<%
+  const tabs = [
+    { key: 'NEW', label: 'Javob kutmoqda', n: count.NEW },
+    { key: 'ANSWERED', label: 'Javob berilgan', n: count.ANSWERED },
+    { key: 'CLOSED', label: 'Yopilgan', n: count.CLOSED },
+    { key: 'ALL', label: 'Barchasi', n: count.NEW + count.ANSWERED + count.CLOSED },
+  ];
+  const TOPIC = { ORDER: 'Buyurtma', BOOK: 'Kitob haqida', DELIVERY: 'Yetkazib berish', ACCOUNT: 'Hisob', OTHER: 'Boshqa' };
+  const STATUS = { NEW: 'Javob kutmoqda', ANSWERED: 'Javob berilgan', CLOSED: 'Yopilgan' };
+  const ago = function (d) {
+    const min = Math.max(0, Math.round((Date.now() - new Date(d).getTime()) / 60000));
+    if (min < 1) return 'hozirgina';
+    if (min < 60) return min + ' daqiqa oldin';
+    if (min < 60 * 24) return Math.round(min / 60) + ' soat oldin';
+    return dateTime(d);
+  };
+%>
+<body>
+  <div class="ad-shell">
+    <%- include('includes/sidebar') %>
+
+    <main class="ad-main">
+      <header class="ad-head">
+        <div>
+          <span class="ad-eyebrow">Qabulxona</span>
+          <h1>Murojaatlar</h1>
+          <p>Kitobxonlar saytdagi “Qabulxona” sahifasidan yozgan savollar. Javobingiz saytda kitobxonning yozishmasida chiqadi va emailiga ham yuboriladi.</p>
+        </div>
+      </header>
+
+      <nav class="ad-segment" aria-label="Holat boʻyicha" style="margin-bottom:20px">
+        <% tabs.forEach(function (t) { %>
+          <a href="/admin/inquiry/all?status=<%= t.key %>" class="<%= tab === t.key ? 'is-active' : '' %>" <%= tab === t.key ? 'aria-current=page' : '' %>><%= t.label %> <span><%= t.n %></span></a>
+        <% }) %>
+      </nav>
+
+      <% if (!inquiries.length) { %>
+        <div class="ad-card"><div class="ad-empty" style="padding:56px 16px">
+          <i class="bi bi-chat-left-text"></i>
+          <b><%= tab === 'NEW' ? 'Javob kutayotgan murojaat yoʻq' : 'Bu boʻlimda murojaat yoʻq' %></b>
+          <span><%= tab === 'NEW' ? 'Hammasiga javob berilgan. Yangi savollar shu yerda paydo boʻladi.' : 'Murojaatlar holatiga qarab shu yerga tushadi.' %></span>
+        </div></div>
+      <% } else { %>
+      <section class="ad-card ad-inbox" aria-label="Murojaatlar roʻyxati">
+        <% inquiries.forEach(function (q) {
+             const msgs = q.inquiryMessages || [];
+             const last = msgs[msgs.length - 1] || {};
+             const m = q.inquiryMember || null;
+        %>
+        <a class="ad-inbox__row <%= q.inquiryStatus === 'NEW' ? 'is-new' : '' %>" href="/admin/inquiry/<%= q._id %>">
+          <% if (m && m.memberImage) { %>
+            <img class="ad-inbox__avatar" src="/<%= m.memberImage %>" alt="" onerror="this.src='/img/default.jpeg'" />
+          <% } else { %>
+            <span class="ad-inbox__avatar" aria-hidden="true"><%= (q.inquiryName || '?').charAt(0).toUpperCase() %></span>
+          <% } %>
+          <span class="ad-inbox__main">
+            <span class="ad-inbox__top">
+              <b><%= q.inquiryName %></b>
+              <% if (m) { %><span class="ad-tag" title="Saytda roʻyxatdan oʻtgan">@<%= m.memberNick %></span><% } else { %><span class="ad-tag">Mehmon</span><% } %>
+              <span class="ad-tag"><%= TOPIC[q.inquiryTopic] || 'Boshqa' %></span>
+            </span>
+            <span class="ad-inbox__text"><%= last.messageFrom === 'LIBRARY' ? 'Siz: ' : '' %><%= (last.messageText || '').slice(0, 160) %></span>
+          </span>
+          <span class="ad-inbox__side">
+            <span class="ad-pill is-<%= q.inquiryStatus %>"><%= STATUS[q.inquiryStatus] %></span>
+            <span class="ad-inbox__time"><%= ago(q.lastMessageAt) %> · <i class="bi bi-chat"></i> <%= msgs.length %></span>
+          </span>
+        </a>
+        <% }) %>
+      </section>
+      <% } %>
+    </main>
+  </div>
+<%- include('includes/footer') %>

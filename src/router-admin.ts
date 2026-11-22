@@ -6,6 +6,8 @@ import orderController from "./controllers/order.controller";
 import articleController from "./controllers/article.controller";
 import makeUploader from "./libs/utils/uploader";
 import OrderModel from "./schema/Order.model";
+import InquiryModel, { InquiryStatus } from "./schema/Inquiry.model";
+import inquiryController from "./controllers/inquiry.controller";
 import { OrderStatus } from "./libs/types/enums/order.enum";
 import { MemberType } from "./libs/types/enums/member.enum";
 
@@ -14,7 +16,10 @@ routerAdmin.use(async (req, res, next) => {
   try {
     const member = (req.session as any)?.member;
     if (member?.memberType === MemberType.LIBRARY)
-      res.locals.pendingCount = await OrderModel.countDocuments({ orderStatus: OrderStatus.PAUSE }).exec();
+      [res.locals.pendingCount, res.locals.inquiryCount] = await Promise.all([
+        OrderModel.countDocuments({ orderStatus: OrderStatus.PAUSE }).exec(),
+        InquiryModel.countDocuments({ inquiryStatus: InquiryStatus.NEW }).exec(),
+      ]);
   } catch {
     /* the badge is optional */
   }
@@ -76,6 +81,13 @@ routerAdmin.post(
   routerAdmin.post("/article/:id/status", libraryController.verifyLibrary, articleController.adminStatus);
   routerAdmin.post("/article/:id/delete", libraryController.verifyLibrary, articleController.adminDelete);
   routerAdmin.post("/article/:id", libraryController.verifyLibrary, articleUpload, articleController.adminUpdate);
+
+  /** Reception (reader questions) **/
+
+  routerAdmin.get("/inquiry/all", libraryController.verifyLibrary, inquiryController.adminList);
+  routerAdmin.get("/inquiry/:id", libraryController.verifyLibrary, inquiryController.adminView);
+  routerAdmin.post("/inquiry/:id/reply", libraryController.verifyLibrary, inquiryController.adminReply);
+  routerAdmin.post("/inquiry/:id/status", libraryController.verifyLibrary, inquiryController.adminStatus);
 
    /** User **/
 
