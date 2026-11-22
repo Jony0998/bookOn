@@ -234,22 +234,24 @@ class MemberService {
     }
   }
 
+  /**
+   * Admin panel login: the library's email, or its username in any letter case.
+   * One error for every failure, so the form doesn't reveal which logins exist.
+   */
   public async processLogin(input: LoginInput): Promise<any> {
+    const login = input.memberNick.trim();
+    if (!login || login.length > 254 || !input.memberPassword)
+      throw new Errors(HttpCode.UNAUTHORIZED, Message.WRONG_CREDENTIALS);
+    const escaped = login.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const filter = login.includes("@")
+      ? { memberEmail: login.toLowerCase() }
+      : { memberNick: { $regex: `^${escaped}$`, $options: "i" } };
     const member = await this.memberModel
-      .findOne(
-        { memberNick: input.memberNick, memberType: MemberType.LIBRARY },
-        { memberNick: 1, memberPassword: 1, memberType: 1 }
-      )
+      .findOne({ ...filter, memberType: MemberType.LIBRARY }, { memberNick: 1, memberPassword: 1, memberType: 1 })
       .exec();
-    if (!member) throw new Errors(HttpCode.NOT_FOUND, Message.NO_MEMBER_NICK);
 
-    const isMatch = await bcrypt.compare(
-      input.memberPassword,
-      member.memberPassword
-    );
-    if (!isMatch) {
-      throw new Errors(HttpCode.UNAUTHORIZED, Message.WRONG_PASSWORD);
-    }
+    const isMatch = member ? await bcrypt.compare(input.memberPassword, member.memberPassword) : false;
+    if (!member || !isMatch) throw new Errors(HttpCode.UNAUTHORIZED, Message.WRONG_CREDENTIALS);
     return await this.memberModel.findById(member._id).exec();
   }
 

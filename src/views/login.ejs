@@ -17,11 +17,11 @@
       <form class="ad-auth__form" action="/admin/login" method="POST" autocomplete="on">
         <span class="ad-eyebrow">Kutubxona hisobi</span>
         <h1>Boshqaruv paneliga kirish</h1>
-        <p class="lead">Kutubxona foydalanuvchi nomi va parolini kiriting.</p>
+        <p class="lead">Kutubxona hisobining emaili (yoki foydalanuvchi nomi) va parolini kiriting.</p>
 
         <div>
-          <label class="form-label" for="memberNick">Foydalanuvchi nomi</label>
-          <input class="form-control" id="memberNick" name="memberNick" type="text" autocomplete="username" required autofocus />
+          <label class="form-label" for="memberNick">Email yoki foydalanuvchi nomi</label>
+          <input class="form-control" id="memberNick" name="memberNick" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="254" required autofocus />
         </div>
         <div>
           <label class="form-label" for="memberPassword">Parol</label>
