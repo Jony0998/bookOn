@@ -387,6 +387,26 @@ a { color: var(--accent); }
 .ad-facts a, .ad-facts b { overflow-wrap: anywhere; }
 .ad-facts a { color: var(--accent); font-weight: 700; }
 @media (max-width: 1100px) { .ad-thread-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Live (admin-live.js) */
+.ad-msg.is-new .ad-msg__bubble { animation: ad-pop 0.35s ease; box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 55%, transparent); }
+@keyframes ad-pop { from { opacity: 0; transform: translateY(6px); } }
+.ad-typing { margin: -6px 24px 14px; display: flex; align-items: center; gap: 10px; color: var(--accent); font-size: 14px; font-weight: 700; }
+.ad-typing[hidden] { display: none; }
+.ad-typing__dots { display: inline-flex; gap: 4px; padding: 9px 11px; border-radius: 4px 14px 14px 14px; background: var(--surface2); }
+.ad-typing__dots i { width: 6px; height: 6px; border-radius: 99px; background: var(--accent); animation: ad-typing 1.2s infinite ease-in-out; }
+.ad-typing__dots i:nth-child(2) { animation-delay: 0.15s; }
+.ad-typing__dots i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes ad-typing { 0%, 60%, 100% { opacity: 0.4; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-4px); } }
+.ad-toasts { position: fixed; right: 20px; bottom: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 40px)); pointer-events: none; }
+.ad-toast { pointer-events: auto; display: flex; gap: 10px; align-items: flex-start; padding: 14px 12px 14px 16px; border-radius: 16px; border: 1px solid var(--line); border-left: 4px solid var(--gold); background: var(--surface); color: var(--ink); box-shadow: var(--shadow); animation: ad-pop 0.25s ease; }
+.ad-toast__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; font-size: 14px; }
+.ad-toast__body strong { font-size: 15px; }
+.ad-toast__body span { color: var(--ink2); overflow-wrap: anywhere; }
+.ad-toast__link { margin-top: 4px; color: var(--accent); font-weight: 800; text-decoration: none; }
+.ad-toast__close { flex: none; width: 28px; height: 28px; border: 0; border-radius: 99px; background: transparent; color: var(--ink2); font-size: 20px; line-height: 1; cursor: pointer; }
+.ad-toast__close:hover { background: var(--surface2); }
+@media (prefers-reduced-motion: reduce) { .ad-toast, .ad-msg.is-new .ad-msg__bubble, .ad-typing__dots i { animation: none; } }
 @media (max-width: 640px) {
   .ad-inbox__row { flex-wrap: wrap; padding: 14px 16px; }
   .ad-inbox__side { flex-direction: row; align-items: center; width: 100%; padding-left: 60px; justify-content: space-between; }

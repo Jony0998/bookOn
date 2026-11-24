@@ -17,7 +17,8 @@ import ConnectMongoDB from "connect-mongodb-session";
 import { T } from "./libs/types/common";
 import cookieParser from "cookie-parser";
 import http from "http";
-import { Server as SocketIOServer, Socket } from "socket.io";
+import { Server as SocketIOServer } from "socket.io";
+import { attachRealtime } from "./realtime";
 import mongoose from "mongoose";
 import { apiLimiter, securityHeaders } from "./libs/security";
 
@@ -92,9 +93,8 @@ app.use(
 );
 app.use(cookieParser());
 app.use(morgan(MORGAN_FORMAT));
-/** 2-SESSIONS **/
-app.use(
-  session({
+/** 2-SESSIONS (shared with Socket.io, see realtime/) **/
+const sessionMiddleware = session({
     secret: String(process.env.SESSION_SECRET),
     cookie: {
       maxAge: 1000 * 3600 * 6, // 6hr
@@ -105,8 +105,8 @@ app.use(
     store: store,
     resave: true, //
     saveUninitialized: false, // no session documents for anonymous visitors
-  })
-);
+  });
+app.use(sessionMiddleware);
 
 app.use(function (req, res, next) {
   const sessionInstance = req.session as T;
@@ -193,16 +193,8 @@ const io = new SocketIOServer(server,{
   },
 });
 
-let summaryClients = 0;
-io.on("connection", (socket: Socket) => {
-  summaryClients++;
-  console.log(`${summaryClients} Connection & total`);
-
-  socket.on("disconnect", () => {
-    summaryClients--;
-    console.log(`${summaryClients} Disconnection & total`);
-  });
-});
+// Live updates: order status, reception chat, admin notifications
+attachRealtime(io, sessionMiddleware);
 
 // Listen is called in server.ts after MongoDB connects
 export default server;

@@ -30,14 +30,15 @@
 
       <div class="ad-thread-grid">
         <section class="ad-card" aria-label="Yozishma">
-          <ol class="ad-thread">
+          <ol class="ad-thread" data-inquiry-id="<%= q._id %>" data-reader-name="<%= q.inquiryName %>">
             <% msgs.forEach(function (msg) { const mine = msg.messageFrom === 'LIBRARY'; %>
-            <li class="ad-msg <%= mine ? 'is-library' : '' %>">
+            <li class="ad-msg <%= mine ? 'is-library' : '' %>" data-message-id="<%= msg._id %>">
               <span class="ad-msg__who"><%= mine ? 'Kutubxona' : q.inquiryName %> · <%= dateTime(msg.createdAt) %></span>
               <div class="ad-msg__bubble"><%= msg.messageText %></div>
             </li>
             <% }) %>
           </ol>
+          <p class="ad-typing" hidden><span class="ad-typing__dots" aria-hidden="true"><i></i><i></i><i></i></span> <%= q.inquiryName %> yozmoqda…</p>
 
           <form class="ad-reply" method="POST" action="/admin/inquiry/<%= q._id %>/reply">
             <label class="form-label fw-bold" for="reply-text">Javobingiz</label>

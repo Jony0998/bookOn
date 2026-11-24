@@ -6,6 +6,7 @@ import { alertScript } from "../libs/utils/alert";
 import { parseInquiryInput } from "../libs/utils/inquiry-input";
 import { publicUrl, sendAuthMail, toMailLang } from "../libs/utils/mailer";
 import InquiryService, { inquiryKey } from "../models/Inquiry.service";
+import { realtime } from "../realtime";
 
 const inquiryService = new InquiryService();
 const inquiryController: T = {};
@@ -24,7 +25,9 @@ inquiryController.create = async (req: ExtendedRequest, res: Response) => {
     if (typeof req.body?.website === "string" && req.body.website.trim())
       throw new Errors(HttpCode.BAD_REQUEST, Message.INVALID_INPUT);
     const input = parseInquiryInput(req.body, req.member);
-    res.status(HttpCode.CREATED).json(await inquiryService.create(input, req.member, req.ip || ""));
+    const result = await inquiryService.create(input, req.member, req.ip || "");
+    realtime.inquiryCreated(result.inquiry);
+    res.status(HttpCode.CREATED).json(result);
   } catch (err) {
     console.log("Error inquiry create:", err instanceof Errors ? err.message : err);
     fail(res, err);
@@ -57,7 +60,9 @@ inquiryController.getOne = async (req: ExtendedRequest, res: Response) => {
 
 inquiryController.reply = async (req: ExtendedRequest, res: Response) => {
   try {
-    res.status(HttpCode.OK).json(await inquiryService.readerReply(String(req.params.id), { member: req.member, key: keyOf(req) }, req.body?.message));
+    const result = await inquiryService.readerReply(String(req.params.id), { member: req.member, key: keyOf(req) }, req.body?.message);
+    realtime.inquiryMessage(result);
+    res.status(HttpCode.OK).json(result);
   } catch (err) {
     console.log("Error inquiry reply:", err instanceof Errors ? err.message : err);
     fail(res, err);
@@ -98,6 +103,7 @@ inquiryController.adminReply = async (req: AdminRequest, res: Response) => {
   const id = String(req.params.id);
   try {
     const { doc, message } = await inquiryService.libraryReply(id, req.body?.message);
+    realtime.inquiryMessage(doc, doc.inquiryMember);
     let mailed = false;
     if (doc.inquiryEmail) {
       const link = `${publicUrl()}/reception/${doc._id}?key=${inquiryKey(doc._id)}`;
@@ -113,7 +119,9 @@ inquiryController.adminReply = async (req: AdminRequest, res: Response) => {
 
 inquiryController.adminStatus = async (req: AdminRequest, res: Response) => {
   try {
-    res.status(HttpCode.OK).json({ inquiryStatus: await inquiryService.setStatus(String(req.params.id), req.body?.inquiryStatus) });
+    const inquiryStatus = await inquiryService.setStatus(String(req.params.id), req.body?.inquiryStatus);
+    realtime.inquiryStatus(String(req.params.id), String(inquiryStatus));
+    res.status(HttpCode.OK).json({ inquiryStatus });
   } catch (err) {
     fail(res, err);
   }

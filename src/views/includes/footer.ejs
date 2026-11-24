@@ -23,5 +23,11 @@
         }
       })();
     </script>
+    <% if (typeof admin !== "undefined" && admin) { %>
+    <%# Live notifications for the signed-in library (Socket.io, same-origin session cookie) %>
+    <div class="ad-toasts" role="status" aria-live="polite"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="<%= asset('/js/admin-live.js') %>"></script>
+    <% } %>
   </body>
 </html>

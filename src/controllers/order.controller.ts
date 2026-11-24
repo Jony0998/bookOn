@@ -6,6 +6,7 @@ import { parsePagination } from "../libs/types/config";
 import OrderService from "../models/Order.service";
 import { OrderInquiry, OrderUpdateInput } from "../libs/types/order";
 import { OrderStatus } from "../libs/types/enums/order.enum";
+import { realtime } from "../realtime";
 
 const orderService = new OrderService();
 
@@ -15,7 +16,7 @@ orderController.createOrder = async (req: ExtendedRequest, res: Response ) => {
    try {
       console.log("createOrder");
       const result = await orderService.createOrder(req.member, req.body);
-
+      realtime.orderCreated(result);
 
    res.status(HttpCode.CREATED).json({result});
    } catch(err) {
@@ -50,6 +51,7 @@ orderController.updateOrder = async (req: ExtendedRequest, res: Response ) => {
       console.log("updateOrder");
       const input: OrderUpdateInput = req.body;
       const result = await orderService.updateOrder(req.member, input);
+      realtime.orderStatus(result, "READER");
 
       res.status(HttpCode.OK).json({ result });
    } catch(err) {
@@ -63,6 +65,7 @@ orderController.updateOrder = async (req: ExtendedRequest, res: Response ) => {
 orderController.updateOrderByLibrary = async (req: ExtendedRequest, res: Response) => {
    try {
       const result = await orderService.updateOrderByLibrary(String(req.params.id), req.body?.orderStatus);
+      realtime.orderStatus(result, "LIBRARY");
       res.status(HttpCode.OK).json({ result });
    } catch (err) {
       console.log("Error updateOrderByLibrary:", err);

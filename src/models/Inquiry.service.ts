@@ -17,7 +17,7 @@ const sha256 = (value: string) => crypto.createHash("sha256").update(value).dige
 export const inquiryKey = (id: unknown) =>
   crypto.createHmac("sha256", String(process.env.SESSION_SECRET || "bookon-dev")).update(`inquiry:${String(id)}`).digest("base64url");
 
-const keyMatches = (id: unknown, key: unknown) => {
+export const keyMatches = (id: unknown, key: unknown) => {
   if (typeof key !== "string" || key.length !== 43) return false;
   const expected = Buffer.from(inquiryKey(id));
   const given = Buffer.from(key);
