@@ -1,0 +1,87 @@
+name: CI
+
+# Every push and pull request: type-check, build and run the whole e2e suite
+# against a fresh MongoDB. Nothing here touches production.
+on:
+  push:
+    branches: [master, develop, "feature/**"]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mongo:
+        image: mongo:6
+        ports: ["27017:27017"]
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+
+    env:
+      # The e2e harness refuses any database whose name doesn't end in _test
+      MONGO_URL: mongodb://localhost:27017/BookOn_test
+      SESSION_SECRET: ci-session-secret
+      SECRET_TOKEN: ci-jwt-secret
+      MAIL_DISABLED: "1"
+      PUBLIC_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Seed test data
+        run: node scripts/e2e/seed.js
+
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+  # Only after every test passed, only for master, only when the deploy key is set.
+  # The key can run nothing on the server except scripts/server/ci-deploy.sh.
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - name: Deploy over SSH (health-checked, rolls back on failure)
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          if [ -z "$DEPLOY_SSH_KEY" ]; then echo "DEPLOY_SSH_KEY secret is not set — skipping deploy"; exit 0; fi
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          # pinned host key of the production server
+          echo "187.77.130.31 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMvfA9y/YnLp6Q2tu2fTr/Eo7ygYWdHLa2xGoZJPp/fs" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy -o StrictHostKeyChecking=yes root@187.77.130.31 backend
+
+      - name: Check the live site
+        run: |
+          for i in $(seq 1 10); do
+            if curl -fsS https://bookon.sale/health | tee /dev/stderr | grep -q '"status":"ok"'; then exit 0; fi
+            sleep 3
+          done
+          exit 1

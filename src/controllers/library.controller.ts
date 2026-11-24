@@ -127,7 +127,8 @@ libraryController.processLogin = async (
       err instanceof Errors && err.message === Message.WRONG_CREDENTIALS
         ? "Email (yoki foydalanuvchi nomi) yoki parol notoʻgʻri."
         : err instanceof Errors ? err.message : Message.SOMETHING_WENT_WRONG;
-    res.send(alertScript(message, "/admin/login"));
+    // a real error status, so the login rate limiter counts failed attempts
+    res.status(err instanceof Errors ? err.code : HttpCode.INTERNAL_SERVER_ERROR).send(alertScript(message, "/admin/login"));
   }
 };
 

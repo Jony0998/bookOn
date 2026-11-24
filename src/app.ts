@@ -18,6 +18,8 @@ import { T } from "./libs/types/common";
 import cookieParser from "cookie-parser";
 import http from "http";
 import { Server as SocketIOServer, Socket } from "socket.io";
+import mongoose from "mongoose";
+import { apiLimiter, securityHeaders } from "./libs/security";
 
 const MongoDBStore = ConnectMongoDB(session);
 const store = new MongoDBStore({
@@ -30,6 +32,32 @@ const app = express();
 const isProduction = process.env.NODE_ENV === "production";
 // Behind nginx: trust X-Forwarded-Proto so req.secure reflects HTTPS
 app.set("trust proxy", 1);
+app.disable("x-powered-by");
+app.use(securityHeaders);
+
+/**
+ * Health check for uptime monitors and the deploy script: 200 when the API
+ * and its database answer, 503 otherwise. Reveals nothing sensitive.
+ */
+const startedAt = new Date();
+app.get("/health", async (req, res) => {
+  let db = mongoose.connection.readyState === 1;
+  if (db) {
+    try {
+      await mongoose.connection.db.admin().ping();
+    } catch {
+      db = false;
+    }
+  }
+  res.set("Cache-Control", "no-store");
+  res.status(db ? 200 : 503).json({
+    status: db ? "ok" : "degraded",
+    db: db ? "up" : "down",
+    version: process.env.APP_VERSION || "dev",
+    startedAt: startedAt.toISOString(),
+    uptimeSeconds: Math.round(process.uptime()),
+  });
+});
 app.use(
   express.static(path.join(__dirname, "public"), {
     maxAge: isProduction ? "1d" : 0,
@@ -45,8 +73,10 @@ app.use(
     },
   })
 );
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // REST API
+// Static files above are never rate limited; everything below is
+app.use(apiLimiter);
+app.use(express.urlencoded({ extended: true, limit: "100kb" }));
+app.use(express.json({ limit: "100kb" })); // REST API
 // FRONTEND_URL may list several origins: "https://bookon.sale,https://www.bookon.sale"
 const allowedOrigins = (process.env.FRONTEND_URL || "")
   .split(",")
@@ -139,10 +169,13 @@ app.use(function (err: any, req: Request, res: Response, next: NextFunction) {
   console.log("Error, unhandled:", err?.code || "", err?.message || err);
   if (res.headersSent) return next(err);
 
-  let error = Errors.standard;
+  let error: { code: number; message: string } = Errors.standard;
   if (err instanceof Errors) error = { code: err.code, message: err.message };
   else if (err instanceof multer.MulterError)
     error = { code: HttpCode.BAD_REQUEST, message: Message.INVALID_FILE };
+  // body-parser: request body over the limit, or broken JSON
+  else if (err?.type === "entity.too.large") error = { code: 413, message: "Request is too large!" };
+  else if (err?.type === "entity.parse.failed") error = { code: HttpCode.BAD_REQUEST, message: Message.INVALID_INPUT };
 
   if (req.originalUrl.startsWith("/admin")) {
     const back = req.originalUrl.startsWith("/admin/signup") ? "/admin/signup" : "/admin/product/all";

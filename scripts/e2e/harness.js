@@ -30,11 +30,22 @@ const requireTestDb = async () => {
 };
 
 /** Starts the API with ts-node on a spare port; resolves when it listens */
-const startServer = async (root, port = 3013) => {
+const startServer = async (root, port = 3013, env = {}) => {
   const child = spawn(process.execPath, [require.resolve("ts-node/dist/bin.js", { paths: [root] }), "src/server.ts"], {
     cwd: root,
-    // No mail provider: the server logs links instead of emailing test addresses
-    env: { ...process.env, PORT: String(port), NODE_ENV: "development", SMTP_HOST: "", RESEND_API_KEY: "", MAIL_DISABLED: "1" },
+    env: {
+      ...process.env,
+      PORT: String(port),
+      NODE_ENV: "development",
+      // No mail provider: the server logs links instead of emailing test addresses
+      SMTP_HOST: "",
+      RESEND_API_KEY: "",
+      MAIL_DISABLED: "1",
+      // The suites log in and sign up many times from one IP; security.e2e tests the limits
+      AUTH_RATE_LIMIT: "1000",
+      ACCOUNT_RATE_LIMIT: "1000",
+      ...env,
+    },
   });
   let log = "";
   child.stdout.on("data", (d) => (log += d));

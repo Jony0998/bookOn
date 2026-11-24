@@ -5,6 +5,7 @@ import productController from "./controllers/product.controller";
 import orderController from "./controllers/order.controller";
 import articleController from "./controllers/article.controller";
 import makeUploader from "./libs/utils/uploader";
+import { accountLimiter, authLimiter } from "./libs/security";
 import OrderModel from "./schema/Order.model";
 import InquiryModel, { InquiryStatus } from "./schema/Inquiry.model";
 import inquiryController from "./controllers/inquiry.controller";
@@ -33,12 +34,13 @@ routerAdmin
 
 routerAdmin
   .get("/login", libraryController.getLogin)
-  .post("/login", libraryController.processLogin);
+  .post("/login", authLimiter, libraryController.processLogin);
 
 routerAdmin
   .get("/signup", libraryController.getSignup)
   .post(
     "/signup",
+    accountLimiter,
     makeUploader("members").single("memberImage"),
     libraryController.processSignup
   );

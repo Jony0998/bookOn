@@ -25,7 +25,7 @@ const ROOT = path.join(__dirname, "..", "..");
   const login = (memberNick, memberPassword) =>
     fetch(`${server.api}/admin/login`, { method: "POST", redirect: "manual", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ memberNick, memberPassword }) });
   const ok = async (res) => res.status === 302 && (res.headers.get("set-cookie") || "").includes("connect.sid=");
-  const refused = async (res) => res.status === 200 && (await res.text()).includes("parol notoʻgʻri");
+  const refused = async (res) => res.status === 401 && (await res.text()).includes("parol notoʻgʻri");
 
   try {
     check("login page asks for email or username", (await (await fetch(`${server.api}/admin/login`)).text()).includes("Email yoki foydalanuvchi nomi"));
