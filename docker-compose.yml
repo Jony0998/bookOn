@@ -10,8 +10,11 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3005
+      APP_VERSION: ${APP_VERSION:-unknown}
+    # Only nginx (on this host) may reach the API: no plain-HTTP access from
+    # the internet, and X-Forwarded-For can't be forged past the rate limits
     ports:
-     - "3005:3005"
+     - "127.0.0.1:3005:3005"
     volumes:
       - bookon_uploads:/app/uploads
     networks:
