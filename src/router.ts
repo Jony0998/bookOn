@@ -45,6 +45,8 @@ router.get("/member/:memberId", memberController.getMemberPublic);
 
 router.get("/product/all", productController.getProducts);
 router.get("/product/suggest", productController.suggest);
+router.get("/product/recommended", memberController.retrieveAuth, productController.getRecommended);
+router.get("/product/:id/similar", productController.getSimilar);
 router.get("/product/like-check", memberController.retrieveAuth, productController.checkUserLiked);
 router.get("/product/liked", memberController.verifyAuth, productController.getLikedProducts);
 router.post(

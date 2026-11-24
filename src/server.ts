@@ -18,6 +18,7 @@ import server from "./app";
 import mongoose from "mongoose";
 import { mailConfigured } from "./libs/utils/mailer";
 import { BOOK_INDEX, ensureBookIndex } from "./libs/search/books-index";
+import { startRecommendationJob } from "./models/Recommendation.service";
 
 mongoose.set("strictQuery", true);
 
@@ -50,6 +51,9 @@ mongoose
     ensureBookIndex(data.connection.db)
       .then((r) => console.info(`Search index "${BOOK_INDEX}": ${r.action}, ${r.state}${r.detail ? ` (${r.detail})` : ""}`))
       .catch(() => {});
+
+    // "Similar books" / "for you": precomputed in the background every 6 hours
+    startRecommendationJob();
   })
   .catch((err) => {
     // Exit so PM2/Docker restarts us instead of running without a listener

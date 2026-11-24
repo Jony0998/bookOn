@@ -10,6 +10,7 @@ import { alertScript } from "../libs/utils/alert";
 import { parseProductInput } from "../libs/utils/product-input";
 import fs from "fs";
 import searchService from "../models/Search.service";
+import recommendationService from "../models/Recommendation.service";
 import { normalizeQuery } from "../libs/search/text";
 
 /** Remove uploaded images of a product that was not saved */
@@ -31,6 +32,40 @@ const productController: T = {};
 
 /** SPA */
 
+
+const recoLimit = (value: unknown) => Math.min(Math.max(Number(value) || 8, 1), 12);
+
+/** "Similar books" under a book page, each with the reason it is shown */
+productController.getSimilar = async (req: Request, res: Response) => {
+  try {
+    res.status(HttpCode.OK).json(await recommendationService.similar(req.params.id, recoLimit(req.query.limit)));
+  } catch (err) {
+    if (err instanceof Errors) res.status(err.code).json(err);
+    else res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
+/** "For you": reading history when signed in, plus books this browser viewed (?seeds=id,id) */
+productController.getRecommended = async (req: ExtendedRequest, res: Response) => {
+  try {
+    const result = await recommendationService.forReader(req.member ? String(req.member._id) : null, req.query.seeds, recoLimit(req.query.limit));
+    // { basis: "history" | "seeds" | "popular", items }
+    res.status(HttpCode.OK).json(result);
+  } catch (err) {
+    console.log("Error getRecommended", err);
+    res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
+/** Admin: recompute recommendations now (they also refresh every 6 hours) */
+productController.rebuildRecommendations = async (req: AdminRequest, res: Response) => {
+  try {
+    res.status(HttpCode.OK).json(await recommendationService.rebuild());
+  } catch (err) {
+    console.log("Error rebuildRecommendations", err);
+    res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
 
 /** As-you-type suggestions for the search box (up to 6 books) */
 productController.suggest = async (req: Request, res: Response) => {

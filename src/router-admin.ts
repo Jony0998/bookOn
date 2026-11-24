@@ -68,6 +68,8 @@ routerAdmin.post(
   productController.updateChosenProduct
 );
 
+  routerAdmin.post("/recommendations/rebuild", libraryController.verifyLibrary, productController.rebuildRecommendations);
+
   /** Order **/
 
   routerAdmin.get("/order/all", libraryController.verifyLibrary, libraryController.getOrders);
