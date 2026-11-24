@@ -17,6 +17,7 @@ import fs from "fs";
 import server from "./app";
 import mongoose from "mongoose";
 import { mailConfigured } from "./libs/utils/mailer";
+import { BOOK_INDEX, ensureBookIndex } from "./libs/search/books-index";
 
 mongoose.set("strictQuery", true);
 
@@ -43,6 +44,12 @@ mongoose
       console.info(`Admin at http://localhost:${PORT}/admin`);
       console.info(`Mail: ${mailConfigured() ? "enabled" : "not configured (emails are not sent)"}\n`);
     });
+
+    // Atlas Search index for the catalog: created/updated from code, in the
+    // background. Without Atlas Search the catalog uses the fallback search.
+    ensureBookIndex(data.connection.db)
+      .then((r) => console.info(`Search index "${BOOK_INDEX}": ${r.action}, ${r.state}${r.detail ? ` (${r.detail})` : ""}`))
+      .catch(() => {});
   })
   .catch((err) => {
     // Exit so PM2/Docker restarts us instead of running without a listener

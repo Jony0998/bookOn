@@ -9,6 +9,8 @@ import { parsePagination } from "../libs/types/config";
 import { alertScript } from "../libs/utils/alert";
 import { parseProductInput } from "../libs/utils/product-input";
 import fs from "fs";
+import searchService from "../models/Search.service";
+import { normalizeQuery } from "../libs/search/text";
 
 /** Remove uploaded images of a product that was not saved */
 const discardUploads = (files?: Express.Multer.File[]) =>
@@ -30,24 +32,51 @@ const productController: T = {};
 /** SPA */
 
 
+/** As-you-type suggestions for the search box (up to 6 books) */
+productController.suggest = async (req: Request, res: Response) => {
+  try {
+    const { items, engine } = await searchService.suggest(normalizeQuery(req.query.q));
+    res.setHeader("X-Search-Engine", engine);
+    res.setHeader("Cache-Control", "public, max-age=30");
+    res.status(HttpCode.OK).json(items);
+  } catch (err) {
+    console.log("Error suggest", err);
+    res.status(Errors.standard.code).json(Errors.standard);
+  }
+};
+
 productController.getProducts = async (req: Request, res: Response) => {
   try {
     console.log("getProducts");
     const {page, limit, order, productCollection, productLanguage, shelf, search} = req.query;
+    const requestedOrder = String(order ?? "");
     const inquiry: ProductInquiry = {
-      order: PRODUCT_SORT_FIELDS.includes(String(order)) ? String(order) : "createdAt",
+      order: PRODUCT_SORT_FIELDS.includes(requestedOrder) ? requestedOrder : "createdAt",
       ...parsePagination(page, limit, 8, 50),
     };
     // Unknown collections simply match nothing (older clients send legacy values)
     if (productCollection) inquiry.productCollection = String(productCollection) as ProductCollection;
-    if (search) inquiry.search = String(search).slice(0, 100);
     // Unknown values match nothing rather than erroring, like productCollection
     if (productLanguage) inquiry.productLanguage = String(productLanguage) as ProductLanguage;
     if (shelf) inquiry.shelf = String(shelf) as ProductShelf;
 
+    const query = normalizeQuery(search);
+    if (query) {
+      // A search is ranked by relevance unless the reader picked another order
+      const { items, engine } = await searchService.search({
+        query,
+        productCollection: inquiry.productCollection,
+        productLanguage: inquiry.productLanguage,
+        shelf: inquiry.shelf,
+        order: PRODUCT_SORT_FIELDS.includes(requestedOrder) ? requestedOrder : "relevance",
+        skip: (inquiry.page - 1) * inquiry.limit,
+        limit: inquiry.limit,
+      });
+      res.setHeader("X-Search-Engine", engine);
+      return res.status(HttpCode.OK).json(items);
+    }
+
     const result = await productService.getProducts(inquiry);
-    
-    
     res.status(HttpCode.OK).json(result);
   } catch (err) {
     console.log("Error getProducts", err);

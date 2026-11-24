@@ -6,6 +6,7 @@ import productController from "./controllers/product.controller";
 import orderController from "./controllers/order.controller";
 import articleController from "./controllers/article.controller";
 import inquiryController from "./controllers/inquiry.controller";
+import { accountLimiter, authLimiter } from "./libs/security";
 
 /** Root: redirect to admin panel */
 router.get("/", (req, res) => res.redirect("/admin"));
@@ -15,15 +16,15 @@ router.get("/", (req, res) => res.redirect("/admin"));
 router.get("/member/library", memberController.getLibrary
 )
 
-router.post("/member/login", memberController.login); // call
-router.post("/member/signup", memberController.signup); // call
+router.post("/member/login", authLimiter, memberController.login);
+router.post("/member/signup", accountLimiter, memberController.signup);
 // Logout must work even when the token is expired or missing
 router.post("/member/logout", memberController.logout);
-router.post("/member/verify-email", memberController.verifyEmail);
-router.post("/member/resend-verification", memberController.verifyAuth, memberController.resendVerification);
-router.post("/member/forgot-password", memberController.forgotPassword);
-router.post("/member/reset-password", memberController.resetPassword);
-router.post("/member/change-password", memberController.verifyAuth, memberController.changePassword);
+router.post("/member/verify-email", authLimiter, memberController.verifyEmail);
+router.post("/member/resend-verification", accountLimiter, memberController.verifyAuth, memberController.resendVerification);
+router.post("/member/forgot-password", accountLimiter, memberController.forgotPassword);
+router.post("/member/reset-password", authLimiter, memberController.resetPassword);
+router.post("/member/change-password", authLimiter, memberController.verifyAuth, memberController.changePassword);
 router.get(
   "/member/detail",
   memberController.verifyAuth,
@@ -43,6 +44,7 @@ router.get("/member/:memberId", memberController.getMemberPublic);
 /** Product **/
 
 router.get("/product/all", productController.getProducts);
+router.get("/product/suggest", productController.suggest);
 router.get("/product/like-check", memberController.retrieveAuth, productController.checkUserLiked);
 router.get("/product/liked", memberController.verifyAuth, productController.getLikedProducts);
 router.post(
